@@ -95,7 +95,11 @@ export default function CustomerManagement() {
     const loadToast = toast.loading(editingCustomer ? "Updating customer..." : "Adding customer...");
 
     try {
-      const payload = { ...formData };
+      const payload = { 
+        ...formData,
+        email: formData.email.trim() === '' ? null : formData.email.trim(),
+        address: formData.address.trim() === '' ? null : formData.address.trim()
+      };
 
       if (editingCustomer) {
         await axios.put(`/api/customers/${editingCustomer.id}`, payload);
@@ -109,7 +113,10 @@ export default function CustomerManagement() {
       fetchCustomers();
     } catch (error) {
       console.error("Failed to save customer", error);
-      toast.error("Failed to save customer. Please check connection.", { id: loadToast });
+      const errorMessage = error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).flat().join(' ')
+        : error.response?.data?.message || "Please check connection.";
+      toast.error(`Failed to save customer: ${errorMessage}`, { id: loadToast });
     }
   };
 

@@ -138,7 +138,10 @@ export default function PartsManagement() {
       fetchParts();
     } catch (error) {
       console.error("Failed to save part", error);
-      toast.error("Failed to save part. Please check connection.", { id: loadToast });
+      const errorMessage = error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).flat().join(' ')
+        : error.response?.data?.message || "Please check connection.";
+      toast.error(`Failed to save part: ${errorMessage}`, { id: loadToast });
     }
   };
 

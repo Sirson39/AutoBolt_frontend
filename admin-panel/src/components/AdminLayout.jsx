@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, Truck, Users, FileText,
+  LayoutDashboard, Package, Truck, Users, FileText, Car,
   BarChart2, Bell, LogOut, ShoppingCart
 } from 'lucide-react';
 
@@ -13,6 +13,7 @@ const navItems = [
   { to: '/vendors',  label: 'Vendor Management', icon: Truck },
   { label: 'Business', section: true },
   { to: '/customers', label: 'Customer Management', icon: Users },
+  { to: '/vehicles',  label: 'Vehicle Management',  icon: Car },
   { to: '/invoices', label: 'Purchase Invoices', icon: ShoppingCart },
   { label: 'Reports', section: true },
   { to: '/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },

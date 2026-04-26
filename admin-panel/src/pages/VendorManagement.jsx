@@ -9,7 +9,7 @@ const HighlightText = ({ text, highlight }) => {
   const parts = text.toString().split(regex);
   return (
     <span>
-      {parts.map((part, i) => 
+      {parts.map((part, i) =>
         regex.test(part) ? <mark key={i} className="highlight">{part}</mark> : <span key={i}>{part}</span>
       )}
     </span>
@@ -21,11 +21,11 @@ export default function VendorManagement() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('list');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  
+
   // Modals and Panels
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
@@ -103,7 +103,7 @@ export default function VendorManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name) {
       toast.error("Vendor Name is required.");
       return;
@@ -114,11 +114,11 @@ export default function VendorManagement() {
     try {
       const payload = new FormData();
       payload.append('name', formData.name);
-      payload.append('contactPerson', formData.contactPerson || '');
-      payload.append('email', formData.email || '');
-      payload.append('phone', formData.phone || '');
-      payload.append('address', formData.address || '');
-      
+      if (formData.contactPerson?.trim()) payload.append('contactPerson', formData.contactPerson.trim());
+      if (formData.email?.trim()) payload.append('email', formData.email.trim());
+      if (formData.phone?.trim()) payload.append('phone', formData.phone.trim());
+      if (formData.address?.trim()) payload.append('address', formData.address.trim());
+
       if (fileInputRef.current?.files[0]) {
         payload.append('logo', fileInputRef.current.files[0]);
       }
@@ -132,12 +132,15 @@ export default function VendorManagement() {
         await axios.post('/api/vendors', payload, config);
         toast.success("New vendor added!", { id: loadToast });
       }
-      
+
       closeModal();
       fetchVendors();
     } catch (error) {
       console.error("Failed to save vendor", error);
-      toast.error("Failed to save vendor. Please check connection.", { id: loadToast });
+      const errorMessage = error.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(' ')
+        : error.response?.data?.message || "Please check connection.";
+      toast.error(`Failed to save vendor: ${errorMessage}`, { id: loadToast });
     }
   };
 
@@ -154,8 +157,8 @@ export default function VendorManagement() {
     }
   };
 
-  const filteredVendors = vendors.filter(v => 
-    v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredVendors = vendors.filter(v =>
+    v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (v.contactPerson && v.contactPerson.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (v.email && v.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -184,9 +187,9 @@ export default function VendorManagement() {
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
-              <input 
-                type="text" 
-                placeholder="Search vendors by name, contact, or email..." 
+              <input
+                type="text"
+                placeholder="Search vendors by name, contact, or email..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -199,15 +202,15 @@ export default function VendorManagement() {
                 Total: {filteredVendors.length} {filteredVendors.length === 1 ? 'vendor' : 'vendors'}
               </div>
               <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)' }}>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setViewMode('list')}
                   style={{ padding: '0.4rem', background: viewMode === 'list' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
                 >
                   <List size={16} />
                 </button>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setViewMode('grid')}
                   style={{ padding: '0.4rem', background: viewMode === 'grid' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
                 >
@@ -241,8 +244,8 @@ export default function VendorManagement() {
                     <tr key={vendor.id} style={{ transition: 'all 0.2s ease' }}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                          <div style={{ 
-                            width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', 
+                          <div style={{
+                            width: '40px', height: '40px', borderRadius: 'var(--radius-sm)',
                             background: 'var(--surface-2)', border: '1px solid var(--border)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
                           }}>
@@ -348,8 +351,8 @@ export default function VendorManagement() {
                 Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredVendors.length)} of {filteredVendors.length} entries
               </span>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 >
@@ -358,8 +361,8 @@ export default function VendorManagement() {
                 <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
                   Page {currentPage} of {totalPages}
                 </div>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
                 >
@@ -387,8 +390,8 @@ export default function VendorManagement() {
                   <img src={`http://localhost:5098${viewingVendor.logoUrl}`} alt={viewingVendor.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                 ) : (
                   <>
-                    <div style={{ 
-                      width: '80px', height: '80px', borderRadius: '50%', 
+                    <div style={{
+                      width: '80px', height: '80px', borderRadius: '50%',
                       background: 'var(--brand)', color: '#fff', fontSize: '2rem',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: '800', marginBottom: '1rem',
                       boxShadow: '0 10px 30px rgba(217, 93, 57, 0.3)'
@@ -401,13 +404,13 @@ export default function VendorManagement() {
               <h2 style={{ fontSize: '1.6rem', fontFamily: 'Sora, sans-serif', color: 'var(--ink)', textAlign: 'center', marginBottom: '1.5rem' }}>
                 {viewingVendor.name}
               </h2>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
                   <label className="form-label">Contact Person</label>
                   <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--ink)' }}>{viewingVendor.contactPerson || 'N/A'}</div>
                 </div>
-                
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
                     <label className="form-label">Email</label>
@@ -433,11 +436,11 @@ export default function VendorManagement() {
                   </p>
                 </div>
               </div>
-              
+
               <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem' }}>
-                 <button className="btn btn-primary" onClick={() => { setViewingVendor(null); openEditModal(viewingVendor); }} style={{ flex: 1, justifyContent: 'center' }}>
-                   <Edit2 size={16} /> Edit Vendor
-                 </button>
+                <button className="btn btn-primary" onClick={() => { setViewingVendor(null); openEditModal(viewingVendor); }} style={{ flex: 1, justifyContent: 'center' }}>
+                  <Edit2 size={16} /> Edit Vendor
+                </button>
               </div>
             </div>
           </div>
@@ -448,10 +451,10 @@ export default function VendorManagement() {
       {deleteConfirmId && (
         <div className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
-            <div style={{ 
-              width: '48px', height: '48px', borderRadius: '50%', background: 'var(--danger-light)', 
-              color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              margin: '0 auto 1rem' 
+            <div style={{
+              width: '48px', height: '48px', borderRadius: '50%', background: 'var(--danger-light)',
+              color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1rem'
             }}>
               <AlertCircle size={24} />
             </div>
@@ -477,18 +480,18 @@ export default function VendorManagement() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '1.5rem', marginBottom: '1rem' }}>
                 <div>
                   <div className="form-group">
                     <label className="form-label">Vendor Company Name *</label>
-                    <input 
-                      type="text" 
-                      name="name" 
-                      className="form-input" 
-                      value={formData.name} 
-                      onChange={handleInputChange} 
+                    <input
+                      type="text"
+                      name="name"
+                      className="form-input"
+                      value={formData.name}
+                      onChange={handleInputChange}
                       placeholder="e.g. Bosch Auto Parts"
                       autoFocus
                     />
@@ -496,29 +499,29 @@ export default function VendorManagement() {
 
                   <div className="form-group">
                     <label className="form-label">Contact Person</label>
-                    <input 
-                      type="text" 
-                      name="contactPerson" 
-                      className="form-input" 
-                      value={formData.contactPerson} 
-                      onChange={handleInputChange} 
-                      placeholder="e.g. Jane Doe"
+                    <input
+                      type="text"
+                      name="contactPerson"
+                      className="form-input"
+                      value={formData.contactPerson}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Bishnu Parajuli"
                     />
                   </div>
                 </div>
-                
+
                 {/* Logo Upload Area */}
                 <div className="form-group">
                   <label className="form-label">Company Logo</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    ref={fileInputRef} 
-                    onChange={handleImageChange} 
-                    style={{ display: 'none' }} 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    style={{ display: 'none' }}
                   />
-                  <div 
-                    className="image-upload-box" 
+                  <div
+                    className="image-upload-box"
                     onClick={() => fileInputRef.current.click()}
                     style={{ padding: logoPreview || editingVendor?.logoUrl ? '0' : '1.5rem', overflow: 'hidden' }}
                   >
@@ -541,27 +544,27 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    className="form-input" 
-                    value={formData.email} 
-                    onChange={handleInputChange} 
+                  <input
+                    type="email"
+                    name="email"
+                    className="form-input"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="contact@vendor.com"
                   />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Phone Number</label>
-                  <input 
-                    type="text" 
-                    name="phone" 
-                    className="form-input" 
-                    value={formData.phone} 
-                    onChange={handleInputChange} 
+                  <input
+                    type="text"
+                    name="phone"
+                    className="form-input"
+                    value={formData.phone}
+                    onChange={handleInputChange}
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
@@ -569,11 +572,11 @@ export default function VendorManagement() {
 
               <div className="form-group">
                 <label className="form-label">Physical Address</label>
-                <textarea 
-                  name="address" 
-                  className="form-input" 
-                  rows="2" 
-                  value={formData.address} 
+                <textarea
+                  name="address"
+                  className="form-input"
+                  rows="2"
+                  value={formData.address}
                   onChange={handleInputChange}
                   placeholder="Full business address..."
                 />

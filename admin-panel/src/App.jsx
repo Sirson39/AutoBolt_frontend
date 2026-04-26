@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import PartsManagement from './pages/PartsManagement';
 import VendorManagement from './pages/VendorManagement';
 import CustomerManagement from './pages/CustomerManagement';
+import VehicleManagement from './pages/VehicleManagement';
 import './index.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="parts" element={<PartsManagement />} />
           <Route path="vendors" element={<VendorManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
+          <Route path="vehicles" element={<VehicleManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
