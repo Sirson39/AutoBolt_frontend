@@ -6,18 +6,18 @@ import {
 
 const navItems = [
   { label: 'Overview', section: true },
-  { to: '/dashboard',  label: 'Dashboard',        icon: LayoutDashboard },
-  { to: '/notifications', label: 'Notifications', icon: Bell },
+  { to: '/admin/dashboard',  label: 'Dashboard',        icon: LayoutDashboard },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell },
   { label: 'Inventory', section: true },
-  { to: '/parts',    label: 'Parts Management', icon: Package },
-  { to: '/vendors',  label: 'Vendor Management', icon: Truck },
+  { to: '/admin/parts',    label: 'Parts Management', icon: Package },
+  { to: '/admin/vendors',  label: 'Vendor Management', icon: Truck },
   { label: 'Business', section: true },
-  { to: '/customers', label: 'Customer Management', icon: Users },
-  { to: '/vehicles',  label: 'Vehicle Management',  icon: Car },
-  { to: '/invoices', label: 'Purchase Invoices', icon: ShoppingCart },
+  { to: '/admin/customers', label: 'Customer Management', icon: Users },
+  { to: '/admin/vehicles',  label: 'Vehicle Management',  icon: Car },
+  { to: '/admin/sales',     label: 'Sales & Invoices',    icon: ShoppingCart },
   { label: 'Reports', section: true },
-  { to: '/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
-  { to: '/financial-report',  label: 'Financial Report',  icon: FileText },
+  { to: '/admin/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
+  { to: '/admin/financial-report',  label: 'Financial Report',  icon: FileText },
 ];
 
 export default function AdminLayout() {

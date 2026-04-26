@@ -6,6 +6,8 @@ import PartsManagement from './pages/PartsManagement';
 import VendorManagement from './pages/VendorManagement';
 import CustomerManagement from './pages/CustomerManagement';
 import VehicleManagement from './pages/VehicleManagement';
+import SalesManagement from './pages/SalesManagement';
+import CreateInvoice from './pages/CreateInvoice';
 import './index.css';
 
 function App() {
@@ -13,14 +15,18 @@ function App() {
     <BrowserRouter>
       <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
       <Routes>
-        <Route path="/" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="parts" element={<PartsManagement />} />
           <Route path="vendors" element={<VendorManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="vehicles" element={<VehicleManagement />} />
+          <Route path="sales" element={<SalesManagement />} />
+          <Route path="create-invoice" element={<CreateInvoice />} />
         </Route>
+        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
