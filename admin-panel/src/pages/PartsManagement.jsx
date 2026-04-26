@@ -223,14 +223,29 @@ export default function PartsManagement() {
                   {currentParts.map(part => (
                     <tr key={part.id} style={{ transition: 'all 0.2s ease' }}>
                       <td>
-                        <div style={{ fontWeight: '700', color: 'var(--ink)' }}>
-                          <HighlightText text={part.name} highlight={searchQuery} />
-                        </div>
-                        {part.description && (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '2px' }}>
-                            {part.description.length > 40 ? part.description.substring(0, 40) + '...' : part.description}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{ 
+                            width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', 
+                            background: 'var(--surface-2)', border: '1px solid var(--border)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
+                          }}>
+                            {part.imageUrl ? (
+                              <img src={`http://localhost:5098${part.imageUrl}`} alt={part.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <Package size={20} style={{ color: 'var(--ink-soft)', opacity: 0.6 }} />
+                            )}
                           </div>
-                        )}
+                          <div>
+                            <div style={{ fontWeight: '700', color: 'var(--ink)' }}>
+                              <HighlightText text={part.name} highlight={searchQuery} />
+                            </div>
+                            {part.description && (
+                              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '2px' }}>
+                                {part.description.length > 40 ? part.description.substring(0, 40) + '...' : part.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td>
                         <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--ink-soft)' }}>
