@@ -1,0 +1,235 @@
+:root {
+    --bg: #f6f2ea;
+    --ink: #1f2937;
+    --muted: #5f6b7a;
+    --card: #fffefb;
+    --line: rgba(31, 41, 55, 0.14);
+    --primary: #2563eb;
+    --primary-deep: #1d4ed8;
+    --star: #f59e0b;
+    --ok: #166534;
+    --error: #b91c1c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+    background: radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.14), transparent 35%), var(--bg);
+    color: var(--ink);
+}
+
+.header {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand,
+.back {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.brand {
+    font-family: "Lexend", "Segoe UI", sans-serif;
+}
+
+.shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0.7rem 1rem 1.4rem;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1rem;
+}
+
+.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(31, 41, 55, 0.08);
+}
+
+.review-panel {
+    padding: 1.2rem;
+}
+
+.label {
+    margin: 0;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+h1 {
+    margin: 0.5rem 0 0.35rem;
+    font-family: "Lexend", "Segoe UI", sans-serif;
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+}
+
+.subtitle {
+    margin: 0 0 1rem;
+    color: var(--muted);
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    margin-top: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.65rem 0.72rem;
+    font: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.ratings p {
+    margin: 0 0 0.45rem;
+    font-weight: 700;
+}
+
+.stars {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+}
+
+.star-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    color: #c7cdd7;
+    cursor: pointer;
+    font-size: 1.05rem;
+}
+
+.star-btn.active {
+    color: var(--star);
+    border-color: rgba(245, 158, 11, 0.5);
+    background: rgba(245, 158, 11, 0.11);
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.checkbox-row input {
+    width: auto;
+    margin: 0;
+}
+
+.actions {
+    margin-top: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
+}
+
+.btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.62rem 1rem;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-deep);
+}
+
+.btn-light {
+    background: #ffffff;
+    border: 1px solid var(--line);
+}
+
+.message {
+    min-height: 1.25rem;
+    margin-top: 0.7rem;
+    font-weight: 700;
+}
+
+.message.ok {
+    color: var(--ok);
+}
+
+.message.error {
+    color: var(--error);
+}
+
+.score-panel {
+    padding: 1.1rem;
+}
+
+.score-panel h2 {
+    margin-top: 0;
+    font-family: "Lexend", "Segoe UI", sans-serif;
+}
+
+.score {
+    margin: 0.4rem 0 0;
+    font-size: 2.2rem;
+    font-family: "Lexend", "Segoe UI", sans-serif;
+}
+
+.score-caption {
+    margin: 0.2rem 0 0.8rem;
+    color: var(--muted);
+}
+
+.score-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.score-panel li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.62rem 0;
+    border-bottom: 1px dashed var(--line);
+}
+
+.score-panel span {
+    color: var(--muted);
+}
+
+@media (max-width: 920px) {
+    .shell {
+        grid-template-columns: 1fr;
+    }
+}
