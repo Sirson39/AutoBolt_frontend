@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\source\\repos\\AutoBolt_Frontend\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj": {}
+    "C:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\source\\repos\\AutoBolt_Frontend\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj": {
+    "C:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\source\\repos\\AutoBolt_Frontend\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj",
+        "projectUniqueName": "C:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj",
         "projectName": "AutoBolt_Frontend",
-        "projectPath": "C:\\Users\\User\\source\\repos\\AutoBolt_Frontend\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\source\\repos\\AutoBolt_Frontend\\AutoBolt_Frontend\\obj\\",
+        "projectPath": "C:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\AutoBolt_Frontend.csproj",
+        "packagesPath": "c:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\.dotnet-home\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\OneDrive - islingtoncollege.edu.np\\Desktop\\AutoBolt_Frontend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
