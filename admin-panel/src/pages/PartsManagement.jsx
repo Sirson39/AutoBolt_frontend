@@ -336,16 +336,16 @@ export default function PartsManagement() {
                           <span className="badge badge-brand" style={{ fontSize: '0.7rem' }}>{part.category}</span>
                         </div>
                         {part.description && (
-                          <p style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', margin: '0.5rem 0 0', lineHeight: '1.4' }}>
-                            {part.description.length > 60 ? part.description.substring(0, 60) + '...' : part.description}
+                          <p style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', margin: '0.25rem 0 0', lineHeight: '1.3' }}>
+                            {part.description.length > 40 ? part.description.substring(0, 40) + '...' : part.description}
                           </p>
                         )}
                       </div>
-                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--ink)', marginTop: 'auto', paddingTop: '1rem' }}>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--ink)', marginTop: 'auto', paddingTop: '0.5rem' }}>
                         Rs {part.price.toFixed(2)}
                       </div>
-                      <div style={{ marginTop: '1rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '4px' }}>
                           <span style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Stock Level</span>
                           <span style={{ fontWeight: '800', color: part.stockQuantity <= 0 ? 'var(--danger)' : part.stockQuantity < 10 ? 'var(--warning)' : 'var(--success)' }}>
                             {part.stockQuantity} units
