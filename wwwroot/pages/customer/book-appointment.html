@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Book Appointment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-book-appointment.css" />
+</head>
+<body>
+    <div class="orb orb-left"></div>
+    <div class="orb orb-right"></div>
+
+    <header class="page-header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <a class="back-link" href="customer-dashboard.html">Back to Dashboard</a>
+    </header>
+
+    <main class="layout">
+        <section class="panel appointment-panel">
+            <p class="kicker">Feature 13</p>
+            <h1>Book Service Appointment</h1>
+            <p class="lead">
+                Select a service, choose your slot, and submit your request instantly.
+            </p>
+
+            <form id="appointmentForm" novalidate>
+                <div class="field-grid">
+                    <label>
+                        Customer Name
+                        <input type="text" id="customerName" name="customerName" placeholder="Enter full name" required />
+                    </label>
+
+                    <label>
+                        Phone Number
+                        <input type="tel" id="phone" name="phone" placeholder="98XXXXXXXX" pattern="^9[0-9]{9}$" required />
+                    </label>
+
+                    <label>
+                        Vehicle Number
+                        <input type="text" id="vehicleNo" name="vehicleNo" placeholder="BA-12-PA-1234" required />
+                    </label>
+
+                    <label>
+                        Preferred Date
+                        <input type="date" id="appointmentDate" name="appointmentDate" required />
+                    </label>
+
+                    <label>
+                        Preferred Time
+                        <select id="appointmentTime" name="appointmentTime" required>
+                            <option value="">Select Time</option>
+                            <option value="09:00">09:00 AM</option>
+                            <option value="10:30">10:30 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="14:30">02:30 PM</option>
+                            <option value="16:00">04:00 PM</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Service Type
+                        <select id="serviceType" name="serviceType" required>
+                            <option value="">Select Service</option>
+                            <option value="general" data-price="2500">General Service</option>
+                            <option value="engine" data-price="6200">Engine Inspection</option>
+                            <option value="brake" data-price="4300">Brake Service</option>
+                            <option value="electrical" data-price="5600">Electrical Diagnostics</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="full-width">
+                    Additional Notes
+                    <textarea id="notes" name="notes" rows="4" placeholder="Describe symptoms or special requests"></textarea>
+                </label>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Confirm Appointment</button>
+                    <button type="reset" class="btn btn-ghost">Reset Form</button>
+                </div>
+                <p id="formMessage" class="form-message" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <aside class="panel summary-panel">
+            <h2>Booking Summary</h2>
+            <ul>
+                <li><span>Estimated Cost</span><strong id="estimatedCost">Rs 0</strong></li>
+                <li><span>Loyalty Discount</span><strong id="loyaltyDiscount">Not Eligible</strong></li>
+                <li><span>Net Amount</span><strong id="netAmount">Rs 0</strong></li>
+            </ul>
+            <p class="note">
+                Loyalty rule: 10% discount applies when a single service purchase is above Rs 5000.
+            </p>
+            <div class="slots">
+                <h3>Today&apos;s Live Slots</h3>
+                <p id="slotInfo">Checking available slots...</p>
+            </div>
+        </aside>
+    </main>
+
+    <script src="../../assets/js/customer-book-appointment.js"></script>
+</body>
+</html>
