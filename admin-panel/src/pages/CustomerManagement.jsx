@@ -168,7 +168,7 @@ export default function CustomerManagement() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Total: {filteredCustomers.length} customers
+                Total: {filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
               </div>
               <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)' }}>
                 <button

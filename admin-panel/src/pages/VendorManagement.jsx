@@ -196,7 +196,7 @@ export default function VendorManagement() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Total: {filteredVendors.length} vendors
+                Total: {filteredVendors.length} {filteredVendors.length === 1 ? 'vendor' : 'vendors'}
               </div>
               <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)' }}>
                 <button 
