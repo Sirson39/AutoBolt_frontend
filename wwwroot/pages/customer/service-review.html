@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Service Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-service-review.css" />
+</head>
+<body>
+    <header class="header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <a class="back" href="customer-dashboard.html">Back</a>
+    </header>
+
+    <main class="shell">
+        <section class="panel review-panel">
+            <p class="label">Feature 13</p>
+            <h1>Service Review</h1>
+            <p class="subtitle">Share your service feedback to help us improve quality and turnaround time.</p>
+
+            <form id="reviewForm" novalidate>
+                <label>
+                    Invoice Number
+                    <input type="text" id="invoiceNo" required placeholder="INV-2026-0043" />
+                </label>
+
+                <label>
+                    Service Category
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option value="general">General Service</option>
+                        <option value="repair">Repair and Diagnostics</option>
+                        <option value="parts">Parts Replacement</option>
+                        <option value="body">Body and Paint</option>
+                    </select>
+                </label>
+
+                <div class="ratings">
+                    <p>Rate the service</p>
+                    <div class="stars" id="starGroup" role="radiogroup" aria-label="Service rating"></div>
+                </div>
+
+                <label>
+                    Comment
+                    <textarea id="comment" rows="4" required placeholder="Tell us what went well and what could improve"></textarea>
+                </label>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" id="allowPublish" />
+                    Allow this feedback to be shown publicly as testimonial.
+                </label>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                    <button type="reset" class="btn btn-light">Reset</button>
+                </div>
+                <p id="reviewMessage" class="message" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <aside class="panel score-panel">
+            <h2>Review Snapshot</h2>
+            <p class="score" id="scoreValue">0.0</p>
+            <p class="score-caption" id="scoreCaption">No rating selected</p>
+            <ul>
+                <li><span>Recommended Follow-up</span><strong id="followup">Pending review</strong></li>
+                <li><span>Loyalty Bonus Points</span><strong id="bonus">0</strong></li>
+            </ul>
+        </aside>
+    </main>
+
+    <script src="../../assets/js/customer-service-review.js"></script>
+</body>
+</html>
