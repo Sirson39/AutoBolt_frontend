@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Request Unavailable Part</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-request-part.css" />
+</head>
+<body>
+    <header class="topbar">
+        <a href="customer-dashboard.html" class="brand">AutoBolt Customer</a>
+        <a href="customer-dashboard.html" class="back">Dashboard</a>
+    </header>
+
+    <main class="page">
+        <section class="card form-card">
+            <p class="feature-label">Feature 13</p>
+            <h1>Request Unavailable Part</h1>
+            <p class="subtitle">Submit your part requirement and get notified when stock is available.</p>
+
+            <form id="partRequestForm" novalidate>
+                <div class="grid">
+                    <label>
+                        Full Name
+                        <input type="text" id="fullName" required placeholder="Enter full name" />
+                    </label>
+                    <label>
+                        Contact Number
+                        <input type="tel" id="contact" required pattern="^9[0-9]{9}$" placeholder="98XXXXXXXX" />
+                    </label>
+                    <label>
+                        Vehicle Number
+                        <input type="text" id="vehicleNumber" required placeholder="BA-12-PA-1234" />
+                    </label>
+                    <label>
+                        Vehicle Brand
+                        <select id="brand" required>
+                            <option value="">Select brand</option>
+                            <option value="toyota">Toyota</option>
+                            <option value="honda">Honda</option>
+                            <option value="hyundai">Hyundai</option>
+                            <option value="ford">Ford</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </label>
+                    <label>
+                        Part Name
+                        <input type="text" id="partName" required placeholder="Example: Front Brake Pad" />
+                    </label>
+                    <label>
+                        Quantity
+                        <input type="number" id="quantity" min="1" max="10" value="1" required />
+                    </label>
+                </div>
+
+                <label>
+                    Urgency
+                    <select id="urgency" required>
+                        <option value="">Select urgency</option>
+                        <option value="standard">Standard (3-5 days)</option>
+                        <option value="priority">Priority (1-2 days)</option>
+                    </select>
+                </label>
+
+                <label>
+                    Notes
+                    <textarea id="notes" rows="4" placeholder="Any specific model code or OEM requirement"></textarea>
+                </label>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Submit Part Request</button>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </div>
+                <p id="requestMessage" class="message" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <aside class="card meta-card">
+            <h2>Request Insight</h2>
+            <ul>
+                <li><span>Estimated Lead Time</span><strong id="leadTime">-</strong></li>
+                <li><span>Shipping Charge</span><strong id="shipping">Rs 0</strong></li>
+                <li><span>Priority Level</span><strong id="priorityTag">Not selected</strong></li>
+            </ul>
+            <p class="tip">Tip: Priority requests can be grouped with stock restock workflow for faster processing.</p>
+        </aside>
+    </main>
+
+    <script src="../../assets/js/customer-request-part.js"></script>
+</body>
+</html>
