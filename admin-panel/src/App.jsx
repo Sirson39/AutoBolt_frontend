@@ -4,6 +4,7 @@ import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import PartsManagement from './pages/PartsManagement';
 import VendorManagement from './pages/VendorManagement';
+import CustomerManagement from './pages/CustomerManagement';
 import './index.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="parts" element={<PartsManagement />} />
           <Route path="vendors" element={<VendorManagement />} />
+          <Route path="customers" element={<CustomerManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
