@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "AutoBolt_Frontend/1.0.0": {
+        "runtime": {
+          "AutoBolt_Frontend.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "AutoBolt_Frontend/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

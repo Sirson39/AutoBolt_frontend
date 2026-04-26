@@ -1,0 +1,23 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AdminLayout from './components/AdminLayout';
+import Dashboard from './pages/Dashboard';
+import PartsManagement from './pages/PartsManagement';
+import VendorManagement from './pages/VendorManagement';
+import './index.css';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="parts" element={<PartsManagement />} />
+          <Route path="vendors" element={<VendorManagement />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
