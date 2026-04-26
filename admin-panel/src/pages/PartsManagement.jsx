@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon } from 'lucide-react';
+import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -20,6 +20,7 @@ export default function PartsManagement() {
   const [parts, setParts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('list');
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -193,8 +194,26 @@ export default function PartsManagement() {
                 }}
               />
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-              Total: {filteredParts.length} items
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Total: {filteredParts.length} items
+              </div>
+              <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setViewMode('list')}
+                  style={{ padding: '0.4rem', background: viewMode === 'list' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+                >
+                  <List size={16} />
+                </button>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setViewMode('grid')}
+                  style={{ padding: '0.4rem', background: viewMode === 'grid' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+                >
+                  <LayoutGrid size={16} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -207,7 +226,7 @@ export default function PartsManagement() {
                 <h3>No parts found</h3>
                 <p>Try adjusting your search or add a new part.</p>
               </div>
-            ) : (
+            ) : viewMode === 'list' ? (
               <table>
                 <thead>
                   <tr>
@@ -299,6 +318,58 @@ export default function PartsManagement() {
                   ))}
                 </tbody>
               </table>
+            ) : (
+              <div className="grid-view">
+                {currentParts.map(part => (
+                  <div key={part.id} className="grid-card">
+                    <div className="grid-card-image">
+                      {part.imageUrl ? (
+                        <img src={`http://localhost:5098${part.imageUrl}`} alt={part.name} />
+                      ) : (
+                        <Package size={48} style={{ color: 'var(--ink-soft)', opacity: 0.3 }} />
+                      )}
+                    </div>
+                    <div className="grid-card-body">
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                          <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--ink)' }}><HighlightText text={part.name} highlight={searchQuery} /></h4>
+                          <span className="badge badge-brand" style={{ fontSize: '0.7rem' }}>{part.category}</span>
+                        </div>
+                        {part.description && (
+                          <p style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', margin: '0.5rem 0 0', lineHeight: '1.4' }}>
+                            {part.description.length > 60 ? part.description.substring(0, 60) + '...' : part.description}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--ink)', marginTop: 'auto', paddingTop: '1rem' }}>
+                        Rs {part.price.toFixed(2)}
+                      </div>
+                      <div style={{ marginTop: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
+                          <span style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Stock Level</span>
+                          <span style={{ fontWeight: '800', color: part.stockQuantity <= 0 ? 'var(--danger)' : part.stockQuantity < 10 ? 'var(--warning)' : 'var(--success)' }}>
+                            {part.stockQuantity} units
+                          </span>
+                        </div>
+                        <div style={{ width: '100%', height: '6px', background: 'var(--surface-2)', borderRadius: '999px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${Math.min((part.stockQuantity / 100) * 100, 100)}%`, background: part.stockQuantity <= 0 ? 'var(--danger)' : part.stockQuantity < 10 ? 'var(--warning)' : 'var(--success)' }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid-card-footer">
+                      <button className="btn btn-ghost btn-sm" onClick={() => setViewingPart(part)} title="View Details">
+                        <Eye size={16} color="var(--brand)" />
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(part)} title="Edit Part">
+                        <Edit2 size={16} />
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirmId(part.id)} style={{ color: 'var(--danger)' }} title="Delete Part">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
           {filteredParts.length > 0 && (
@@ -467,10 +538,18 @@ export default function PartsManagement() {
                   <div 
                     className="image-upload-box" 
                     onClick={() => fileInputRef.current.click()}
-                    style={{ padding: imagePreview ? '0' : '1.5rem', overflow: 'hidden' }}
+                    style={{ padding: imagePreview || editingPart?.imageUrl ? '0' : '1.5rem', overflow: 'hidden' }}
                   >
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="image-preview" />
+                    ) : editingPart?.imageUrl ? (
+                      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <img src={`http://localhost:5098${editingPart.imageUrl}`} alt="Current Part" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: 0, transition: 'opacity 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+                          <ImageIcon size={24} style={{ marginBottom: '0.25rem' }} />
+                          <span style={{ fontSize: '0.75rem', fontWeight: '600' }}>Replace Photo</span>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <ImageIcon size={32} color="var(--ink-soft)" style={{ opacity: 0.5 }} />
