@@ -4,12 +4,13 @@ import {
   CheckCircle, ChevronLeft, Search, 
   Hash, Calendar, FileText, Printer, X
 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
 export default function CreatePurchaseInvoice() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [vendors, setVendors] = useState([]);
   const [parts, setParts] = useState([]);
@@ -35,12 +36,22 @@ export default function CreatePurchaseInvoice() {
         ]);
         setVendors(vendRes.data);
         setParts(partRes.data);
+
+        // Auto-add part if navigated from low stock alert (silently, no extra toast)
+        const preSelectedPart = location.state?.preSelectedPart;
+        if (preSelectedPart) {
+          const matchedPart = partRes.data.find(p => p.id === preSelectedPart.id);
+          if (matchedPart) {
+            setCart([{ ...matchedPart, quantity: 10, unitCost: matchedPart.price * 0.7 }]);
+            // No toast here — user already sees the part in the cart
+          }
+        }
       } catch (error) {
         toast.error("Failed to load setup data.");
       }
     };
     fetchData();
-  }, []);
+  }, [location.state]);
 
   const addToCart = (part) => {
     const existing = cart.find(item => item.id === part.id);
@@ -299,8 +310,11 @@ export default function CreatePurchaseInvoice() {
 
           <button 
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
-            disabled={loading || cart.length === 0 || !selectedVendor}
+            style={{ 
+              width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center',
+              opacity: loading ? 0.7 : 1
+            }}
+            disabled={loading}
             onClick={handleSavePurchase}
           >
             {loading ? <div className="spinner" /> : <><CheckCircle size={20} style={{ marginRight: '8px' }} /> COMPLETE PURCHASE</>}

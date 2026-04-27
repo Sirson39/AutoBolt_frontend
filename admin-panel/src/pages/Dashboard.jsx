@@ -1,6 +1,7 @@
 import { Package, Users, TrendingUp, AlertTriangle, ShoppingCart, Truck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const statDefs = [
   { key: 'totalParts',     label: 'Total Parts',      icon: Package,      theme: 'brand'  },
@@ -41,6 +42,7 @@ export default function Dashboard() {
       <header className="top-header">
         <span className="page-title">Dashboard</span>
         <div className="header-actions">
+          <NotificationDropdown />
           <div className="avatar">A</div>
         </div>
       </header>

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim()) return <span>{text}</span>;
@@ -81,6 +82,7 @@ export default function SalesManagement() {
           <span className="page-title">Sales & Invoices</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Sales_History')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>

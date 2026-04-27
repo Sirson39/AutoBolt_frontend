@@ -3,6 +3,7 @@ import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight.trim() || !text) return <span>{text}</span>;
@@ -177,6 +178,7 @@ export default function PartsManagement() {
           <span className="page-title">Parts & Inventory</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(parts, 'Parts_Inventory')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>

@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -154,6 +155,7 @@ export default function StaffManagement() {
           <span className="page-title">Staff Management</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={handleExport}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>

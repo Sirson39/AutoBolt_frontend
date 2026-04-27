@@ -12,6 +12,8 @@ import FinancialReports from './pages/FinancialReports';
 import StaffManagement from './pages/StaffManagement';
 import PurchaseManagement from './pages/PurchaseManagement';
 import CreatePurchaseInvoice from './pages/CreatePurchaseInvoice';
+import Notifications from './pages/Notifications';
+import InventoryReport from './pages/InventoryReport';
 import './index.css';
 
 function App() {
@@ -22,6 +24,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="notifications" element={<Notifications />} />
           <Route path="parts" element={<PartsManagement />} />
           <Route path="vendors" element={<VendorManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
@@ -30,6 +33,7 @@ function App() {
           <Route path="purchase" element={<PurchaseManagement />} />
           <Route path="create-purchase" element={<CreatePurchaseInvoice />} />
           <Route path="create-invoice" element={<CreateInvoice />} />
+          <Route path="inventory-report" element={<InventoryReport />} />
           <Route path="reports" element={<FinancialReports />} />
           <Route path="staff" element={<StaffManagement />} />
         </Route>

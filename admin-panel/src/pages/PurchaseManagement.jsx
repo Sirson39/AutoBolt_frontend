@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim()) return <span>{text}</span>;
@@ -69,6 +70,7 @@ export default function PurchaseManagement() {
           <span className="page-title">Purchase Management</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Purchase_History')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>

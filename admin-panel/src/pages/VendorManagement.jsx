@@ -3,6 +3,7 @@ import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phon
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -177,6 +178,7 @@ export default function VendorManagement() {
           <span className="page-title">Vendor Management</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(vendors, 'Vendors_List')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>

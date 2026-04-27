@@ -11,6 +11,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 export default function FinancialReports() {
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ export default function FinancialReports() {
           <span className="page-title">Financial Analytics</span>
         </div>
         <div className="header-actions">
+          <NotificationDropdown />
           <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
             {['daily', 'monthly', 'yearly'].map(p => (
               <button

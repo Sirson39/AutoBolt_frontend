@@ -1,13 +1,16 @@
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
   BarChart2, Bell, LogOut, ShoppingCart
 } from 'lucide-react';
+import axios from 'axios';
+import NotificationDropdown from './NotificationDropdown';
 
 const navItems = [
   { label: 'Overview', section: true },
   { to: '/admin/dashboard',  label: 'Dashboard',        icon: LayoutDashboard },
-  { to: '/admin/notifications', label: 'Notifications', icon: Bell },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell, isNotification: true },
   { label: 'Inventory', section: true },
   { to: '/admin/parts',    label: 'Parts Management', icon: Package },
   { to: '/admin/vendors',  label: 'Vendor Management', icon: Truck },
@@ -24,9 +27,32 @@ const navItems = [
 ];
 
 export default function AdminLayout() {
+  const [unseenCount, setUnseenCount] = useState(0);
+
+  const updateUnseenCount = (parts) => {
+    const seenIds = JSON.parse(localStorage.getItem('seenNotificationIds') || '[]');
+    const newParts = parts.filter(p => !seenIds.includes(p.id));
+    setUnseenCount(newParts.length);
+  };
+
+  useEffect(() => {
+    const fetchLowStockCount = async () => {
+      try {
+        const response = await axios.get('/api/parts/low-stock');
+        updateUnseenCount(response.data);
+      } catch (error) {
+        console.error("Failed to fetch notification count", error);
+      }
+    };
+
+    fetchLowStockCount();
+    const interval = setInterval(fetchLowStockCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="admin-layout">
-      <aside className="sidebar">
+      <aside className="sidebar no-print">
         <div className="sidebar-logo">
           <h1>Auto<span>Bolt</span></h1>
           <p>Admin Panel</p>
@@ -41,9 +67,27 @@ export default function AdminLayout() {
                 key={i}
                 to={item.to}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                style={{ position: 'relative' }}
               >
                 <item.icon className="nav-icon" size={18} />
                 {item.label}
+                {item.isNotification && unseenCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'var(--danger)',
+                    color: 'white',
+                    fontSize: '0.65rem',
+                    fontWeight: '900',
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(229, 62, 62, 0.3)'
+                  }}>
+                    {unseenCount}
+                  </span>
+                )}
               </NavLink>
             )
           )}
