@@ -15,6 +15,8 @@ const navItems = [
   { to: '/admin/customers', label: 'Customer Management', icon: Users },
   { to: '/admin/vehicles',  label: 'Vehicle Management',  icon: Car },
   { to: '/admin/sales',     label: 'Sales & Invoices',    icon: ShoppingCart },
+  { label: 'Staff & Security', section: true },
+  { to: '/admin/staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },
   { to: '/admin/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
   { to: '/admin/reports',           label: 'Financial Report',  icon: FileText },
