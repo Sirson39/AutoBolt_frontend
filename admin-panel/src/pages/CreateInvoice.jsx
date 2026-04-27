@@ -26,9 +26,29 @@ export default function CreateInvoice() {
   const [createdInvoice, setCreatedInvoice] = useState(null);
 
   // Calculations
+  const [shopSettings, setShopSettings] = useState({
+    shopName: 'AutoBolt',
+    tagline: 'Modern Vehicle Service Center',
+    address: 'Kathmandu, Nepal',
+    loyaltyThreshold: 5000,
+    loyaltyDiscount: 10
+  });
+
   const subTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const loyaltyDiscount = subTotal > 5000 ? subTotal * 0.10 : 0;
+  const loyaltyDiscount = subTotal > shopSettings.loyaltyThreshold ? subTotal * (shopSettings.loyaltyDiscount / 100) : 0;
   const total = subTotal - loyaltyDiscount;
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('shopSettings');
+      if (saved && saved !== 'undefined') {
+        const data = JSON.parse(saved);
+        if (data) setShopSettings(prev => ({ ...prev, ...data }));
+      }
+    } catch (e) {
+      console.error("Failed to load settings in POS", e);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -334,7 +354,7 @@ export default function CreateInvoice() {
           
           {loyaltyDiscount > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--success)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Tag size={14} /> Loyalty Discount (10%)</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Tag size={14} /> Loyalty Discount ({shopSettings.loyaltyDiscount}%)</span>
               <span style={{ fontWeight: '700' }}>- Rs {loyaltyDiscount.toFixed(2)}</span>
             </div>
           )}
@@ -363,9 +383,9 @@ export default function CreateInvoice() {
         {createdInvoice && (
           <div style={{ padding: '2rem', background: '#fff', color: '#000', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0, color: '#d95d39' }}>AutoBolt</h1>
-              <p style={{ color: '#666', margin: '2px 0', fontSize: '0.8rem' }}>Modern Vehicle Service Center</p>
-              <p style={{ color: '#666', margin: '2px 0', fontSize: '0.75rem' }}>Kathmandu, Nepal</p>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0, color: '#d95d39' }}>{shopSettings.shopName}</h1>
+              <p style={{ color: '#666', margin: '2px 0', fontSize: '0.8rem' }}>{shopSettings.tagline}</p>
+              <p style={{ color: '#666', margin: '2px 0', fontSize: '0.75rem' }}>{shopSettings.address}</p>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #000', borderBottom: '1px solid #000', padding: '0.5rem 0', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
@@ -410,7 +430,7 @@ export default function CreateInvoice() {
               </div>
               {createdInvoice.discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', color: '#000' }}>
-                  <span>Discount (10%)</span>
+                  <span>Discount ({shopSettings.loyaltyDiscount}%)</span>
                   <span style={{ fontWeight: '700' }}>-Rs {createdInvoice.discountAmount.toLocaleString()}</span>
                 </div>
               )}

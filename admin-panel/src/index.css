@@ -38,6 +38,54 @@
   --radius-sm: 8px;
 }
 
+/* ===== Dark Mode Overrides ===== */
+body.dark-theme {
+  --bg: #0b1118;
+  --surface: #151e28;
+  --surface-2: #1c2632;
+  --border: rgba(255, 255, 255, 0.08);
+  --ink: #f0f4f8;
+  --ink-soft: #94a3b8;
+  
+  /* Status Colors Adjustments for Dark */
+  --brand-light: rgba(217, 93, 57, 0.2);
+  --success-light: rgba(31, 138, 112, 0.2);
+  --warning-light: rgba(221, 107, 32, 0.2);
+  --danger-light: rgba(229, 62, 62, 0.2);
+}
+
+body.dark-theme .top-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+body.dark-theme .table-card,
+body.dark-theme .stat-card,
+body.dark-theme .grid-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+body.dark-theme .form-input {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+body.dark-theme thead tr {
+  background: var(--surface-2);
+}
+
+body.dark-theme .modal {
+  background: var(--surface);
+}
+
+body.dark-theme .btn-ghost {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
-  BarChart2, Bell, LogOut, ShoppingCart, Gift
+  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings
 } from 'lucide-react';
 import axios from 'axios';
 import NotificationDropdown from './NotificationDropdown';
@@ -25,10 +25,33 @@ const navItems = [
   { label: 'Reports', section: true },
   { to: '/admin/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
   { to: '/admin/reports',           label: 'Financial Report',  icon: FileText },
+  { label: 'Configurations', section: true },
+  { to: '/admin/settings',        label: 'Shop Settings',       icon: Settings },
 ];
 
 export default function AdminLayout() {
   const [unseenCount, setUnseenCount] = useState(0);
+  const [shopName, setShopName] = useState('AutoBolt');
+  const [tagline, setTagline] = useState('Admin Panel');
+
+  const loadSettings = () => {
+    try {
+      const saved = localStorage.getItem('shopSettings');
+      if (saved && saved !== 'undefined' && saved !== 'null') {
+        const data = JSON.parse(saved);
+        if (data && typeof data === 'object') {
+          setShopName(data.shopName || 'AutoBolt');
+          setTagline(data.tagline || 'Admin Panel');
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Critical: Settings recovery failed", e);
+    }
+    // Final Fallback
+    setShopName('AutoBolt');
+    setTagline('Admin Panel');
+  };
 
   const updateUnseenCount = (parts) => {
     const seenIds = JSON.parse(localStorage.getItem('seenNotificationIds') || '[]');
@@ -47,8 +70,16 @@ export default function AdminLayout() {
     };
 
     fetchLowStockCount();
+    loadSettings();
+
+    // Listen for settings updates
+    window.addEventListener('settingsUpdated', loadSettings);
+
     const interval = setInterval(fetchLowStockCount, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('settingsUpdated', loadSettings);
+    };
   }, []);
 
   return (
