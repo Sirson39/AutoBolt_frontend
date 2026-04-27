@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet } from 'lucide-react';
+import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { exportToCSV } from '../utils/exportUtils';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -152,6 +153,9 @@ export default function CustomerManagement() {
           <span className="page-title">Customer Management</span>
         </div>
         <div className="header-actions">
+          <button className="btn btn-ghost" onClick={() => exportToCSV(customers, 'Customers_List')}>
+            <FileSpreadsheet size={18} /> Export CSV
+          </button>
           <button className="btn btn-primary" onClick={openAddModal}>
             <Plus size={18} /> Add New Customer
           </button>

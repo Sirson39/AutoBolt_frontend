@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { 
   Receipt, Plus, Search, Eye, Download, Calendar, 
   Printer, X, Tag, User, Car, ShoppingCart, 
-  CheckCircle, ArrowLeft 
+  CheckCircle, ArrowLeft, FileSpreadsheet 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { exportToCSV } from '../utils/exportUtils';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim()) return <span>{text}</span>;
@@ -80,6 +81,9 @@ export default function SalesManagement() {
           <span className="page-title">Sales & Invoices</span>
         </div>
         <div className="header-actions">
+          <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Sales_History')}>
+            <FileSpreadsheet size={18} /> Export CSV
+          </button>
           <Link to="/admin/create-invoice" className="btn btn-primary">
             <Plus size={18} /> New Sale (POS)
           </Link>
