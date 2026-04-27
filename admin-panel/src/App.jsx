@@ -10,6 +10,8 @@ import SalesManagement from './pages/SalesManagement';
 import CreateInvoice from './pages/CreateInvoice';
 import FinancialReports from './pages/FinancialReports';
 import StaffManagement from './pages/StaffManagement';
+import PurchaseManagement from './pages/PurchaseManagement';
+import CreatePurchaseInvoice from './pages/CreatePurchaseInvoice';
 import './index.css';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="vehicles" element={<VehicleManagement />} />
           <Route path="sales" element={<SalesManagement />} />
+          <Route path="purchase" element={<PurchaseManagement />} />
+          <Route path="create-purchase" element={<CreatePurchaseInvoice />} />
           <Route path="create-invoice" element={<CreateInvoice />} />
           <Route path="reports" element={<FinancialReports />} />
           <Route path="staff" element={<StaffManagement />} />

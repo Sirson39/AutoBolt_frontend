@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Inventory', section: true },
   { to: '/admin/parts',    label: 'Parts Management', icon: Package },
   { to: '/admin/vendors',  label: 'Vendor Management', icon: Truck },
+  { to: '/admin/purchase', label: 'Purchase Management', icon: ShoppingCart },
   { label: 'Business', section: true },
   { to: '/admin/customers', label: 'Customer Management', icon: Users },
   { to: '/admin/vehicles',  label: 'Vehicle Management',  icon: Car },
