@@ -17,7 +17,7 @@ const navItems = [
   { to: '/admin/sales',     label: 'Sales & Invoices',    icon: ShoppingCart },
   { label: 'Reports', section: true },
   { to: '/admin/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
-  { to: '/admin/financial-report',  label: 'Financial Report',  icon: FileText },
+  { to: '/admin/reports',           label: 'Financial Report',  icon: FileText },
 ];
 
 export default function AdminLayout() {

@@ -8,6 +8,7 @@ import CustomerManagement from './pages/CustomerManagement';
 import VehicleManagement from './pages/VehicleManagement';
 import SalesManagement from './pages/SalesManagement';
 import CreateInvoice from './pages/CreateInvoice';
+import FinancialReports from './pages/FinancialReports';
 import './index.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="vehicles" element={<VehicleManagement />} />
           <Route path="sales" element={<SalesManagement />} />
           <Route path="create-invoice" element={<CreateInvoice />} />
+          <Route path="reports" element={<FinancialReports />} />
         </Route>
         <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
