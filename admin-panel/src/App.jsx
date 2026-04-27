@@ -14,6 +14,7 @@ import PurchaseManagement from './pages/PurchaseManagement';
 import CreatePurchaseInvoice from './pages/CreatePurchaseInvoice';
 import Notifications from './pages/Notifications';
 import InventoryReport from './pages/InventoryReport';
+import LoyaltyProgram from './pages/LoyaltyProgram';
 import './index.css';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="create-purchase" element={<CreatePurchaseInvoice />} />
           <Route path="create-invoice" element={<CreateInvoice />} />
           <Route path="inventory-report" element={<InventoryReport />} />
+          <Route path="loyalty" element={<LoyaltyProgram />} />
           <Route path="reports" element={<FinancialReports />} />
           <Route path="staff" element={<StaffManagement />} />
         </Route>

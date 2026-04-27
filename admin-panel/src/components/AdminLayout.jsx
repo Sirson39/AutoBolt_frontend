@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
-  BarChart2, Bell, LogOut, ShoppingCart
+  BarChart2, Bell, LogOut, ShoppingCart, Gift
 } from 'lucide-react';
 import axios from 'axios';
 import NotificationDropdown from './NotificationDropdown';
@@ -19,6 +19,7 @@ const navItems = [
   { to: '/admin/purchase', label: 'Purchase Management', icon: ShoppingCart },
   { to: '/admin/customers', label: 'Customer Management', icon: Users },
   { to: '/admin/vehicles',  label: 'Vehicle Management',  icon: Car },
+  { to: '/admin/loyalty',   label: 'Loyalty Program',     icon: Gift },
   { label: 'Staff & Security', section: true },
   { to: '/admin/staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },

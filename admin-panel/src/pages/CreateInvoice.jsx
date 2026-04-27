@@ -346,8 +346,11 @@ export default function CreateInvoice() {
 
           <button 
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center' }}
-            disabled={loading || cart.length === 0 || !selectedCustomer || !selectedVehicle}
+            disabled={loading}
+            style={{ 
+              width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center',
+              opacity: (cart.length === 0 || !selectedCustomer || !selectedVehicle) ? 0.7 : 1
+            }}
             onClick={handleSaveInvoice}
           >
             {loading ? <div className="spinner" /> : <><CheckCircle size={20} style={{ marginRight: '8px' }} /> COMPLETE SALE</>}
