@@ -2,6 +2,20 @@ import React, { useEffect, useState } from "react";
 import { appRoutes, publicNav, publicPages, staffPages } from "./data/siteContent";
 import { AuthPage, LandingPage, PublicPage } from "./pages/public/PublicPages";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import PartsManagement from "./pages/admin/PartsManagement";
+import CustomerManagement from "./pages/admin/CustomerManagement";
+import VendorManagement from "./pages/admin/VendorManagement";
+import StaffManagement from "./pages/admin/StaffManagement";
+import SalesManagement from "./pages/admin/SalesManagement";
+import PurchaseManagement from "./pages/admin/PurchaseManagement";
+import FinancialReports from "./pages/admin/FinancialReports";
+import InventoryReport from "./pages/admin/InventoryReport";
+import Notifications from "./pages/admin/Notifications";
+import ShopSettings from "./pages/admin/ShopSettings";
+import CreateInvoice from "./pages/admin/CreateInvoice";
+import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
+import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
+
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import StaffWorkspace from "./pages/staff/StaffWorkspace";
 
@@ -55,10 +69,29 @@ export default function App() {
     return <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />;
   }
 
-  if (route === "admin" || route === "customer") {
-    return route === "admin"
-      ? <AdminDashboard onNavigate={onNavigate} />
-      : <CustomerDashboard onNavigate={onNavigate} />;
+  const adminRoutes = {
+    "admin": <AdminDashboard onNavigate={onNavigate} />,
+    "admin-parts": <PartsManagement onNavigate={onNavigate} />,
+    "admin-customers": <CustomerManagement onNavigate={onNavigate} />,
+    "admin-vendors": <VendorManagement onNavigate={onNavigate} />,
+    "admin-staff": <StaffManagement onNavigate={onNavigate} />,
+    "admin-sales": <SalesManagement onNavigate={onNavigate} />,
+    "admin-purchase": <PurchaseManagement onNavigate={onNavigate} />,
+    "admin-reports": <FinancialReports onNavigate={onNavigate} />,
+    "admin-inventory": <InventoryReport onNavigate={onNavigate} />,
+    "admin-notifications": <Notifications onNavigate={onNavigate} />,
+    "admin-settings": <ShopSettings onNavigate={onNavigate} />,
+    "admin-create-invoice": <CreateInvoice onNavigate={onNavigate} />,
+    "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
+    "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
+  };
+
+  if (adminRoutes[route]) {
+    return adminRoutes[route];
+  }
+
+  if (route === "customer") {
+    return <CustomerDashboard onNavigate={onNavigate} />;
   }
 
   if (route === "staff" || staffPages[route]) {

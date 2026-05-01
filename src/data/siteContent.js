@@ -353,5 +353,18 @@ export const appRoutes = new Set([
   "admin",
   "staff",
   "customer",
+  "admin-parts",
+  "admin-customers",
+  "admin-vendors",
+  "admin-staff",
+  "admin-sales",
+  "admin-purchase",
+  "admin-reports",
+  "admin-inventory",
+  "admin-notifications",
+  "admin-settings",
+  "admin-create-invoice",
+  "admin-create-purchase",
+  "admin-loyalty",
   ...Object.keys(staffPages)
 ]);
