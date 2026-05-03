@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Settings, MapPin, Phone, Mail, Globe, 
@@ -7,11 +6,11 @@ import {
   Store, User, Award, ArrowRight, Package, Edit3, Eye, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import NotificationDropdown from '../components/NotificationDropdown';
 
-import NotificationDropdown from '../../components/NotificationDropdown';
-
-export default function ShopSettings({ onNavigate }) {
-  
+export default function ShopSettings() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
   const [isEditing, setIsEditing] = useState(false);
@@ -109,7 +108,7 @@ export default function ShopSettings({ onNavigate }) {
           <span className="page-title">Shop Settings</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           {!isEditing ? (
             <button className="btn btn-primary" onClick={() => setIsEditing(true)}>
               <Edit3 size={18} /> EDIT SETTINGS
@@ -265,7 +264,7 @@ export default function ShopSettings({ onNavigate }) {
                        <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', lineHeight: '1.4' }}>
                           Detailed permissions for Sales, Inventory, and Financial reports are managed per staff member.
                        </p>
-                       <button className="btn btn-ghost btn-sm" style={{ marginTop: '1rem', padding: '0.4rem 0.8rem' }} onClick={() => onNavigate('admin-staff')}>
+                       <button className="btn btn-ghost btn-sm" style={{ marginTop: '1rem', padding: '0.4rem 0.8rem' }} onClick={() => navigate('/admin/staff')}>
                           Manage Staff Permissions <ArrowRight size={14} />
                        </button>
                     </div>
@@ -285,4 +284,3 @@ export default function ShopSettings({ onNavigate }) {
     </>
   );
 }
-

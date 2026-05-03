@@ -355,6 +355,7 @@ export const appRoutes = new Set([
   "customer",
   "admin-parts",
   "admin-customers",
+  "admin-vehicles",
   "admin-vendors",
   "admin-staff",
   "admin-sales",

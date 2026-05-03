@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -9,13 +8,13 @@ import {
   Package, Calendar, ChevronRight, Download, Filter, 
   PieChart as PieChartIcon, Activity
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import NotificationDropdown from '../components/NotificationDropdown';
 
-export default function FinancialReports({ onNavigate }) {
-  
+export default function FinancialReports() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('daily'); // daily, monthly, yearly
   const [data, setData] = useState(null);
@@ -41,7 +40,7 @@ export default function FinancialReports({ onNavigate }) {
   const SummaryCard = ({ title, value, subValue, icon: Icon, trend, link }) => (
     <div 
       className="stat-card" 
-      onClick={() => link && onNavigate(link)}
+      onClick={() => link && navigate(link)}
       style={{ 
         cursor: link ? 'pointer' : 'default',
         transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -79,7 +78,7 @@ export default function FinancialReports({ onNavigate }) {
           <span className="page-title">Financial Analytics</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
             {['daily', 'monthly', 'yearly'].map(p => (
               <button
@@ -114,7 +113,7 @@ export default function FinancialReports({ onNavigate }) {
             subValue="All-time earnings"
             icon={DollarSign}
             trend={12}
-            link="admin-sales"
+            link="/admin/sales"
           />
           <SummaryCard 
             title="Total Orders" 
@@ -122,21 +121,21 @@ export default function FinancialReports({ onNavigate }) {
             subValue="Completed sales"
             icon={ShoppingBag}
             trend={8}
-            link="admin-sales"
+            link="/admin/sales"
           />
           <SummaryCard 
             title="Avg Order Value" 
             value={`Rs ${Math.round(data?.averageOrderValue).toLocaleString()}`} 
             subValue="Revenue per customer"
             icon={TrendingUp}
-            link="admin-sales"
+            link="/admin/sales"
           />
           <SummaryCard 
             title="Items Sold" 
             value={data?.totalItemsSold} 
             subValue="Physical parts sold"
             icon={Package}
-            link="admin-parts"
+            link="/admin/parts"
           />
         </div>
 
@@ -299,4 +298,3 @@ export default function FinancialReports({ onNavigate }) {
     </>
   );
 }
-

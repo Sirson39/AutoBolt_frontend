@@ -1,33 +1,35 @@
 import { useState, useEffect } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
   BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings
 } from 'lucide-react';
 import axios from 'axios';
+import NotificationDropdown from './NotificationDropdown';
 
 const navItems = [
   { label: 'Overview', section: true },
-  { to: 'admin',  label: 'Dashboard',        icon: LayoutDashboard },
-  { to: 'admin-notifications', label: 'Notifications', icon: Bell, isNotification: true },
+  { to: '/admin/dashboard',  label: 'Dashboard',        icon: LayoutDashboard },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell, isNotification: true },
   { label: 'Inventory', section: true },
-  { to: 'admin-parts',    label: 'Parts Management', icon: Package },
-  { to: 'admin-vendors',  label: 'Vendor Management', icon: Truck },
+  { to: '/admin/parts',    label: 'Parts Management', icon: Package },
+  { to: '/admin/vendors',  label: 'Vendor Management', icon: Truck },
   { label: 'Business', section: true },
-  { to: 'admin-sales',     label: 'Sales & Invoices',    icon: ShoppingCart },
-  { to: 'admin-purchase', label: 'Purchase Management', icon: ShoppingCart },
-  { to: 'admin-customers', label: 'Customer Management', icon: Users },
-  { to: 'admin-vehicles',  label: 'Vehicle Management',  icon: Car },
-  { to: 'admin-loyalty',   label: 'Loyalty Program',     icon: Gift },
+  { to: '/admin/sales',     label: 'Sales & Invoices',    icon: ShoppingCart },
+  { to: '/admin/purchase', label: 'Purchase Management', icon: ShoppingCart },
+  { to: '/admin/customers', label: 'Customer Management', icon: Users },
+  { to: '/admin/vehicles',  label: 'Vehicle Management',  icon: Car },
+  { to: '/admin/loyalty',   label: 'Loyalty Program',     icon: Gift },
   { label: 'Staff & Security', section: true },
-  { to: 'admin-staff',           label: 'Staff Management',    icon: Users },
+  { to: '/admin/staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },
-  { to: 'admin-inventory',  label: 'Inventory Report',  icon: BarChart2 },
-  { to: 'admin-reports',           label: 'Financial Report',  icon: FileText },
+  { to: '/admin/inventory-report',  label: 'Inventory Report',  icon: BarChart2 },
+  { to: '/admin/reports',           label: 'Financial Report',  icon: FileText },
   { label: 'Configurations', section: true },
-  { to: 'admin-settings',        label: 'Shop Settings',       icon: Settings },
+  { to: '/admin/settings',        label: 'Shop Settings',       icon: Settings },
 ];
 
-export default function AdminLayout({ children, onNavigate }) {
+export default function AdminLayout() {
   const [unseenCount, setUnseenCount] = useState(0);
   const [shopName, setShopName] = useState('AutoBolt');
   const [tagline, setTagline] = useState('Admin Panel');
@@ -46,6 +48,7 @@ export default function AdminLayout({ children, onNavigate }) {
     } catch (e) {
       console.error("Critical: Settings recovery failed", e);
     }
+    // Final Fallback
     setShopName('AutoBolt');
     setTagline('Admin Panel');
   };
@@ -69,6 +72,7 @@ export default function AdminLayout({ children, onNavigate }) {
     fetchLowStockCount();
     loadSettings();
 
+    // Listen for settings updates
     window.addEventListener('settingsUpdated', loadSettings);
 
     const interval = setInterval(fetchLowStockCount, 30000);
@@ -78,11 +82,9 @@ export default function AdminLayout({ children, onNavigate }) {
     };
   }, []);
 
-  const currentRoute = window.location.hash.replace(/^#/, "") || 'admin';
-
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar no-print">
+      <aside className="sidebar no-print">
         <div className="sidebar-logo">
           <h1>Auto<span>Bolt</span></h1>
           <p>Admin Panel</p>
@@ -93,28 +95,13 @@ export default function AdminLayout({ children, onNavigate }) {
             item.section ? (
               <p key={i} className="nav-section-label">{item.label}</p>
             ) : (
-              <button
+              <NavLink
                 key={i}
-                onClick={() => onNavigate(item.to)}
-                className={`nav-item ${currentRoute === item.to ? 'active' : ''}`}
-                style={{ 
-                  position: 'relative', 
-                  width: '100%', 
-                  textAlign: 'left', 
-                  background: 'none', 
-                  border: 'none', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '12px 16px',
-                  borderRadius: 'var(--radius-sm)',
-                  marginBottom: '4px',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  color: 'var(--ink-soft)'
-                }}
+                to={item.to}
+                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                style={{ position: 'relative' }}
               >
-                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px' }} />
+                <item.icon className="nav-icon" size={18} />
                 {item.label}
                 {item.isNotification && unseenCount > 0 && (
                   <span style={{
@@ -133,21 +120,21 @@ export default function AdminLayout({ children, onNavigate }) {
                     {unseenCount}
                   </span>
                 )}
-              </button>
+              </NavLink>
             )
           )}
         </nav>
 
         <div className="sidebar-footer">
-          <button className="nav-item" style={{ color: '#e53e3e', width: '100%', border: 'none', background: 'none', textAlign: 'left', display: 'flex', alignItems: 'center' }} onClick={() => onNavigate('home')}>
-            <LogOut className="nav-icon" size={18} style={{ marginRight: '12px' }} />
+          <button className="nav-item" style={{ color: '#e53e3e' }}>
+            <LogOut className="nav-icon" size={18} />
             Logout
           </button>
         </div>
       </aside>
 
       <div className="main-content">
-        {children}
+        <Outlet />
       </div>
     </div>
   );

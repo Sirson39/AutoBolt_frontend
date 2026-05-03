@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   BarChart2, Package, Download, 
@@ -8,15 +7,15 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
+import { useNavigate } from 'react-router-dom';
 
-
-export default function InventoryReport({ onNavigate }) {
+export default function InventoryReport() {
   const [parts, setParts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState('All');
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchParts = async () => {
@@ -60,7 +59,7 @@ export default function InventoryReport({ onNavigate }) {
   const SummaryCard = ({ title, value, subValue, icon: Icon, theme = 'brand', link, danger }) => (
     <div
       className="stat-card"
-      onClick={() => link && onNavigate(link)}
+      onClick={() => link && navigate(link)}
       style={{
         cursor: link ? 'pointer' : 'default',
         transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -104,7 +103,7 @@ export default function InventoryReport({ onNavigate }) {
           <span className="page-title">Inventory Report</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => window.print()}>
             <Download size={18} /> Export PDF
           </button>
@@ -121,7 +120,7 @@ export default function InventoryReport({ onNavigate }) {
             subValue="Across all parts"
             icon={Package}
             theme="brand"
-            link="admin-parts"
+            link="/admin/parts"
           />
           <SummaryCard
             title="Total Inventory Value"
@@ -137,7 +136,7 @@ export default function InventoryReport({ onNavigate }) {
             icon={AlertTriangle}
             theme="danger"
             danger={lowStockCount > 0}
-            link="admin-notifications"
+            link="/admin/notifications"
           />
           <SummaryCard
             title="Restock Required"
@@ -145,7 +144,7 @@ export default function InventoryReport({ onNavigate }) {
             subValue={lowStockCount > 0 ? 'Click to restock now' : 'All levels healthy'}
             icon={lowStockCount > 0 ? ShoppingCart : CheckCircle}
             theme={lowStockCount > 0 ? 'danger' : 'brand'}
-            link={lowStockCount > 0 ? 'admin-create-purchase' : undefined}
+            link={lowStockCount > 0 ? '/admin/create-purchase' : undefined}
           />
         </div>
 
@@ -189,7 +188,7 @@ export default function InventoryReport({ onNavigate }) {
                     <tr 
                       key={part.id} 
                       style={{ cursor: 'pointer' }}
-                      onClick={() => onNavigate('admin-parts')}
+                      onClick={() => navigate('/admin/parts')}
                     >
                       <td style={{ fontWeight: '700' }}>{part.name}</td>
                       <td>{part.category}</td>
@@ -252,7 +251,7 @@ export default function InventoryReport({ onNavigate }) {
             <div 
               className="table-card" 
               style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.2s ease' }}
-              onClick={() => onNavigate('admin-parts')}
+              onClick={() => navigate('/admin/parts')}
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
@@ -324,4 +323,3 @@ export default function InventoryReport({ onNavigate }) {
     </>
   );
 }
-

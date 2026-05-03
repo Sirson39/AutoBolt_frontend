@@ -1,15 +1,13 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
-  Receipt, Plus, Search, Eye, Download, Calendar, 
-  Printer, X, Tag, User, Car, ShoppingCart, 
-  CheckCircle, ArrowLeft, FileSpreadsheet 
+  ShoppingCart, Plus, Search, Eye, Calendar, 
+  X, Truck, FileSpreadsheet, Trash2, Hash, Printer
 } from 'lucide-react';
-// react-router-dom removed
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim()) return <span>{text}</span>;
@@ -24,25 +22,23 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function SalesManagement({ onNavigate }) {
+export default function PurchaseManagement() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewingInvoice, setViewingInvoice] = useState(null);
 
-  // Pagination States
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/invoices');
-      const data = Array.isArray(response.data) ? response.data : [];
-      setInvoices(data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))); // Show newest first
+      const response = await axios.get('/api/purchase');
+      setInvoices(response.data.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)));
     } catch (error) {
-      console.error("Sales Fetch Error:", error);
-      toast.error("Failed to load invoices.");
+      toast.error("Failed to load purchase records.");
     } finally {
       setLoading(false);
     }
@@ -54,24 +50,13 @@ export default function SalesManagement({ onNavigate }) {
 
   const filteredInvoices = invoices.filter(inv => 
     inv.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    inv.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (inv.vehiclePlate && inv.vehiclePlate.toLowerCase().includes(searchQuery.toLowerCase()))
+    inv.vendorName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
-
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'Paid': return { background: 'var(--success-light)', color: 'var(--success)' };
-      case 'Pending': return { background: 'var(--warning-light)', color: 'var(--warning)' };
-      case 'Cancelled': return { background: 'var(--danger-light)', color: 'var(--danger)' };
-      default: return { background: 'var(--surface-2)', color: 'var(--ink-soft)' };
-    }
-  };
 
   const handlePrint = () => {
     window.print();
@@ -81,17 +66,17 @@ export default function SalesManagement({ onNavigate }) {
     <>
       <header className="top-header no-print">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Receipt className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Sales & Invoices</span>
+          <ShoppingCart className="nav-icon" style={{ color: 'var(--brand)' }} />
+          <span className="page-title">Purchase Management</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Sales_History')}>
+          <NotificationDropdown />
+          <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Purchase_History')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button onClick={() => onNavigate('admin-create-invoice')} className="btn btn-primary">
-            <Plus size={18} /> New Sale (POS)
-          </button>
+          <Link to="/admin/create-purchase" className="btn btn-primary">
+            <Plus size={18} /> New Purchase (Restock)
+          </Link>
         </div>
       </header>
 
@@ -102,7 +87,7 @@ export default function SalesManagement({ onNavigate }) {
               <Search size={18} color="var(--ink-soft)" />
               <input 
                 type="text" 
-                placeholder="Search by invoice #, customer, or plate..." 
+                placeholder="Search by invoice # or vendor..." 
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -110,30 +95,27 @@ export default function SalesManagement({ onNavigate }) {
                 }}
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-               <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Total Revenue: <span style={{ color: 'var(--ink)', fontWeight: '800' }}>Rs {invoices.reduce((sum, inv) => sum + inv.totalAmount, 0).toLocaleString()}</span>
-              </div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+               Total Expenditure: <span style={{ color: 'var(--ink)', fontWeight: '800' }}>Rs {invoices.reduce((sum, inv) => sum + inv.totalAmount, 0).toLocaleString()}</span>
             </div>
           </div>
 
           <div style={{ overflowX: 'auto', minHeight: '300px' }}>
             {loading ? (
-              <div className="loading"><div className="spinner" /> Loading invoices...</div>
+              <div className="loading"><div className="spinner" /> Loading records...</div>
             ) : filteredInvoices.length === 0 ? (
               <div className="empty-state">
-                <Receipt size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                <h3>No invoices found</h3>
-                <p>Start a new sale to see records here.</p>
+                <ShoppingCart size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                <h3>No purchase records</h3>
+                <p>Click "New Purchase" to add items to stock.</p>
               </div>
             ) : (
               <table>
                 <thead>
                   <tr>
                     <th>Invoice Details</th>
-                    <th>Customer & Vehicle</th>
-                    <th>Amount</th>
-                    <th>Status</th>
+                    <th>Vendor</th>
+                    <th>Total Amount</th>
                     <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
@@ -146,37 +128,22 @@ export default function SalesManagement({ onNavigate }) {
                             <HighlightText text={inv.invoiceNumber} highlight={searchQuery} />
                           </div>
                           <div style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Calendar size={12} /> {new Date(inv.invoiceDate).toLocaleDateString()}
+                            <Calendar size={12} /> {new Date(inv.purchaseDate).toLocaleDateString()}
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>
-                            <HighlightText text={inv.customerName} highlight={searchQuery} />
-                          </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--brand)', fontWeight: '800' }}>
-                             <HighlightText text={inv.vehiclePlate || 'N/A'} highlight={searchQuery} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Truck size={14} color="var(--ink-soft)" />
+                          <div style={{ fontWeight: '700' }}>
+                            <HighlightText text={inv.vendorName} highlight={searchQuery} />
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <div style={{ fontWeight: '900', fontSize: '1.05rem', color: 'var(--ink)' }}>Rs {inv.totalAmount.toLocaleString()}</div>
-                          {inv.discountAmount > 0 && (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                              <Tag size={12} /> -Rs {inv.discountAmount.toLocaleString()}
-                            </div>
-                          )}
+                        <div style={{ fontWeight: '900', fontSize: '1.05rem', color: 'var(--ink)' }}>
+                          Rs {inv.totalAmount.toLocaleString()}
                         </div>
-                      </td>
-                      <td>
-                        <span style={{ 
-                          padding: '0.35rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800',
-                          ...getStatusStyle(inv.status)
-                        }}>
-                          {inv.status}
-                        </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => setViewingInvoice(inv)}>
@@ -219,13 +186,13 @@ export default function SalesManagement({ onNavigate }) {
         </div>
       </div>
 
-      {/* Invoice Detail Modal / Print View */}
+      {/* Detail Modal / Receipt View */}
       {viewingInvoice && (
         <div className="modal-overlay" style={{ background: 'rgba(0,0,0,0.8)', zIndex: 1000 }}>
-          <div className="modal" style={{ maxWidth: '550px', width: '100%', padding: 0, overflow: 'hidden' }}>
+          <div className="modal" style={{ maxWidth: '600px', width: '100%', padding: 0, overflow: 'hidden' }}>
             <div className="no-print" style={{ padding: '0.75rem 1.5rem', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontWeight: '800', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Receipt size={16} /> VIEW RECEIPT
+                <ShoppingCart size={16} /> PURCHASE RECEIPT
               </div>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button className="btn btn-primary btn-sm" onClick={handlePrint}>
@@ -237,23 +204,22 @@ export default function SalesManagement({ onNavigate }) {
               </div>
             </div>
 
-            <div id="printable-invoice" style={{ padding: '2rem', background: '#fff', color: '#000', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div id="printable-history-receipt" style={{ padding: '2rem', background: '#fff', color: '#000', maxHeight: '80vh', overflowY: 'auto' }}>
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                 <h1 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0, color: '#d95d39' }}>AutoBolt</h1>
-                <p style={{ color: '#666', margin: '2px 0', fontSize: '0.8rem' }}>Modern Vehicle Service Center</p>
+                <p style={{ color: '#666', margin: '2px 0', fontSize: '0.8rem' }}>Stock Purchase Record</p>
                 <p style={{ color: '#666', margin: '2px 0', fontSize: '0.75rem' }}>Kathmandu, Nepal</p>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #000', borderBottom: '1px solid #000', padding: '0.5rem 0', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>Bill To</div>
-                  <div style={{ fontWeight: '800' }}>{viewingInvoice.customerName}</div>
-                  <div style={{ fontSize: '0.8rem' }}>{viewingInvoice.vehiclePlate}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>Vendor</div>
+                  <div style={{ fontWeight: '800' }}>{viewingInvoice.vendorName}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>Invoice</div>
+                  <div style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>Purchase Order</div>
                   <div style={{ fontWeight: '800' }}>{viewingInvoice.invoiceNumber}</div>
-                  <div style={{ fontSize: '0.8rem' }}>{new Date(viewingInvoice.invoiceDate).toLocaleDateString()}</div>
+                  <div style={{ fontSize: '0.8rem' }}>{new Date(viewingInvoice.purchaseDate).toLocaleDateString()}</div>
                 </div>
               </div>
 
@@ -262,6 +228,7 @@ export default function SalesManagement({ onNavigate }) {
                   <tr style={{ borderBottom: '1px solid #000' }}>
                     <th style={{ textAlign: 'left', paddingBottom: '0.5rem' }}>Item Description</th>
                     <th style={{ textAlign: 'center' }}>Qty</th>
+                    <th style={{ textAlign: 'right' }}>Unit Cost</th>
                     <th style={{ textAlign: 'right' }}>Total</th>
                   </tr>
                 </thead>
@@ -270,34 +237,24 @@ export default function SalesManagement({ onNavigate }) {
                     <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: '0.75rem 0' }}>
                         <div style={{ fontWeight: '700' }}>{item.partName}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#666' }}>@ Rs {item.unitPrice.toLocaleString()}</div>
                       </td>
                       <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                      <td style={{ textAlign: 'right', fontWeight: '800' }}>Rs {item.subTotal.toLocaleString()}</td>
+                      <td style={{ textAlign: 'right' }}>Rs {item.unitCost.toLocaleString()}</td>
+                      <td style={{ textAlign: 'right', fontWeight: '800' }}>Rs {item.subtotal.toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              <div style={{ marginLeft: 'auto', width: '220px', fontSize: '0.9rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
-                  <span>Subtotal</span>
-                  <span style={{ fontWeight: '700' }}>Rs {viewingInvoice.subTotal.toLocaleString()}</span>
-                </div>
-                {viewingInvoice.discountAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', color: '#000' }}>
-                    <span>Discount (10%)</span>
-                    <span style={{ fontWeight: '700' }}>-Rs {viewingInvoice.discountAmount.toLocaleString()}</span>
-                  </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderTop: '1px solid #000', marginTop: '0.5rem', fontWeight: '900', fontSize: '1.1rem' }}>
-                  <span>TOTAL</span>
+              <div style={{ marginLeft: 'auto', width: '220px', fontSize: '1.1rem', fontWeight: '900', borderTop: '2px solid #000', paddingTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>GRAND TOTAL</span>
                   <span>Rs {viewingInvoice.totalAmount.toLocaleString()}</span>
                 </div>
               </div>
 
               <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '1.5rem', fontSize: '0.8rem' }}>
-                <p style={{ margin: '1rem 0 0', fontWeight: '800' }}>Thank you for your business!</p>
+                <p style={{ margin: '1rem 0 0', fontWeight: '800' }}>System Generated Purchase Record</p>
               </div>
             </div>
           </div>
@@ -307,8 +264,10 @@ export default function SalesManagement({ onNavigate }) {
       <style>{`
         @media print {
           body * { visibility: hidden !important; }
-          #printable-invoice, #printable-invoice * { visibility: visible !important; }
-          #printable-invoice { 
+          #printable-history-receipt, #printable-history-receipt * { 
+            visibility: visible !important; 
+          }
+          #printable-history-receipt { 
             position: absolute !important; 
             left: 0 !important; 
             top: 0 !important; 
@@ -323,4 +282,3 @@ export default function SalesManagement({ onNavigate }) {
     </>
   );
 }
-

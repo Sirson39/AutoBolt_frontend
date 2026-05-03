@@ -1,15 +1,14 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Receipt, Plus, Search, Eye, Download, Calendar, 
   Printer, X, Tag, User, Car, ShoppingCart, 
   CheckCircle, ArrowLeft, FileSpreadsheet 
 } from 'lucide-react';
-// react-router-dom removed
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim()) return <span>{text}</span>;
@@ -24,7 +23,7 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function SalesManagement({ onNavigate }) {
+export default function SalesManagement() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,10 +37,8 @@ export default function SalesManagement({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get('/api/invoices');
-      const data = Array.isArray(response.data) ? response.data : [];
-      setInvoices(data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))); // Show newest first
+      setInvoices(response.data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))); // Show newest first
     } catch (error) {
-      console.error("Sales Fetch Error:", error);
       toast.error("Failed to load invoices.");
     } finally {
       setLoading(false);
@@ -85,13 +82,13 @@ export default function SalesManagement({ onNavigate }) {
           <span className="page-title">Sales & Invoices</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Sales_History')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button onClick={() => onNavigate('admin-create-invoice')} className="btn btn-primary">
+          <Link to="/admin/create-invoice" className="btn btn-primary">
             <Plus size={18} /> New Sale (POS)
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -323,4 +320,3 @@ export default function SalesManagement({ onNavigate }) {
     </>
   );
 }
-

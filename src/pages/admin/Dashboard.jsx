@@ -1,4 +1,4 @@
-import AdminLayout from '../../../components/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import { Package, Users, AlertTriangle, Truck, ShoppingCart, DollarSign, BarChart2, ArrowRight, CheckCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -42,17 +42,20 @@ export default function Dashboard({ onNavigate }) {
           axios.get('/api/reports/sales?period=daily'),
         ]);
 
-        const inv = invoices.data;
+        const inv = Array.isArray(invoices.data) ? invoices.data : [];
         const today = new Date().toDateString();
         const todayRevenue = inv
-          .filter(i => new Date(i.invoiceDate).toDateString() === today)
-          .reduce((sum, i) => sum + i.totalAmount, 0);
+          .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === today)
+          .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+
+        const partsData = Array.isArray(parts.data) ? parts.data : [];
+        const lowStockData = Array.isArray(lowStock.data) ? lowStock.data : [];
 
         setStats({
-          totalParts:     parts.data.length,
-          lowStockParts:  lowStock.data.length,
-          totalCustomers: customers.data.length,
-          totalVendors:   vendors.data.length,
+          totalParts:     partsData.length,
+          lowStockParts:  lowStockData.length,
+          totalCustomers: Array.isArray(customers.data) ? customers.data.length : 0,
+          totalVendors:   Array.isArray(vendors.data) ? vendors.data.length : 0,
           todayRevenue,
         });
 
@@ -78,7 +81,7 @@ export default function Dashboard({ onNavigate }) {
 
         // Category distribution of parts
         const catMap = {};
-        parts.data.forEach(p => { catMap[p.category] = (catMap[p.category] || 0) + 1; });
+        partsData.forEach(p => { if(p && p.category) catMap[p.category] = (catMap[p.category] || 0) + 1; });
         setCategoryChart(Object.entries(catMap).map(([name, value]) => ({ name, value })));
 
       } catch (err) {
@@ -92,18 +95,18 @@ export default function Dashboard({ onNavigate }) {
   }, []);
 
   const statCards = [
-    { label: 'Total Parts',      value: stats.totalParts,                            icon: Package,       theme: 'brand',   link: '/admin/parts' },
-    { label: 'Low Stock Alerts', value: stats.lowStockParts,                         icon: AlertTriangle, theme: 'danger',  link: '/admin/notifications', danger: stats.lowStockParts > 0 },
-    { label: 'Total Customers',  value: stats.totalCustomers,                        icon: Users,         theme: 'accent',  link: '/admin/customers' },
-    { label: 'Vendors',          value: stats.totalVendors,                          icon: Truck,         theme: 'warning', link: '/admin/vendors' },
-    { label: "Today's Revenue",  value: `Rs ${stats.todayRevenue.toLocaleString()}`, icon: DollarSign,    theme: 'brand',   link: '/admin/sales' },
+    { label: 'Total Parts',      value: stats.totalParts,                            icon: Package,       theme: 'brand',   link: 'admin-parts' },
+    { label: 'Low Stock Alerts', value: stats.lowStockParts,                         icon: AlertTriangle, theme: 'danger',  link: 'admin-notifications', danger: stats.lowStockParts > 0 },
+    { label: 'Total Customers',  value: stats.totalCustomers,                        icon: Users,         theme: 'accent',  link: 'admin-customers' },
+    { label: 'Vendors',          value: stats.totalVendors,                          icon: Truck,         theme: 'warning', link: 'admin-vendors' },
+    { label: "Today's Revenue",  value: `Rs ${stats.todayRevenue.toLocaleString()}`, icon: DollarSign,    theme: 'brand',   link: 'admin-sales' },
   ];
 
   const quickLinks = [
-    { label: 'New Sale',       icon: ShoppingCart, link: '/admin/create-invoice',  color: 'var(--brand)' },
-    { label: 'Restock Parts',  icon: Package,      link: '/admin/create-purchase', color: 'var(--accent)' },
-    { label: 'View Reports',   icon: BarChart2,    link: '/admin/reports',         color: '#f5a623' },
-    { label: 'Manage Staff',   icon: Users,        link: '/admin/staff',           color: '#1f8a70' },
+    { label: 'New Sale',       icon: ShoppingCart, link: 'admin-create-invoice',  color: 'var(--brand)' },
+    { label: 'Restock Parts',  icon: Package,      link: 'admin-create-purchase', color: 'var(--accent)' },
+    { label: 'View Reports',   icon: BarChart2,    link: 'admin-reports',         color: '#f5a623' },
+    { label: 'Manage Staff',   icon: Users,        link: 'admin-staff',           color: '#1f8a70' },
   ];
 
   if (loading) return <div className="loading"><div className="spinner" /> Loading dashboard...</div>;
@@ -130,7 +133,7 @@ export default function Dashboard({ onNavigate }) {
           </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown />
+          <NotificationDropdown onNavigate={onNavigate} />
           <div className="avatar">A</div>
         </div>
       </header>
@@ -169,7 +172,7 @@ export default function Dashboard({ onNavigate }) {
           <div className="table-card" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontWeight: '800', fontSize: '0.95rem' }}>Revenue Overview</h3>
-              <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => onNavigate('/admin/reports')}>
+              <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => onNavigate('admin-reports')}>
                 Full Report <ArrowRight size={14} />
               </button>
             </div>
@@ -224,7 +227,7 @@ export default function Dashboard({ onNavigate }) {
           <div className="table-card">
             <div className="table-toolbar">
               <span style={{ fontWeight: '800' }}>Recent Sales</span>
-              <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => onNavigate('/admin/sales')}>
+              <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => onNavigate('admin-sales')}>
                 View All <ArrowRight size={14} />
               </button>
             </div>
@@ -239,7 +242,7 @@ export default function Dashboard({ onNavigate }) {
               </thead>
               <tbody>
                 {recentInvoices.length > 0 ? recentInvoices.map(inv => (
-                  <tr key={inv.id} style={{ cursor: 'pointer' }} onClick={() => onNavigate('/admin/sales')}>
+                  <tr key={inv.id} style={{ cursor: 'pointer' }} onClick={() => onNavigate('admin-sales')}>
                     <td style={{ fontWeight: '700' }}>{inv.invoiceNumber || `#${inv.id}`}</td>
                     <td>{inv.customerName || '—'}</td>
                     <td style={{ fontWeight: '900', color: 'var(--brand)' }}>Rs {inv.totalAmount?.toLocaleString()}</td>

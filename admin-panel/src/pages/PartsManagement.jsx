@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
-import AdminLayout from '../../components/AdminLayout';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight.trim() || !text) return <span>{text}</span>;
@@ -19,20 +18,23 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function PartsManagement({ onNavigate }) {
+export default function PartsManagement() {
   const [parts, setParts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('list');
   
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   
+  // Modals and Panels
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
   const [viewingPart, setViewingPart] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   
+  // File upload reference
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -41,14 +43,14 @@ export default function PartsManagement({ onNavigate }) {
     description: '',
     price: '',
     stockQuantity: '',
-    categoryId: ''
+    categoryId: '' // Empty by default
   });
 
   const fetchParts = async () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/parts');
-      const sortedParts = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
+      const sortedParts = response.data.sort((a, b) => a.id - b.id);
       setParts(sortedParts);
     } catch (error) {
       console.error("Failed to fetch parts", error);
@@ -70,6 +72,7 @@ export default function PartsManagement({ onNavigate }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Create local preview URL
       const url = URL.createObjectURL(file);
       setImagePreview(url);
     }
@@ -91,7 +94,7 @@ export default function PartsManagement({ onNavigate }) {
       stockQuantity: part.stockQuantity,
       categoryId: part.categoryId !== undefined ? part.categoryId : (part.category === 'Engine' ? 0 : part.category === 'Brakes' ? 1 : 0)
     });
-    setImagePreview(null);
+    setImagePreview(null); // Assuming API doesn't return image yet
     setIsModalOpen(true);
   };
 
@@ -103,11 +106,14 @@ export default function PartsManagement({ onNavigate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!formData.name || !formData.price || !formData.stockQuantity || formData.categoryId === '') {
       toast.error("Please fill in all required fields, including Category.");
       return;
     }
+
     const loadToast = toast.loading(editingPart ? "Updating part..." : "Adding part...");
+
     try {
       const payload = new FormData();
       payload.append('name', formData.name);
@@ -115,10 +121,13 @@ export default function PartsManagement({ onNavigate }) {
       payload.append('price', formData.price);
       payload.append('stockQuantity', formData.stockQuantity);
       payload.append('categoryId', formData.categoryId);
+      
       if (fileInputRef.current?.files[0]) {
         payload.append('image', fileInputRef.current.files[0]);
       }
+
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+
       if (editingPart) {
         await axios.put(`/api/parts/${editingPart.id}`, payload, config);
         toast.success("Part updated successfully!", { id: loadToast });
@@ -126,6 +135,7 @@ export default function PartsManagement({ onNavigate }) {
         await axios.post('/api/parts', payload, config);
         toast.success("New part added to inventory!", { id: loadToast });
       }
+      
       closeModal();
       fetchParts();
     } catch (error) {
@@ -168,7 +178,7 @@ export default function PartsManagement({ onNavigate }) {
           <span className="page-title">Parts & Inventory</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(parts, 'Parts_Inventory')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
@@ -400,6 +410,7 @@ export default function PartsManagement({ onNavigate }) {
         </div>
       </div>
 
+      {/* Side Panel for Viewing Part Details */}
       {viewingPart && (
         <div className="side-panel-overlay" onClick={() => setViewingPart(null)}>
           <div className="side-panel" onClick={e => e.stopPropagation()}>
@@ -455,6 +466,7 @@ export default function PartsManagement({ onNavigate }) {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
         <div className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
@@ -477,6 +489,7 @@ export default function PartsManagement({ onNavigate }) {
         </div>
       )}
 
+      {/* Add/Edit Form Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '550px' }}>
@@ -521,6 +534,7 @@ export default function PartsManagement({ onNavigate }) {
                   </div>
                 </div>
 
+                {/* Photo Upload Area */}
                 <div className="form-group">
                   <label className="form-label">Photo</label>
                   <input 

@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Users, UserPlus, Search, Edit2, Trash2, 
@@ -8,8 +7,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -24,7 +23,7 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function StaffManagement({ onNavigate }) {
+export default function StaffManagement() {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +49,7 @@ export default function StaffManagement({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get('/api/staff');
-      setStaff((Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id));
+      setStaff(response.data.sort((a, b) => a.id - b.id));
     } catch (error) {
       toast.error("Failed to load staff list.");
     } finally {
@@ -156,7 +155,7 @@ export default function StaffManagement({ onNavigate }) {
           <span className="page-title">Staff Management</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={handleExport}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
@@ -491,7 +490,7 @@ export default function StaffManagement({ onNavigate }) {
                 <input 
                   type="text" name="fullName" className="form-input" required 
                   value={formData.fullName} onChange={handleInputChange}
-                  placeholder="e.g. John Doe"
+                  placeholder="e.g. Bishnu Parajuli"
                 />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -500,7 +499,7 @@ export default function StaffManagement({ onNavigate }) {
                   <input 
                     type="email" name="email" className="form-input" required 
                     value={formData.email} onChange={handleInputChange}
-                    placeholder="staff@autobolt.com"
+                    placeholder="bishnu@autobolt.com"
                   />
                 </div>
                 <div className="form-group">
@@ -561,4 +560,3 @@ export default function StaffManagement({ onNavigate }) {
     </>
   );
 }
-

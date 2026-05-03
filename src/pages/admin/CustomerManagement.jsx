@@ -42,7 +42,7 @@ export default function CustomerManagement({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get('/api/customers');
-      const sortedCustomers = response.data.sort((a, b) => a.id - b.id);
+      const sortedCustomers = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
       setCustomers(sortedCustomers);
     } catch (error) {
       console.error("Failed to fetch customers", error);
@@ -139,7 +139,7 @@ export default function CustomerManagement({ onNavigate }) {
   const currentCustomers = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <AdminLayout onNavigate={onNavigate}>
+    <>
       <header className="top-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Users className="nav-icon" style={{ color: 'var(--brand)' }} />
@@ -324,6 +324,6 @@ export default function CustomerManagement({ onNavigate }) {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

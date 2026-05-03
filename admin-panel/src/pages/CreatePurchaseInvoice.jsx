@@ -1,15 +1,16 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   ShoppingCart, Plus, Trash2, Truck, Package, 
   CheckCircle, ChevronLeft, Search, 
   Hash, Calendar, FileText, Printer, X
 } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-export default function CreatePurchaseInvoice({ onNavigate }) {
-  
+export default function CreatePurchaseInvoice() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [vendors, setVendors] = useState([]);
   const [parts, setParts] = useState([]);
@@ -36,13 +37,21 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         setVendors(vendRes.data);
         setParts(partRes.data);
 
-        // Auto-add part logic removed as it depends on react-router-dom context
+        // Auto-add part if navigated from low stock alert (silently, no extra toast)
+        const preSelectedPart = location.state?.preSelectedPart;
+        if (preSelectedPart) {
+          const matchedPart = partRes.data.find(p => p.id === preSelectedPart.id);
+          if (matchedPart) {
+            setCart([{ ...matchedPart, quantity: 10, unitCost: matchedPart.price * 0.7 }]);
+            // No toast here — user already sees the part in the cart
+          }
+        }
       } catch (error) {
         toast.error("Failed to load setup data.");
       }
     };
     fetchData();
-  }, []);
+  }, [location.state]);
 
   const addToCart = (part) => {
     const existing = cart.find(item => item.id === part.id);
@@ -103,7 +112,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
       // Open print view
       setTimeout(() => {
         window.print();
-        onNavigate('admin-purchase');
+        navigate('/admin/purchase');
       }, 1000);
 
     } catch (error) {
@@ -311,13 +320,9 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
             {loading ? <div className="spinner" /> : <><CheckCircle size={20} style={{ marginRight: '8px' }} /> COMPLETE PURCHASE</>}
           </button>
           
-          <button 
-            onClick={() => onNavigate('admin-purchase')} 
-            className="btn btn-ghost" 
-            style={{ display: 'flex', width: '100%', justifyContent: 'center', marginTop: '1rem', fontSize: '0.85rem', color: 'var(--ink-soft)' }}
-          >
+          <Link to="/admin/purchase" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem', color: 'var(--ink-soft)' }}>
             <ChevronLeft size={14} style={{ verticalAlign: 'middle' }} /> Back to Management
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -402,4 +407,3 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
     </div>
   );
 }
-

@@ -1,17 +1,16 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Bell, AlertTriangle, Package, ChevronRight, 
   RefreshCw, ShoppingCart, Info, CheckCircle
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-export default function Notifications({ onNavigate }) {
+export default function Notifications() {
   const [lowStockParts, setLowStockParts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const navigate = useNavigate();
 
   const fetchLowStock = async (showToast = false) => {
     try {
@@ -39,7 +38,7 @@ export default function Notifications({ onNavigate }) {
   }, []);
 
   const handleRestockNow = (part) => {
-    onNavigate('admin-create-purchase', { state: { preSelectedPart: part } });
+    navigate('/admin/create-purchase', { state: { preSelectedPart: part } });
   };
 
   return (
@@ -167,4 +166,3 @@ export default function Notifications({ onNavigate }) {
     </>
   );
 }
-
