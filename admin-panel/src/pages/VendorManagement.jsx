@@ -1,10 +1,9 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
 import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -19,7 +18,7 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function VendorManagement({ onNavigate }) {
+export default function VendorManagement() {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,7 +50,7 @@ export default function VendorManagement({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get('/api/vendors');
-      const sortedVendors = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
+      const sortedVendors = response.data.sort((a, b) => a.id - b.id);
       setVendors(sortedVendors);
     } catch (error) {
       console.error("Failed to fetch vendors", error);
@@ -179,7 +178,7 @@ export default function VendorManagement({ onNavigate }) {
           <span className="page-title">Vendor Management</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(vendors, 'Vendors_List')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
@@ -512,7 +511,7 @@ export default function VendorManagement({ onNavigate }) {
                       className="form-input"
                       value={formData.contactPerson}
                       onChange={handleInputChange}
-                      placeholder="e.g. Acme Parts Corp"
+                      placeholder="e.g. Bishnu Parajuli"
                     />
                   </div>
                 </div>
@@ -602,4 +601,3 @@ export default function VendorManagement({ onNavigate }) {
     </>
   );
 }
-

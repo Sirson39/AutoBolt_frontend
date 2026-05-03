@@ -1,10 +1,9 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { exportToCSV } from '../../utils/exportUtils';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../utils/exportUtils';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
@@ -19,7 +18,7 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
-export default function VehicleManagement({ onNavigate }) {
+export default function VehicleManagement() {
   const [vehicles, setVehicles] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,8 +52,8 @@ export default function VehicleManagement({ onNavigate }) {
         axios.get('/api/vehicles'),
         axios.get('/api/customers')
       ]);
-      setVehicles((Array.isArray(vehiclesRes.data) ? vehiclesRes.data : []).sort((a, b) => a.id - b.id));
-      setCustomers((Array.isArray(customersRes.data) ? customersRes.data : []).sort((a, b) => a.fullName.localeCompare(b.fullName)));
+      setVehicles(vehiclesRes.data.sort((a, b) => a.id - b.id));
+      setCustomers(customersRes.data.sort((a, b) => a.fullName.localeCompare(b.fullName)));
     } catch (error) {
       console.error("Failed to fetch data", error);
       toast.error("Failed to load data from the server.");
@@ -190,7 +189,7 @@ export default function VehicleManagement({ onNavigate }) {
           <span className="page-title">Vehicle Management</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
           <button className="btn btn-ghost" onClick={() => exportToCSV(vehicles, 'Vehicles_List')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
@@ -645,4 +644,3 @@ export default function VehicleManagement({ onNavigate }) {
     </>
   );
 }
-

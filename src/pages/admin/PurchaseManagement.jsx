@@ -1,10 +1,10 @@
-import AdminLayout from '../../../components/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   ShoppingCart, Plus, Search, Eye, Calendar, 
   X, Truck, FileSpreadsheet, Trash2, Hash, Printer
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// react-router-dom removed
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -37,8 +37,10 @@ export default function PurchaseManagement({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get('/api/purchase');
-      setInvoices(response.data.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)));
+      const data = Array.isArray(response.data) ? response.data : [];
+      setInvoices(data.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)));
     } catch (error) {
+      console.error("Purchase Fetch Error:", error);
       toast.error("Failed to load purchase records.");
     } finally {
       setLoading(false);
@@ -71,13 +73,13 @@ export default function PurchaseManagement({ onNavigate }) {
           <span className="page-title">Purchase Management</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown />
+          <NotificationDropdown onNavigate={onNavigate} />
           <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Purchase_History')}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <Link to="/admin/create-purchase" className="btn btn-primary">
+          <button onClick={() => onNavigate('admin-create-purchase')} className="btn btn-primary">
             <Plus size={18} /> New Purchase (Restock)
-          </Link>
+          </button>
         </div>
       </header>
 

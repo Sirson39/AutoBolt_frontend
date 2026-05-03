@@ -3,28 +3,26 @@ import {
   Bell, AlertTriangle, Package, ShoppingCart, 
   ChevronRight, RefreshCw, CheckCircle 
 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-export default function NotificationDropdown({ onNavigate }) {
+export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [lowStockParts, setLowStockParts] = useState([]);
   const [unseenCount, setUnseenCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   const fetchLowStock = async () => {
     try {
       const response = await axios.get('/api/parts/low-stock');
-      const parts = Array.isArray(response.data) ? response.data : [];
+      const parts = response.data;
       setLowStockParts(parts);
       
       // Calculate how many are "new" since last seen
-      let seenIds = [];
-      try {
-        seenIds = JSON.parse(localStorage.getItem('seenNotificationIds') || '[]');
-      } catch (e) { seenIds = []; }
-      
-      const newParts = parts.filter(p => p && p.id && !seenIds.includes(p.id));
+      const seenIds = JSON.parse(localStorage.getItem('seenNotificationIds') || '[]');
+      const newParts = parts.filter(p => !seenIds.includes(p.id));
       setUnseenCount(newParts.length);
     } catch (error) {
       console.error("Failed to load notifications", error);
@@ -137,7 +135,7 @@ export default function NotificationDropdown({ onNavigate }) {
                    </div>
                    <button
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brand)', padding: '4px' }}
-                      onClick={() => { setIsOpen(false); onNavigate('admin-create-purchase'); }}
+                      onClick={() => { setIsOpen(false); navigate('/admin/create-purchase', { state: { preSelectedPart: part } }); }}
                       title="Restock this part"
                    >
                       <ShoppingCart size={16} />
@@ -147,16 +145,17 @@ export default function NotificationDropdown({ onNavigate }) {
             )}
           </div>
 
-          <div 
-            onClick={() => { setIsOpen(false); onNavigate('admin-notifications'); }}
+          <Link 
+            to="/admin/notifications" 
+            onClick={() => setIsOpen(false)}
             style={{ 
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
               padding: '0.75rem', fontSize: '0.8rem', fontWeight: '800', color: 'var(--brand)',
-              background: 'var(--surface-2)', cursor: 'pointer'
+              background: 'var(--surface-2)', textDecoration: 'none'
             }}
           >
             View All Notifications <ChevronRight size={14} />
-          </div>
+          </Link>
         </div>
       )}
 

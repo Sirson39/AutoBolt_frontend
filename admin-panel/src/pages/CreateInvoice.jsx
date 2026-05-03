@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
 import { 
   Receipt, Plus, Trash2, User, Car, Package, 
@@ -6,12 +5,12 @@ import {
   AlertCircle, Tag, ShoppingCart, Printer, X, 
   CreditCard, Wallet
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-export default function CreateInvoice({ onNavigate }) {
-  
+export default function CreateInvoice() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
@@ -149,7 +148,7 @@ export default function CreateInvoice({ onNavigate }) {
       // Wait for state update then print
       setTimeout(() => {
         window.print();
-        onNavigate('admin-sales');
+        navigate('/admin/sales');
       }, 1000);
 
     } catch (error) {
@@ -471,4 +470,3 @@ export default function CreateInvoice({ onNavigate }) {
     </div>
   );
 }
-

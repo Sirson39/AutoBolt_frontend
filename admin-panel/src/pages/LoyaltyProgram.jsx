@@ -1,16 +1,15 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { Gift, DollarSign, Users, TrendingUp, Award, ArrowRight, Star } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import NotificationDropdown from '../../components/NotificationDropdown';
+import NotificationDropdown from '../components/NotificationDropdown';
+import { useNavigate } from 'react-router-dom';
 
-
-export default function LoyaltyProgram({ onNavigate }) {
+export default function LoyaltyProgram() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -53,7 +52,7 @@ export default function LoyaltyProgram({ onNavigate }) {
   const SummaryCard = ({ title, value, subValue, icon: Icon, theme = 'brand', link }) => (
     <div
       className="stat-card"
-      onClick={() => link && onNavigate(link)}
+      onClick={() => link && navigate(link)}
       style={{ cursor: link ? 'pointer' : 'default', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -77,7 +76,7 @@ export default function LoyaltyProgram({ onNavigate }) {
           <span className="page-title">Loyalty Program</span>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
+          <NotificationDropdown />
         </div>
       </header>
 
@@ -119,7 +118,7 @@ export default function LoyaltyProgram({ onNavigate }) {
             subValue="Invoices with discount applied"
             icon={TrendingUp}
             theme="accent"
-            link="admin-sales"
+            link="/admin/sales"
           />
           <SummaryCard
             title="Loyal Customers"
@@ -127,7 +126,7 @@ export default function LoyaltyProgram({ onNavigate }) {
             subValue="Unique customers who benefited"
             icon={Users}
             theme="warning"
-            link="admin-customers"
+            link="/admin/customers"
           />
           <SummaryCard
             title="Avg Discount / Transaction"
@@ -199,7 +198,7 @@ export default function LoyaltyProgram({ onNavigate }) {
         <div className="table-card">
           <div className="table-toolbar">
             <span style={{ fontWeight: '800' }}>All Loyalty Transactions</span>
-            <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => onNavigate('admin-sales')}>
+            <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => navigate('/admin/sales')}>
               View All Sales <ArrowRight size={14} />
             </button>
           </div>
@@ -218,7 +217,7 @@ export default function LoyaltyProgram({ onNavigate }) {
               {loyaltyInvoices.length > 0 ? loyaltyInvoices
                 .sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))
                 .map(inv => (
-                  <tr key={inv.id} style={{ cursor: 'pointer' }} onClick={() => onNavigate('admin-sales')}>
+                  <tr key={inv.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/admin/sales')}>
                     <td style={{ fontWeight: '700' }}>{inv.invoiceNumber || `#${inv.id}`}</td>
                     <td>{inv.customerName}</td>
                     <td>Rs {inv.subTotal.toLocaleString()}</td>
@@ -247,4 +246,3 @@ export default function LoyaltyProgram({ onNavigate }) {
     </>
   );
 }
-
