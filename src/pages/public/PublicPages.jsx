@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { features, publicPages, roleCards } from "../../data/siteContent";
-import { FeatureCard, Metric, RoleCard, SigninFields, SignupFields } from "../../components/shared";
+import { FeatureCard, Metric, RoleCard } from "../../components/shared";
+import api from "../../utils/api";
+import { setAuth } from "../../utils/auth";
+import toast from "react-hot-toast";
 
 function Shell({ route, onNavigate, publicNav, children, footerText }) {
   return (
@@ -90,7 +93,7 @@ export function LandingPage({ onNavigate, publicNav }) {
               <p className="panel-copy">Users can start from the landing page and move into sign in or sign up, then into the matching workspace.</p>
               <div className="auth-meta">
                 <span className="status good">Ready</span>
-                <span className="status warn">Backend pending</span>
+                <span className="status good">Connected</span>
                 <span className="status good">Responsive</span>
               </div>
             </div>
@@ -128,17 +131,65 @@ export function LandingPage({ onNavigate, publicNav }) {
 }
 
 export function AuthPage({ mode, onNavigate, publicNav }) {
+  const [loading, setLoading] = useState(false);
+
+  // Sign-in state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  // Sign-up state
+  const [regFullName, setRegFullName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirm, setRegConfirm] = useState('');
+  const [regAddress, setRegAddress] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await api.post('/api/auth/login', { email: loginEmail, password: loginPassword });
+      setAuth(data);
+      toast.success(`Welcome back, ${data.fullName}!`);
+      if (data.role === 'Admin') onNavigate('admin');
+      else if (data.role === 'Staff') onNavigate('staff-dashboard');
+      else onNavigate('customer');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid email or password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (regPassword !== regConfirm) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await api.post('/api/auth/register', {
+        fullName: regFullName,
+        email: regEmail,
+        phone: regPhone,
+        password: regPassword,
+        address: regAddress || undefined,
+      });
+      setAuth(data);
+      toast.success(`Account created! Welcome, ${data.fullName}.`);
+      onNavigate('customer');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const config = mode === "signin"
-    ? {
-        title: "Sign in",
-        subtitle: "Open a role-based workspace and explore the matching dashboard UI.",
-        button: "Enter dashboard"
-      }
-    : {
-        title: "Create account",
-        subtitle: "Prepare a clean registration flow for customers, staff, or admin onboarding.",
-        button: "Create profile"
-      };
+    ? { title: "Sign in", subtitle: "Enter your credentials to access your workspace.", button: loading ? "Signing in…" : "Sign in" }
+    : { title: "Create account", subtitle: "Register as a customer to access self-service features.", button: loading ? "Creating account…" : "Create profile" };
 
   return (
     <Shell
@@ -154,13 +205,25 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             <h1 style={{ marginTop: 18 }}>{mode === "signin" ? "Welcome back." : "Create your profile."}</h1>
             <p>
               {mode === "signin"
-                ? "Use this screen as the gateway into the role dashboard that matches the signed-in user."
-                : "The sign-up flow is ready for customer registration now and can be connected to a backend later."}
+                ? "Sign in with your AutoBolt credentials. You'll be taken to the workspace matching your role."
+                : "Create a customer account to track your vehicles, purchases, and service history."}
             </p>
             <div className="metrics">
               <Metric title="Role aware" text="Admin, staff, or customer entry" />
-              <Metric title="Fast start" text="Landing page to workspace in one click" />
+              <Metric title="JWT secured" text="Token-based authentication" />
             </div>
+            {mode === "signin" && (
+              <div style={{ marginTop: 24 }}>
+                <button
+                  className="btn btn-ghost"
+                  type="button"
+                  onClick={() => onNavigate("forgot-password")}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
           </div>
           <div className="glass-panel auth-card">
             <div className="auth-tabs">
@@ -169,16 +232,70 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             </div>
             <h2 style={{ margin: "18px 0 6px" }}>{config.title}</h2>
             <p className="panel-copy">{config.subtitle}</p>
-            <form className="form-grid" onSubmit={(e) => {
-              e.preventDefault();
-              onNavigate(mode === "signin" ? "staff-dashboard" : "customer");
-            }}>
-              {mode === "signup" ? <SignupFields /> : <SigninFields />}
-              <button className="btn btn-primary" type="submit">{config.button}</button>
-            </form>
-            <p className="mini-note">
-              This is UI-only for now. The form actions route into the matching dashboard so you can demo the experience immediately.
-            </p>
+
+            {mode === "signin" ? (
+              <form className="form-grid" onSubmit={handleLogin}>
+                <div className="field">
+                  <label htmlFor="login-email">Email</label>
+                  <input id="login-email" type="email" placeholder="name@example.com" required
+                    value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="login-password">Password</label>
+                  <input id="login-password" type="password" placeholder="Enter password" required
+                    value={loginPassword} onChange={e => setLoginPassword(e.target.value)} />
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                <p className="mini-note" style={{ marginTop: 8 }}>
+                  Don't have an account?{' '}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
+                    onClick={() => onNavigate("signup")}>Sign up</button>
+                </p>
+              </form>
+            ) : (
+              <form className="form-grid" onSubmit={handleRegister}>
+                <div className="field-row">
+                  <div className="field">
+                    <label htmlFor="reg-name">Full name</label>
+                    <input id="reg-name" type="text" placeholder="Your name" required
+                      value={regFullName} onChange={e => setRegFullName(e.target.value)} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="reg-phone">Phone</label>
+                    <input id="reg-phone" type="tel" placeholder="98XXXXXXXX" required
+                      value={regPhone} onChange={e => setRegPhone(e.target.value)} />
+                  </div>
+                </div>
+                <div className="field">
+                  <label htmlFor="reg-email">Email</label>
+                  <input id="reg-email" type="email" placeholder="name@example.com" required
+                    value={regEmail} onChange={e => setRegEmail(e.target.value)} />
+                </div>
+                <div className="field-row">
+                  <div className="field">
+                    <label htmlFor="reg-password">Password</label>
+                    <input id="reg-password" type="password" placeholder="Min 8 characters" required
+                      value={regPassword} onChange={e => setRegPassword(e.target.value)} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="reg-confirm">Confirm password</label>
+                    <input id="reg-confirm" type="password" placeholder="Repeat password" required
+                      value={regConfirm} onChange={e => setRegConfirm(e.target.value)} />
+                  </div>
+                </div>
+                <div className="field">
+                  <label htmlFor="reg-address">Address <span style={{ color: 'var(--ink-soft)', fontWeight: 400 }}>(optional)</span></label>
+                  <input id="reg-address" type="text" placeholder="City or street"
+                    value={regAddress} onChange={e => setRegAddress(e.target.value)} />
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                <p className="mini-note" style={{ marginTop: 8 }}>
+                  Already have an account?{' '}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
+                    onClick={() => onNavigate("signin")}>Sign in</button>
+                </p>
+              </form>
+            )}
           </div>
         </div>
       </section>
