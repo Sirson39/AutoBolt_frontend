@@ -1,7 +1,7 @@
 /* ===== AutoBolt Admin — Global Design System ===== */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 
-:root {
+body.admin-mode {
   /* Brand Colors (matching team's palette) */
   --brand: #d95d39;
   --brand-deep: #ba4524;
@@ -443,17 +443,17 @@ body {
 
 .search-box input::placeholder { color: var(--ink-soft); }
 
-table {
+.admin-mode table {
   width: 100%;
   border-collapse: collapse;
 }
 
-thead tr {
+.admin-mode thead tr {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
 }
 
-th {
+.admin-mode th {
   padding: 1rem 1.25rem;
   text-align: left;
   font-size: 0.75rem;
@@ -463,16 +463,16 @@ th {
   color: var(--ink-soft);
 }
 
-td {
+.admin-mode td {
   padding: 1.1rem 1.25rem;
   font-size: 0.875rem;
   border-bottom: 1px solid var(--border);
   color: var(--ink);
 }
 
-tbody tr:last-child td { border-bottom: none; }
+.admin-mode tbody tr:last-child td { border-bottom: none; }
 
-tbody tr:hover { background: var(--surface-2); }
+.admin-mode tbody tr:hover { background: var(--surface-2); }
 
 /* ===== Pagination ===== */
 .pagination {
