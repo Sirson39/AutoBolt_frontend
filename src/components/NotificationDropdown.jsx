@@ -110,7 +110,7 @@ export default function NotificationDropdown({ onNavigate }) {
           background: 'var(--surface)',
           borderRadius: 'var(--radius)',
           border: '1px solid var(--border)',
-          zIndex: 1000,
+          zIndex: 9999,
           overflow: 'hidden',
           animation: 'fadeDown 0.2s ease'
         }}>
@@ -135,13 +135,17 @@ export default function NotificationDropdown({ onNavigate }) {
                       <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--ink)' }}>{part.name}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--danger)', fontWeight: '700' }}>Only {part.stockQuantity} remaining</div>
                    </div>
-                   <button
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brand)', padding: '4px' }}
-                      onClick={() => { setIsOpen(false); onNavigate('admin-create-purchase'); }}
-                      title="Restock this part"
-                   >
-                      <ShoppingCart size={16} />
-                   </button>
+                    <button
+                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brand)', padding: '4px' }}
+                       onClick={() => { 
+                         localStorage.setItem('restockPart', JSON.stringify(part));
+                         setIsOpen(false); 
+                         onNavigate('admin-create-purchase'); 
+                       }}
+                       title="Restock this part"
+                    >
+                       <ShoppingCart size={16} />
+                    </button>
                 </div>
               ))
             )}

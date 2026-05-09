@@ -36,7 +36,13 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         setVendors(vendRes.data);
         setParts(partRes.data);
 
-        // Auto-add part logic removed as it depends on react-router-dom context
+        // Check for restockPart from Notifications
+        const restockData = localStorage.getItem('restockPart');
+        if (restockData) {
+          const part = JSON.parse(restockData);
+          addToCart(part);
+          localStorage.removeItem('restockPart');
+        }
       } catch (error) {
         toast.error("Failed to load setup data.");
       }

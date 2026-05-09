@@ -2,7 +2,8 @@ import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Bell, AlertTriangle, Package, ChevronRight, 
-  RefreshCw, ShoppingCart, Info, CheckCircle
+  RefreshCw, ShoppingCart, Info, CheckCircle,
+  Zap, Target, TrendingDown
 } from 'lucide-react';
 
 import axios from 'axios';
@@ -11,16 +12,22 @@ import toast from 'react-hot-toast';
 export default function Notifications({ onNavigate }) {
   const [lowStockParts, setLowStockParts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(false);
   
 
   const fetchLowStock = async (showToast = false) => {
     try {
-      setLoading(true);
+      if (showToast) setScanning(true);
+      else setLoading(true);
+      
       const response = await axios.get('/api/parts/low-stock');
       const parts = response.data;
+      
+      // Simulate system scan time for premium feel
+      if (showToast) await new Promise(r => setTimeout(r, 1500));
+      
       setLowStockParts(parts);
 
-      // Mark all current alerts as seen when visiting this page
       const ids = parts.map(p => p.id);
       localStorage.setItem('seenNotificationIds', JSON.stringify(ids));
 
@@ -31,6 +38,7 @@ export default function Notifications({ onNavigate }) {
       toast.error('Failed to load low stock alerts.');
     } finally {
       setLoading(false);
+      setScanning(false);
     }
   };
 
@@ -39,19 +47,25 @@ export default function Notifications({ onNavigate }) {
   }, []);
 
   const handleRestockNow = (part) => {
-    onNavigate('admin-create-purchase', { state: { preSelectedPart: part } });
+    localStorage.setItem('restockPart', JSON.stringify(part));
+    onNavigate('admin-create-purchase');
   };
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Bell className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">System Notifications</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <Bell size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">System Notifications</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Manage alerts and inventory warnings</span>
+          </div>
         </div>
         <div className="header-actions">
-          <button className="btn btn-ghost" onClick={() => fetchLowStock(true)} disabled={loading}>
-            <RefreshCw size={18} className={loading ? 'spin' : ''} /> Refresh Alerts
+          <button className="btn btn-primary" onClick={() => fetchLowStock(true)} disabled={loading || scanning} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <RefreshCw size={18} className={scanning ? 'spin' : ''} /> {scanning ? 'SCANNING SYSTEM...' : 'RUN FULL SCAN'}
           </button>
         </div>
       </header>
@@ -94,7 +108,12 @@ export default function Notifications({ onNavigate }) {
                       <tr key={part.id}>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-soft)' }}>
+                            <div style={{ 
+                              width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', 
+                              background: 'var(--surface-2)', 
+                              overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                              color: 'var(--ink-soft)' 
+                            }}>
                                {part.imageUrl ? (
                                  <img src={part.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                ) : (
@@ -114,7 +133,7 @@ export default function Notifications({ onNavigate }) {
                            </div>
                         </td>
                         <td>
-                           <span className="badge badge-danger">CRITICAL LOW</span>
+                           <span className="badge badge-danger">LOW STOCK</span>
                         </td>
                         <td style={{ textAlign: 'right' }}>
                            <button
@@ -133,27 +152,43 @@ export default function Notifications({ onNavigate }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="table-card" style={{ padding: '1.5rem' }}>
-               <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Info size={18} color="var(--brand)" /> STOCK INSIGHTS
+            <div className="table-card shimmer" style={{ padding: '1.5rem', background: 'var(--brand)', color: '#fff', border: 'none', position: 'relative' }}>
+               <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Zap size={18} fill="#fff" /> TOP PRIORITY
                </h3>
-               <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                 Your inventory system is configured to alert you whenever a part falls below 10 units. 
-                 Immediate restocking is recommended for "Critical Low" items to avoid service delays.
-               </p>
-               <div style={{ background: 'var(--surface-2)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-soft)', marginBottom: '0.5rem' }}>TOTAL ALERTS</div>
-                  <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--ink)' }}>{lowStockParts.length}</div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {lowStockParts.slice(0, 3).map(p => (
+                    <div key={p.id} style={{ background: 'rgba(255,255,255,0.15)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: '800' }}>{p.name}</div>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>Only {p.stockQuantity} left</div>
+                       </div>
+                       <button onClick={() => handleRestockNow(p)} style={{ background: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', cursor: 'pointer' }}>
+                          <ChevronRight size={16} />
+                       </button>
+                    </div>
+                  ))}
+                  {lowStockParts.length === 0 && <p style={{ fontSize: '0.85rem', opacity: 0.8 }}>No items need immediate attention.</p>}
                </div>
             </div>
 
-            <div className="table-card" style={{ padding: '1.5rem', background: 'var(--sidebar-bg)', color: '#fff' }}>
-               <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem', color: '#fff' }}>Quick Tips</h3>
-               <ul style={{ fontSize: '0.85rem', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', opacity: 0.8 }}>
-                 <li>Check the <b>Inventory Report</b> for a full stock overview.</li>
-                 <li>Use <b>Vendor Management</b> to find contact details for restocking.</li>
-                 <li>Verify stock physical counts weekly.</li>
-               </ul>
+            <div className="table-card" style={{ padding: '1.5rem' }}>
+               <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Target size={18} color="var(--brand)" /> STOCK INSIGHTS
+               </h3>
+               <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+                  System analysis identifies {lowStockParts.length} items below the safety threshold. 
+                  Immediate restocking is recommended to maintain service continuity.
+               </p>
+               <div style={{ background: 'var(--surface-2)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-soft)', marginBottom: '0.5rem' }}>HEALTH SCORE</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                     <div style={{ fontSize: '2rem', fontWeight: '900', color: lowStockParts.length > 0 ? 'var(--danger)' : 'var(--success)' }}>
+                        {Math.max(0, 100 - (lowStockParts.length * 10))}%
+                     </div>
+                     {lowStockParts.length > 0 && <TrendingDown size={20} color="var(--danger)" />}
+                  </div>
+               </div>
             </div>
           </div>
 

@@ -78,6 +78,10 @@ export default function Dashboard({ onNavigate }) {
       const lowStockData = Array.isArray(lowStock.data) ? lowStock.data : [];
       const customersData = Array.isArray(customers.data) ? customers.data : [];
 
+      // Filter out "seen" notifications for the dashboard count
+      const seenIds = JSON.parse(localStorage.getItem('seenNotificationIds') || '[]');
+      const actualLowStockCount = lowStockData.filter(p => !seenIds.includes(p.id)).length;
+
       setStats({
         totalParts:     partsData.length,
         lowStockParts:  lowStockData.length,
