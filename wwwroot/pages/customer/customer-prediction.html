@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | AI Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-prediction.css" />
+</head>
+<body>
+    <div class="orb orb-left"></div>
+    <div class="orb orb-right"></div>
+
+    <header class="page-header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <nav class="quick-nav" aria-label="Customer navigation">
+            <a href="customer-dashboard.html">Dashboard</a>
+            <a href="customer-profile.html">Profile</a>
+            <a href="customer-history.html">History</a>
+            <a href="book-appointment.html">Book appointment</a>
+            <a href="request-part.html">Request part</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <section class="panel prediction-panel">
+            <p class="kicker">AI prediction</p>
+            <h1>Vehicle condition and failure alerts.</h1>
+            <p class="lead">This page translates the scenario's AI requirement into a customer-friendly view of likely maintenance issues and urgency.</p>
+
+            <div class="score-row">
+                <article class="score-card primary-score">
+                    <span>Overall confidence</span>
+                    <strong>63%</strong>
+                    <p>Moderate confidence based on mileage and last service date.</p>
+                </article>
+                <article class="score-card">
+                    <span>Next check</span>
+                    <strong>14 days</strong>
+                    <p>Recommended inspection window for wear-sensitive parts.</p>
+                </article>
+                <article class="score-card">
+                    <span>Alerts</span>
+                    <strong>2</strong>
+                    <p>Brake pad and battery health need attention.</p>
+                </article>
+            </div>
+
+            <div class="prediction-grid">
+                <article class="prediction-card warn-card">
+                    <span>Brake pads</span>
+                    <strong>High wear risk</strong>
+                    <p>Estimated life remaining: 22%</p>
+                    <div class="progress"><span style="width: 22%"></span></div>
+                </article>
+                <article class="prediction-card">
+                    <span>Battery health</span>
+                    <strong>Moderate risk</strong>
+                    <p>Estimated life remaining: 48%</p>
+                    <div class="progress"><span style="width: 48%"></span></div>
+                </article>
+                <article class="prediction-card good-card">
+                    <span>Engine oil</span>
+                    <strong>Healthy</strong>
+                    <p>Estimated life remaining: 78%</p>
+                    <div class="progress"><span style="width: 78%"></span></div>
+                </article>
+            </div>
+        </section>
+
+        <aside class="panel side-panel">
+            <p class="kicker">Recommended action</p>
+            <div class="advice-card">
+                <h2>What the AI suggests</h2>
+                <ul>
+                    <li>Book a service appointment within two weeks.</li>
+                    <li>Request brake inspection and battery testing.</li>
+                    <li>Keep service notes updated in the profile page.</li>
+                </ul>
+            </div>
+
+            <div class="advice-card accent-card">
+                <h2>Customer impact</h2>
+                <p>Early warnings can reduce breakdowns and help the customer plan maintenance before a failure occurs.</p>
+                <a class="return-link" href="customer-dashboard.html">Back to dashboard</a>
+            </div>
+        </aside>
+    </main>
+</body>
+</html>
