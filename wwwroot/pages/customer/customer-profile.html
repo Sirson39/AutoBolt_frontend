@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Profile and Vehicle Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-profile.css" />
+</head>
+<body>
+    <div class="orb orb-left"></div>
+    <div class="orb orb-right"></div>
+
+    <header class="page-header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <nav class="quick-nav" aria-label="Customer navigation">
+            <a href="customer-dashboard.html">Dashboard</a>
+            <a href="book-appointment.html">Book appointment</a>
+            <a href="request-part.html">Request part</a>
+            <a href="service-review.html">Service review</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <section class="panel profile-panel">
+            <p class="kicker">Customer profile</p>
+            <h1>Manage profile and vehicle details.</h1>
+            <p class="lead">This page covers the scenario requirement for customer self-registration and profile management with vehicle data.</p>
+
+            <form class="profile-form">
+                <div class="field-grid">
+                    <label>
+                        Full name
+                        <input type="text" value="Bidhan Banjade" />
+                    </label>
+                    <label>
+                        Phone number
+                        <input type="tel" value="98XXXXXXXX" />
+                    </label>
+                    <label>
+                        Email address
+                        <input type="email" value="customer@example.com" />
+                    </label>
+                    <label>
+                        Address
+                        <input type="text" value="Kathmandu, Nepal" />
+                    </label>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="field-grid">
+                    <label>
+                        Vehicle number
+                        <input type="text" value="BA-12-PA-1234" />
+                    </label>
+                    <label>
+                        Vehicle type
+                        <select>
+                            <option>Car</option>
+                            <option>SUV</option>
+                            <option>Pickup</option>
+                            <option>Motorbike</option>
+                        </select>
+                    </label>
+                    <label>
+                        Brand
+                        <input type="text" value="Toyota" />
+                    </label>
+                    <label>
+                        Model year
+                        <input type="number" value="2021" />
+                    </label>
+                </div>
+
+                <label class="full-width">
+                    Service notes
+                    <textarea rows="4">Customer prefers service reminders by email and SMS.</textarea>
+                </label>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-primary">Save profile</button>
+                    <button type="button" class="btn btn-secondary">Reset</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="panel info-panel">
+            <p class="kicker">Profile summary</p>
+            <div class="summary-card">
+                <span>Profile completeness</span>
+                <strong>94%</strong>
+                <p>Contact details and vehicle registration are already filled.</p>
+            </div>
+
+            <div class="summary-list">
+                <div>
+                    <span>Vehicle status</span>
+                    <strong>Active</strong>
+                </div>
+                <div>
+                    <span>Last service</span>
+                    <strong>18 Apr 2026</strong>
+                </div>
+                <div>
+                    <span>Reminder preference</span>
+                    <strong>Email + SMS</strong>
+                </div>
+            </div>
+
+            <a class="return-link" href="customer-dashboard.html">Back to dashboard</a>
+        </aside>
+    </main>
+</body>
+</html>
