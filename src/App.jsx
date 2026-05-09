@@ -81,6 +81,14 @@ export default function App() {
       staff: "AutoBolt | Staff Dashboard",
       customer: "AutoBolt | Customer Dashboard",
       "staff-dashboard": "AutoBolt | Staff Dashboard",
+      "customer-registration": "AutoBolt | Customer Registration",
+      "customer-search": "AutoBolt | Customer Search",
+      "customer-details": "AutoBolt | Customer Details",
+      "vehicle-details": "AutoBolt | Vehicle Details",
+      "sales-invoice": "AutoBolt | Sales Invoice",
+      "email-invoice": "AutoBolt | Email Invoice",
+      "customer-history": "AutoBolt | Customer History",
+      "customer-reports": "AutoBolt | Customer Reports",
     };
     document.title = titles[route] || "AutoBolt";
   }, [route]);
