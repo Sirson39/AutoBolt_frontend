@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Purchase and Service History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-history.css" />
+</head>
+<body>
+    <div class="orb orb-left"></div>
+    <div class="orb orb-right"></div>
+
+    <header class="page-header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <nav class="quick-nav" aria-label="Customer navigation">
+            <a href="customer-dashboard.html">Dashboard</a>
+            <a href="customer-profile.html">Profile</a>
+            <a href="book-appointment.html">Book appointment</a>
+            <a href="request-part.html">Request part</a>
+            <a href="service-review.html">Service review</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <section class="panel history-panel">
+            <p class="kicker">History</p>
+            <h1>Purchase and service history.</h1>
+            <p class="lead">This page covers the scenario requirement for customers to view their purchase and service records in one place.</p>
+
+            <div class="history-grid">
+                <article class="history-card highlight-card">
+                    <span>Purchase total</span>
+                    <strong>NPR 18,250</strong>
+                    <p>Across 8 completed purchases.</p>
+                </article>
+                <article class="history-card highlight-card">
+                    <span>Service visits</span>
+                    <strong>6</strong>
+                    <p>2 visits this year, 4 earlier records.</p>
+                </article>
+                <article class="history-card highlight-card">
+                    <span>Open balance</span>
+                    <strong>Clear</strong>
+                    <p>No overdue credit on the account.</p>
+                </article>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Reference</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>18 Apr 2026</td>
+                            <td>Service appointment</td>
+                            <td>APT-2026-0418</td>
+                            <td><span class="status good">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>10 Apr 2026</td>
+                            <td>Part purchase</td>
+                            <td>INV-2026-0331</td>
+                            <td><span class="status good">Paid</span></td>
+                        </tr>
+                        <tr>
+                            <td>07 Apr 2026</td>
+                            <td>Service check</td>
+                            <td>SVC-2026-0207</td>
+                            <td><span class="status good">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>22 Mar 2026</td>
+                            <td>Battery replacement</td>
+                            <td>INV-2026-0291</td>
+                            <td><span class="status good">Paid</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="panel side-panel">
+            <p class="kicker">Insights</p>
+            <div class="insight-card">
+                <h2>What this history shows</h2>
+                <ul>
+                    <li>Recent purchase and service records</li>
+                    <li>Billing status and reference numbers</li>
+                    <li>Support for follow-up and reminders</li>
+                </ul>
+            </div>
+
+            <div class="insight-card accent-card">
+                <h2>Next action</h2>
+                <p>Use the dashboard to book another appointment, update the vehicle profile, or request unavailable parts.</p>
+                <a class="return-link" href="customer-dashboard.html">Back to dashboard</a>
+            </div>
+        </aside>
+    </main>
+</body>
+</html>
