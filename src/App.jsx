@@ -50,14 +50,12 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  // Route guard — redirect unauthenticated users away from protected routes
   useEffect(() => {
     if (isProtected(route) && !isAuthenticated()) {
       window.location.hash = '#signin';
     }
   }, [route]);
 
-  // Role guard — redirect authenticated users to their correct dashboard
   useEffect(() => {
     if ((route === 'signin' || route === 'signup') && isAuthenticated()) {
       const role = getRole();

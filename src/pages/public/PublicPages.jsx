@@ -133,11 +133,9 @@ export function LandingPage({ onNavigate, publicNav }) {
 export function AuthPage({ mode, onNavigate, publicNav }) {
   const [loading, setLoading] = useState(false);
 
-  // Sign-in state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  // Sign-up state
   const [regFullName, setRegFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');

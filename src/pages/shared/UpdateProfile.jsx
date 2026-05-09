@@ -23,7 +23,6 @@ export default function UpdateProfilePage({ onNavigate }) {
     setLoading(true);
     try {
       const { data } = await api.put('/api/auth/profile', { fullName, phone: phone || undefined });
-      // Update stored user name so sidebar shows the new name
       const token = localStorage.getItem('autobolt_token');
       setAuth({
         token: token || '',

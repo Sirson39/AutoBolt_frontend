@@ -16,7 +16,6 @@ export default function ShopSettings({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('general');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Form State
   const [settings, setSettings] = useState({
     shopName: 'AutoBolt',
     tagline: 'Modern Vehicle Service Center',
@@ -37,7 +36,6 @@ export default function ShopSettings({ onNavigate }) {
     minPasswordLength: 8
   });
 
-  // Apply Dark Mode & Theme
   useEffect(() => {
     if (settings.darkMode) {
       document.body.classList.add('dark-theme');
@@ -51,7 +49,6 @@ export default function ShopSettings({ onNavigate }) {
   }, [settings.primaryColor]);
 
   useEffect(() => {
-    // Load from localStorage if exists
     const saved = localStorage.getItem('shopSettings');
     if (saved) {
       setSettings(JSON.parse(saved));

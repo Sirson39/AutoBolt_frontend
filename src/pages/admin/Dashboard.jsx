@@ -59,15 +59,12 @@ export default function Dashboard({ onNavigate }) {
           todayRevenue,
         });
 
-        // Recent 5 invoices
         setRecentInvoices([...inv].sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)).slice(0, 5));
 
-        // Revenue chart from reports API — uses revenueTrend[{label, revenue, orderCount}]
         const report = salesReport.data;
         if (report?.revenueTrend?.length > 0) {
           setSalesChart(report.revenueTrend.map(p => ({ name: p.label, Revenue: p.revenue, Orders: p.orderCount })));
         } else {
-          // Fallback: group invoices by weekday
           const days = {};
           inv.forEach(i => {
             const d = new Date(i.invoiceDate);
@@ -79,7 +76,6 @@ export default function Dashboard({ onNavigate }) {
           setSalesChart(Object.entries(days).slice(-7).map(([name, Revenue]) => ({ name, Revenue })));
         }
 
-        // Category distribution of parts
         const catMap = {};
         partsData.forEach(p => { if(p && p.category) catMap[p.category] = (catMap[p.category] || 0) + 1; });
         setCategoryChart(Object.entries(catMap).map(([name, value]) => ({ name, value })));
