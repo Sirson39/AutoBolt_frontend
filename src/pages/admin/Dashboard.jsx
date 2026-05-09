@@ -2,7 +2,8 @@ import AdminLayout from '../../components/AdminLayout';
 import { 
   Package, Users, AlertTriangle, Truck, ShoppingCart, 
   DollarSign, BarChart2, ArrowRight, CheckCircle,
-  User, Settings as SettingsIcon, LogOut
+  User, Settings as SettingsIcon, LogOut, RefreshCw,
+  TrendingUp, TrendingDown, Activity
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 
@@ -27,9 +28,16 @@ export default function Dashboard({ onNavigate }) {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [salesChart, setSalesChart] = useState([]);
   const [categoryChart, setCategoryChart] = useState([]);
+  const [trends, setTrends] = useState({ revenue: 0, customers: 0, parts: 0 });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  
+  // Get admin name from profile data (mocked for now, but dynamic in behavior)
+  const adminName = "System"; 
+  const avatarLetter = adminName.charAt(0);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -46,76 +54,111 @@ export default function Dashboard({ onNavigate }) {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [parts, lowStock, customers, vendors, invoices, salesReport] = await Promise.all([
-          axios.get('/api/parts'),
-          axios.get('/api/parts/low-stock'),
-          axios.get('/api/customers'),
-          axios.get('/api/vendors'),
-          axios.get('/api/invoices'),
-          axios.get('/api/reports/sales?period=daily'),
-        ]);
+  const fetchAll = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    
+    try {
+      const [parts, lowStock, customers, vendors, invoices, salesReport] = await Promise.all([
+        axios.get('/api/parts'),
+        axios.get('/api/parts/low-stock'),
+        axios.get('/api/customers'),
+        axios.get('/api/vendors'),
+        axios.get('/api/invoices'),
+        axios.get('/api/reports/sales?period=daily'),
+      ]);
 
-        const inv = Array.isArray(invoices.data) ? invoices.data : [];
-        const today = new Date().toDateString();
-        const todayRevenue = inv
-          .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === today)
-          .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+      const inv = Array.isArray(invoices.data) ? invoices.data : [];
+      const today = new Date().toDateString();
+      const todayRevenue = inv
+        .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === today)
+        .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
 
-        const partsData = Array.isArray(parts.data) ? parts.data : [];
-        const lowStockData = Array.isArray(lowStock.data) ? lowStock.data : [];
+      const partsData = Array.isArray(parts.data) ? parts.data : [];
+      const lowStockData = Array.isArray(lowStock.data) ? lowStock.data : [];
+      const customersData = Array.isArray(customers.data) ? customers.data : [];
 
-        setStats({
-          totalParts:     partsData.length,
-          lowStockParts:  lowStockData.length,
-          totalCustomers: Array.isArray(customers.data) ? customers.data.length : 0,
-          totalVendors:   Array.isArray(vendors.data) ? vendors.data.length : 0,
-          todayRevenue,
+      setStats({
+        totalParts:     partsData.length,
+        lowStockParts:  lowStockData.length,
+        totalCustomers: customersData.length,
+        totalVendors:   Array.isArray(vendors.data) ? vendors.data.length : 0,
+        todayRevenue,
+      });
+
+      // Calculate Trends (Today vs Yesterday)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toDateString();
+
+      const yesterdayRevenue = inv
+        .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === yesterdayStr)
+        .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+
+      const newCustomersToday = customersData.filter(c => c && c.createdAt && new Date(c.createdAt).toDateString() === today).length;
+      const newCustomersYesterday = customersData.filter(c => c && c.createdAt && new Date(c.createdAt).toDateString() === yesterdayStr).length;
+
+      const newPartsToday = partsData.filter(p => p && p.createdAt && new Date(p.createdAt).toDateString() === today).length;
+      const newPartsYesterday = partsData.filter(p => p && p.createdAt && new Date(p.createdAt).toDateString() === yesterdayStr).length;
+
+      const calculateTrend = (now, prev) => {
+        if (prev === 0) return now > 0 ? 100 : 0;
+        return ((now - prev) / prev) * 100;
+      };
+
+      setTrends({
+        revenue: calculateTrend(todayRevenue, yesterdayRevenue),
+        customers: calculateTrend(newCustomersToday, newCustomersYesterday),
+        parts: calculateTrend(newPartsToday, newPartsYesterday)
+      });
+
+      setRecentInvoices([...inv].sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)).slice(0, 5));
+
+      const report = salesReport.data;
+      if (report?.revenueTrend?.length > 0) {
+        setSalesChart(report.revenueTrend.map(p => ({ name: p.label, Revenue: p.revenue, Orders: p.orderCount })));
+      } else {
+        const days = {};
+        inv.forEach(i => {
+          const d = new Date(i.invoiceDate);
+          if (!isNaN(d)) {
+            const label = d.toLocaleDateString('en-US', { weekday: 'short' });
+            days[label] = (days[label] || 0) + i.totalAmount;
+          }
         });
-
-        // Recent 5 invoices
-        setRecentInvoices([...inv].sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate)).slice(0, 5));
-
-        // Revenue chart from reports API — uses revenueTrend[{label, revenue, orderCount}]
-        const report = salesReport.data;
-        if (report?.revenueTrend?.length > 0) {
-          setSalesChart(report.revenueTrend.map(p => ({ name: p.label, Revenue: p.revenue, Orders: p.orderCount })));
-        } else {
-          // Fallback: group invoices by weekday
-          const days = {};
-          inv.forEach(i => {
-            const d = new Date(i.invoiceDate);
-            if (!isNaN(d)) {
-              const label = d.toLocaleDateString('en-US', { weekday: 'short' });
-              days[label] = (days[label] || 0) + i.totalAmount;
-            }
-          });
-          setSalesChart(Object.entries(days).slice(-7).map(([name, Revenue]) => ({ name, Revenue })));
-        }
-
-        // Category distribution of parts
-        const catMap = {};
-        partsData.forEach(p => { if(p && p.category) catMap[p.category] = (catMap[p.category] || 0) + 1; });
-        setCategoryChart(Object.entries(catMap).map(([name, value]) => ({ name, value })));
-
-      } catch (err) {
-        toast.error('Failed to load dashboard data.');
-        console.error(err);
-      } finally {
-        setLoading(false);
+        setSalesChart(Object.entries(days).slice(-7).map(([name, Revenue]) => ({ name, Revenue })));
       }
-    };
+
+      const catMap = {};
+      partsData.forEach(p => { if(p && p.category) catMap[p.category] = (catMap[p.category] || 0) + 1; });
+      setCategoryChart(Object.entries(catMap).map(([name, value]) => ({ name, value })));
+
+      setLastUpdated(new Date());
+      if (isRefresh) toast.success("Dashboard data synchronized!");
+    } catch (err) {
+      toast.error('Failed to load dashboard data.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchAll();
   }, []);
 
+  const formatTrend = (val) => {
+    if (val === 0) return "Stable";
+    return `${val > 0 ? '+' : ''}${val.toFixed(1)}%`;
+  };
+
   const statCards = [
-    { label: 'Total Parts',      value: stats.totalParts,                            icon: Package,       theme: 'brand',   link: 'admin-parts' },
-    { label: 'Low Stock Alerts', value: stats.lowStockParts,                         icon: AlertTriangle, theme: 'danger',  link: 'admin-notifications', danger: stats.lowStockParts > 0 },
-    { label: 'Total Customers',  value: stats.totalCustomers,                        icon: Users,         theme: 'accent',  link: 'admin-customers' },
-    { label: 'Vendors',          value: stats.totalVendors,                          icon: Truck,         theme: 'warning', link: 'admin-vendors' },
-    { label: "Today's Revenue",  value: `Rs ${stats.todayRevenue.toLocaleString()}`, icon: DollarSign,    theme: 'brand',   link: 'admin-sales' },
+    { label: 'Total Parts',      value: stats.totalParts,                            icon: Package,       theme: 'brand',   link: 'admin-parts',   trend: formatTrend(trends.parts), isUp: trends.parts > 0 },
+    { label: 'Low Stock Alerts', value: stats.lowStockParts,                         icon: AlertTriangle, theme: 'danger',  link: 'admin-notifications', danger: stats.lowStockParts > 0, trend: stats.lowStockParts > 0 ? 'Action Required' : 'Healthy' },
+    { label: 'Total Customers',  value: stats.totalCustomers,                        icon: Users,         theme: 'accent',  link: 'admin-customers', trend: formatTrend(trends.customers), isUp: trends.customers > 0 },
+    { label: 'Vendors',          value: stats.totalVendors,                          icon: Truck,         theme: 'warning', link: 'admin-vendors', trend: 'Verified' },
+    { label: "Today's Revenue",  value: `Rs ${stats.todayRevenue.toLocaleString()}`, icon: DollarSign,    theme: 'brand',   link: 'admin-sales',   trend: formatTrend(trends.revenue), isUp: trends.revenue > 0 },
   ];
 
   const quickLinks = [
@@ -129,29 +172,34 @@ export default function Dashboard({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span className="page-title">{getGreeting()}, Admin 👋</span>
+          <span className="page-title">{getGreeting()}, {adminName} 👋</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '3px' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
-              {clock.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px rgba(16, 185, 129, 0.4)' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live System</span>
+            </div>
             <span style={{ fontSize: '0.7rem', color: 'var(--border)' }}>•</span>
-            <span style={{
-              fontSize: '0.78rem',
-              fontWeight: '800',
-              color: 'var(--brand)',
-              fontVariantNumeric: 'tabular-nums',
-              letterSpacing: '0.04em'
-            }}>
-              {clock.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+              {clock.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {clock.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
           </div>
         </div>
         <div className="header-actions">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '0.5rem', paddingRight: '0.5rem', borderRight: '1px solid var(--border)' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <button 
+              className={`btn btn-ghost btn-sm ${refreshing ? 'refreshing' : ''}`} 
+              onClick={() => fetchAll(true)}
+              style={{ padding: '0.4rem', borderRadius: '8px' }}
+            >
+              <RefreshCw size={14} className={refreshing ? 'spinner' : ''} />
+            </button>
+          </div>
           <NotificationDropdown onNavigate={onNavigate} />
           <div style={{ position: 'relative' }} ref={dropdownRef}>
-            <div className="avatar" onClick={() => setShowUserDropdown(!showUserDropdown)}>A</div>
+            <div className="avatar" onClick={() => setShowUserDropdown(!showUserDropdown)}>{avatarLetter}</div>
             
             {showUserDropdown && (
               <div className="user-dropdown">
@@ -178,25 +226,44 @@ export default function Dashboard({ onNavigate }) {
       <div className="page-content" style={{ animation: 'fadeIn 0.5s ease' }}>
 
         {/* Stat Cards */}
-        <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+        <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' }}>
           {statCards.map((s) => (
             <div
               key={s.label}
-              className="stat-card"
+              className={`stat-card ${refreshing ? 'shimmer' : ''}`}
               onClick={() => s.link && onNavigate(s.link)}
               style={{
                 cursor: 'pointer',
                 transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                 borderLeft: s.danger ? '3px solid var(--danger)' : undefined,
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              {/* Background Glow */}
+              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: `var(--${s.theme}-light)`, filter: 'blur(30px)', opacity: 0.5, zIndex: 0 }} />
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
                 <div>
                   <span className="stat-card-label">{s.label}</span>
                   <h2 className="stat-card-value" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: s.danger ? 'var(--danger)' : undefined }}>{s.value}</h2>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--brand)', marginTop: '0.4rem', fontWeight: '700' }}>View →</div>
+                  
+                  {s.trend && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '0.5rem' }}>
+                      {s.isUp ? (
+                        <TrendingUp size={12} color="#10b981" />
+                      ) : s.trend.includes('%') ? (
+                        <TrendingDown size={12} color="var(--danger)" />
+                      ) : (
+                        <Activity size={12} color="var(--ink-soft)" />
+                      )}
+                      <span style={{ fontSize: '0.72rem', fontWeight: '800', color: s.isUp ? '#10b981' : 'var(--ink-soft)' }}>
+                        {s.trend}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className={`stat-card-icon ${s.theme}`}><s.icon size={22} /></div>
+                <div className={`stat-card-icon ${s.theme}`} style={{ width: '44px', height: '44px' }}><s.icon size={22} /></div>
               </div>
             </div>
           ))}
@@ -318,10 +385,16 @@ export default function Dashboard({ onNavigate }) {
 
       <style>{`
         .stat-card:hover {
-          transform: translateY(-12px) scale(1.02) !important;
-          box-shadow: 0 20px 40px rgba(217, 93, 57, 0.15) !important;
+          transform: translateY(-8px) scale(1.01) !important;
+          box-shadow: var(--shadow-luxury) !important;
           border-color: var(--brand) !important;
           z-index: 10;
+        }
+        .stat-card:hover .stat-card-icon {
+          transform: translateY(-2px) scale(1.05);
+        }
+        .stat-card-icon {
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
