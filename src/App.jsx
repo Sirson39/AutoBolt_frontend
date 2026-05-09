@@ -45,7 +45,7 @@ export default function App() {
 
   useEffect(() => {
     const titles = {
-      home: "AutoBolt | Landing",
+      home: "AutoBolt | Home",
       about: "AutoBolt | About",
       contact: "AutoBolt | Contact",
       "customer-register": "AutoBolt | Customer Register",
@@ -68,11 +68,13 @@ export default function App() {
   }, [route]);
 
   useEffect(() => {
-    if (route === 'admin' || route.startsWith('admin-')) {
-      document.body.classList.add('admin-mode');
-    } else {
-      document.body.classList.remove('admin-mode');
-    }
+    const isAdmin = route === 'admin' || route.startsWith('admin-');
+    const isAuth = route === 'signin' || route === 'signup';
+    const isPublic = route === 'home' || route === 'about' || route === 'contact' || route === 'customer-register';
+
+    document.body.classList.toggle('admin-mode', isAdmin);
+    document.body.classList.toggle('auth-page', isAuth);
+    document.body.classList.toggle('public-page', isPublic);
   }, [route]);
 
   const onNavigate = (target) => {

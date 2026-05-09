@@ -1,27 +1,35 @@
+import { Boxes, ReceiptText, BarChart3, Users, Bell, Sparkles } from "lucide-react";
+
 export const features = [
   {
     title: "Inventory control",
-    text: "Track parts, low-stock alerts, vendors, and purchase flows with a clean admin-first layout."
+    text: "Track every SKU, manage suppliers, and get notified when stock drops below threshold.",
+    icon: Boxes
   },
   {
     title: "Sales and invoices",
-    text: "Staff can create sales invoices, email them, and see customer purchase history in one place."
+    text: "Issue sales invoices in seconds. Email receipts directly to customers.",
+    icon: ReceiptText
   },
   {
-    title: "Customer self-service",
-    text: "Customers can register, request parts, book appointments, and review service history."
+    title: "Financial reports",
+    text: "Daily, monthly, and yearly reports generated automatically, always audit-ready.",
+    icon: BarChart3
   },
   {
-    title: "AI prediction",
-    text: "A dedicated customer panel highlights predictive maintenance and upcoming part failure signals."
+    title: "Customer histories",
+    text: "See every purchase and vehicle visit. Search by name, phone, NIC, or vehicle.",
+    icon: Users
   },
   {
-    title: "Reports and insight",
-    text: "Admin and staff dashboards surface financial, inventory, and customer reports visually."
+    title: "Smart alerts",
+    text: "Low-stock warnings for admins, overdue credit reminders mailed to customers.",
+    icon: Bell
   },
   {
-    title: "Authentication flow",
-    text: "Landing page, sign in, and sign up routes are ready for backend integration later."
+    title: "AI predictions",
+    text: "Vehicle usage analysis predicts part failures before they happen.",
+    icon: Sparkles
   }
 ];
 
@@ -335,12 +343,14 @@ export const staffNav = [
 ];
 
 export const publicNav = [
-  ["Landing", "home"],
-  ["About", "about"],
-  ["Contact", "contact"],
-  ["Customer Register", "customer-register"],
-  ["Sign In", "signin"],
-  ["Sign Up", "signup"]
+  { label: "Features", target: "home-features", kind: "section" },
+  { label: "Workflow", target: "home-workflow", kind: "section" },
+  { label: "Roles", target: "home-roles", kind: "section" },
+  { label: "About", target: "about", kind: "page" },
+  { label: "Contact", target: "contact", kind: "page" },
+  { label: "Customer Register", target: "customer-register", kind: "page" },
+  { label: "Sign In", target: "signin", kind: "action" },
+  { label: "Sign Up", target: "signup", kind: "action" }
 ];
 
 export const appRoutes = new Set([

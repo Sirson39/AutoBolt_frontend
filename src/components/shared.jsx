@@ -1,9 +1,12 @@
 import React, { useId } from "react";
+import { ShieldCheck, Users, Wrench } from "lucide-react";
 
-export function FeatureCard({ title, text }) {
+export function FeatureCard({ title, text, icon: Icon }) {
   return (
-    <article className="card role-card">
-      <span className="role-badge">{title}</span>
+    <article className="card feature-card">
+      <div className="feature-icon">
+        {Icon ? <Icon size={22} strokeWidth={2.1} /> : <span aria-hidden="true">✦</span>}
+      </div>
       <h3>{title}</h3>
       <p>{text}</p>
     </article>
@@ -11,18 +14,23 @@ export function FeatureCard({ title, text }) {
 }
 
 export function RoleCard({ role, data, onNavigate }) {
+  const Icon = {
+    admin: ShieldCheck,
+    staff: Users,
+    customer: Wrench
+  }[role] || ShieldCheck;
+
   return (
-    <article className="card role-card">
-      <span className="role-badge">{data.badge}</span>
-      <h3>{data.title}</h3>
-      <p>{data.description}</p>
-      <ul className="role-list">
-        {data.items.map((item) => <li key={item}>{item}</li>)}
-      </ul>
-      <div style={{ marginTop: 18 }}>
-        <button className="btn btn-secondary" type="button" onClick={() => onNavigate(role)}>
-          Open {capitalize(role)}
-        </button>
+    <article className={`card role-card role-card-${role}`}>
+      <div className="role-icon">
+        <Icon size={24} strokeWidth={2.15} />
+      </div>
+      <div className="role-content">
+        <span className="role-label">For</span>
+        <h3>{capitalize(role)}</h3>
+        <ul className="role-list">
+          {data.items.map((item) => <li key={item}>{item}</li>)}
+        </ul>
       </div>
     </article>
   );
