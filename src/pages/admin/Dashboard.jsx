@@ -1,6 +1,10 @@
 import AdminLayout from '../../components/AdminLayout';
-import { Package, Users, AlertTriangle, Truck, ShoppingCart, DollarSign, BarChart2, ArrowRight, CheckCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { 
+  Package, Users, AlertTriangle, Truck, ShoppingCart, 
+  DollarSign, BarChart2, ArrowRight, CheckCircle,
+  User, Settings as SettingsIcon, LogOut
+} from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -24,6 +28,18 @@ export default function Dashboard({ onNavigate }) {
   const [salesChart, setSalesChart] = useState([]);
   const [categoryChart, setCategoryChart] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setClock(new Date()), 1000);
@@ -134,7 +150,28 @@ export default function Dashboard({ onNavigate }) {
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
-          <div className="avatar">A</div>
+          <div style={{ position: 'relative' }} ref={dropdownRef}>
+            <div className="avatar" onClick={() => setShowUserDropdown(!showUserDropdown)}>A</div>
+            
+            {showUserDropdown && (
+              <div className="user-dropdown">
+                <div className="dropdown-header">
+                  <span className="dropdown-user-name">System Admin</span>
+                  <span className="dropdown-user-role">Super Administrator</span>
+                </div>
+                <div className="dropdown-item" onClick={() => { onNavigate('admin-profile'); setShowUserDropdown(false); }}>
+                  <User size={16} /> My Profile
+                </div>
+                <div className="dropdown-item" onClick={() => { onNavigate('admin-settings'); setShowUserDropdown(false); }}>
+                  <SettingsIcon size={16} /> Shop Settings
+                </div>
+                <div style={{ borderTop: '1px solid var(--border)', margin: '0.5rem 0' }} />
+                <div className="dropdown-item danger" onClick={() => { onNavigate('home'); setShowUserDropdown(false); }}>
+                  <LogOut size={16} /> Logout
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

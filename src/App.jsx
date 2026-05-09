@@ -17,6 +17,7 @@ import ShopSettings from "./pages/admin/ShopSettings";
 import CreateInvoice from "./pages/admin/CreateInvoice";
 import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
+import AdminProfile from "./pages/admin/AdminProfile";
 import { Toaster } from "react-hot-toast";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
@@ -98,6 +99,7 @@ export default function App() {
     "admin-create-invoice": <CreateInvoice onNavigate={onNavigate} />,
     "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
     "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
+    "admin-profile": <AdminProfile onNavigate={onNavigate} />,
   };
 
   return (
