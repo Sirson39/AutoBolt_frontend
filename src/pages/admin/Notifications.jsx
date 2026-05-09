@@ -176,7 +176,7 @@ export default function Notifications({ onNavigate }) {
                <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Target size={18} color="var(--brand)" /> STOCK INSIGHTS
                </h3>
-               <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+               <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', lineHeight: '1.6', marginBottom: '1.25rem', textAlign: 'justify' }}>
                   System analysis identifies {lowStockParts.length} items below the safety threshold. 
                   Immediate restocking is recommended to maintain service continuity.
                </p>
