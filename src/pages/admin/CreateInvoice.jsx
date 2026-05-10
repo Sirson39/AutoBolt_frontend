@@ -161,9 +161,8 @@ export default function CreateInvoice({ onNavigate }) {
 
   const filteredParts = parts.filter(p => {
     const name = p.name ? p.name.toLowerCase() : '';
-    const sku = p.sku ? p.sku.toLowerCase() : '';
     const query = searchPartQuery.toLowerCase();
-    return name.includes(query) || sku.includes(query);
+    return name.includes(query);
   });
 
   const filteredCustomers = customers.filter(c => {
@@ -324,7 +323,7 @@ export default function CreateInvoice({ onNavigate }) {
               <Search size={16} color="var(--ink-soft)" />
               <input 
                 type="text" 
-                placeholder="Search catalog by name or SKU..." 
+                placeholder="Search catalog by part name..." 
                 value={searchPartQuery}
                 onChange={(e) => setSearchPartQuery(e.target.value)}
               />

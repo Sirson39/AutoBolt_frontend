@@ -1,10 +1,11 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
-import { 
-  Users, UserPlus, Search, Edit2, Trash2, 
-  Shield, ShieldAlert, Mail, Phone, Calendar, 
+import {
+  Users, UserPlus, Search, Edit2, Trash2,
+  Shield, ShieldAlert, Mail, Phone, Calendar,
   CheckCircle2, XCircle, X, ChevronRight, Filter,
-  FileSpreadsheet, Eye, LayoutGrid, List
+  FileSpreadsheet, Eye, LayoutGrid, List,
+  ArrowLeft as PrevIcon, ArrowRight as NextIcon
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -12,7 +13,8 @@ import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
 const HighlightText = ({ text, highlight }) => {
-  if (!highlight?.trim() || !text) return <span>{text || 'N/A'}</span>;
+  if (!text) return <span style={{ color: 'var(--ink-soft)', fontStyle: 'italic', opacity: 0.5 }}>N/A</span>;
+  if (!highlight?.trim()) return <span>{text}</span>;
   const regex = new RegExp(`(${highlight})`, 'gi');
   const parts = text.toString().split(regex);
   return (
@@ -64,9 +66,9 @@ export default function StaffManagement({ onNavigate }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: name === 'role' ? Number(value) : value 
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'role' ? Number(value) : value
     }));
   };
 
@@ -82,7 +84,7 @@ export default function StaffManagement({ onNavigate }) {
       fullName: member.fullName,
       email: member.email,
       phone: member.phone,
-      password: '', 
+      password: '',
       role: member.role
     });
     setIsModalOpen(true);
@@ -98,12 +100,16 @@ export default function StaffManagement({ onNavigate }) {
         toast.success("Staff updated successfully!", { id: loadToast });
       } else {
         await axios.post('/api/staff', formData);
-        toast.success("Staff member registered!", { id: loadToast });
+        toast.success("Staff registered! A verification email has been sent to their inbox.", { 
+          id: loadToast,
+          duration: 6000 
+        });
       }
       setIsModalOpen(false);
       fetchStaff();
     } catch (error) {
-      toast.error("Failed to save changes.", { id: loadToast });
+      const msg = error.response?.data?.message || error.response?.data || "Failed to save changes.";
+      toast.error(msg, { id: loadToast });
     }
   };
 
@@ -129,7 +135,7 @@ export default function StaffManagement({ onNavigate }) {
     }
   };
 
-  const filteredStaff = staff.filter(s => 
+  const filteredStaff = staff.filter(s =>
     s.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.phone.toLowerCase().includes(searchQuery.toLowerCase())
@@ -150,30 +156,34 @@ export default function StaffManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card no-print" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Users className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Staff Management</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Users size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="page-title">Staff Management</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Monitor team access levels, register new personnel, and manage administrative privileges</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={handleExport}>
+          <button className="btn btn-ghost" onClick={handleExport} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openAddModal}>
-            <UserPlus size={18} /> Add New Staff
+          <button className="btn btn-primary" onClick={openAddModal} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <UserPlus size={18} /> New Staff
           </button>
         </div>
       </header>
 
-      <div className="page-content">
-        <div className="table-card">
+      <div className="page-content no-print" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
-              <input 
-                type="text" 
-                placeholder="Search staff by name, email, or phone..." 
+              <input
+                type="text"
+                placeholder="Search staff by name, email, or phone..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -186,14 +196,14 @@ export default function StaffManagement({ onNavigate }) {
                 Total: {filteredStaff.length} {filteredStaff.length === 1 ? 'member' : 'members'}
               </div>
               <div style={{ display: 'flex', background: 'var(--surface-2)', padding: '0.25rem', borderRadius: 'var(--radius-sm)' }}>
-                <button 
+                <button
                   className="btn btn-ghost btn-sm"
                   onClick={() => setViewMode('list')}
                   style={{ padding: '0.4rem', background: viewMode === 'list' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
                 >
                   <List size={16} />
                 </button>
-                <button 
+                <button
                   className="btn btn-ghost btn-sm"
                   onClick={() => setViewMode('grid')}
                   style={{ padding: '0.4rem', background: viewMode === 'grid' ? 'var(--surface)' : 'transparent', boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
@@ -230,8 +240,8 @@ export default function StaffManagement({ onNavigate }) {
                     <tr key={member.id}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ 
-                            width: '36px', height: '36px', borderRadius: '50%', 
+                          <div style={{
+                            width: '36px', height: '36px', borderRadius: '50%',
                             background: member.role === 1 ? 'var(--brand-light)' : 'var(--surface-2)',
                             color: member.role === 1 ? 'var(--brand)' : 'var(--ink-soft)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -247,17 +257,17 @@ export default function StaffManagement({ onNavigate }) {
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                           <div style={{ fontSize: '0.85rem', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Mail size={12} style={{ color: 'var(--ink-soft)' }} /> 
+                            <Mail size={12} style={{ color: 'var(--ink-soft)' }} />
                             <HighlightText text={member.email} highlight={searchQuery} />
                           </div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Phone size={12} /> 
+                            <Phone size={12} />
                             <HighlightText text={member.phone} highlight={searchQuery} />
                           </div>
                         </div>
                       </td>
                       <td>
-                        <div style={{ 
+                        <div style={{
                           display: 'inline-flex', alignItems: 'center', gap: '4px',
                           padding: '0.25rem 0.65rem', borderRadius: '999px',
                           background: member.role === 1 ? 'var(--brand-light)' : 'rgba(31, 42, 54, 0.05)',
@@ -269,9 +279,9 @@ export default function StaffManagement({ onNavigate }) {
                         </div>
                       </td>
                       <td>
-                        <button 
+                        <button
                           onClick={() => toggleStatus(member.id)}
-                          style={{ 
+                          style={{
                             background: member.isActive ? 'var(--success-light)' : 'var(--danger-light)',
                             color: member.isActive ? 'var(--success)' : 'var(--danger)',
                             border: 'none', padding: '0.25rem 0.65rem', borderRadius: '999px',
@@ -309,8 +319,8 @@ export default function StaffManagement({ onNavigate }) {
                   <div key={member.id} className="grid-card">
                     <div className="grid-card-body">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-                        <div style={{ 
-                          width: '48px', height: '48px', borderRadius: '50%', 
+                        <div style={{
+                          width: '48px', height: '48px', borderRadius: '50%',
                           background: member.role === 1 ? 'var(--brand-light)' : 'var(--surface-2)',
                           color: member.role === 1 ? 'var(--brand)' : 'var(--ink-soft)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -322,7 +332,7 @@ export default function StaffManagement({ onNavigate }) {
                           <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--ink)' }}>
                             <HighlightText text={member.fullName} highlight={searchQuery} />
                           </h4>
-                          <div style={{ 
+                          <div style={{
                             display: 'inline-flex', alignItems: 'center', gap: '4px',
                             padding: '0.15rem 0.5rem', borderRadius: '999px',
                             background: member.role === 1 ? 'var(--brand-light)' : 'rgba(0,0,0,0.05)',
@@ -334,7 +344,7 @@ export default function StaffManagement({ onNavigate }) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.25rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--ink)' }}>
                           <Mail size={14} color="var(--ink-soft)" />
@@ -347,9 +357,9 @@ export default function StaffManagement({ onNavigate }) {
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
-                        <button 
+                        <button
                           onClick={() => toggleStatus(member.id)}
-                          style={{ 
+                          style={{
                             background: member.isActive ? 'var(--success-light)' : 'var(--danger-light)',
                             color: member.isActive ? 'var(--success)' : 'var(--danger)',
                             border: 'none', padding: '0.25rem 0.65rem', borderRadius: '999px',
@@ -372,27 +382,52 @@ export default function StaffManagement({ onNavigate }) {
           </div>
 
           {filteredStaff.length > 0 && (
-            <div className="pagination">
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredStaff.length)} of {filteredStaff.length} entries
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredStaff.length)}</span> of {filteredStaff.length}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Previous
+                  <PrevIcon size={14} style={{ marginRight: '6px' }} /> Prev
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
-                  Page {currentPage} of {totalPages}
-                </div>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Next
+                  Next <NextIcon size={14} style={{ marginLeft: '6px' }} />
                 </button>
               </div>
             </div>
@@ -412,16 +447,16 @@ export default function StaffManagement({ onNavigate }) {
             </div>
             <div className="side-panel-content">
               <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--surface-2)', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
-                <div style={{ 
-                  width: '80px', height: '80px', borderRadius: '50%', 
+                <div style={{
+                  width: '80px', height: '80px', borderRadius: '50%',
                   background: viewingStaff.role === 1 ? 'var(--brand)' : 'var(--ink)',
-                  color: '#fff', margin: '0 auto 1rem', display: 'flex', 
+                  color: '#fff', margin: '0 auto 1rem', display: 'flex',
                   alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: '800'
                 }}>
                   {viewingStaff.fullName.charAt(0)}
                 </div>
                 <h2 style={{ fontSize: '1.25rem', color: 'var(--ink)', marginBottom: '0.25rem' }}>{viewingStaff.fullName}</h2>
-                <div style={{ 
+                <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: '4px',
                   padding: '0.25rem 0.75rem', borderRadius: '999px',
                   background: viewingStaff.role === 1 ? 'var(--brand-light)' : 'rgba(0,0,0,0.05)',
@@ -448,8 +483,8 @@ export default function StaffManagement({ onNavigate }) {
                 </div>
                 <div className="info-group">
                   <label className="form-label">Account Status</label>
-                  <div style={{ 
-                    display: 'flex', alignItems: 'center', gap: '8px', 
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
                     color: viewingStaff.isActive ? 'var(--success)' : 'var(--danger)',
                     fontWeight: '700'
                   }}>
@@ -488,49 +523,56 @@ export default function StaffManagement({ onNavigate }) {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">Full Name</label>
-                <input 
-                  type="text" name="fullName" className="form-input" required 
+                <input
+                  type="text" name="fullName" className="form-input" required
                   value={formData.fullName} onChange={handleInputChange}
-                  placeholder="e.g. John Doe"
+                  placeholder="e.g. Bishnu Parajuli"
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input 
-                    type="email" name="email" className="form-input" required 
-                    value={formData.email} onChange={handleInputChange}
-                    placeholder="staff@autobolt.com"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Phone Number</label>
-                  <input 
-                    type="text" name="phone" className="form-input" required 
-                    value={formData.phone} onChange={handleInputChange}
-                    placeholder="98XXXXXXXX"
-                  />
-                </div>
+              <div className="form-group">
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email" name="email" className="form-input" required
+                  disabled={editingStaff?.isActive}
+                  value={formData.email} onChange={handleInputChange}
+                  placeholder="example@gmail.com"
+                  pattern=".+@gmail\.com"
+                  title="Only @gmail.com addresses are allowed"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel" name="phone" className="form-input" required
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  value={formData.phone} onChange={handleInputChange}
+                  placeholder="98XXXXXXXX"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Account Role</label>
-                <select 
-                  name="role" className="form-input" required 
+                <select
+                  name="role" className="form-input" required
                   value={formData.role} onChange={handleInputChange}
                 >
                   <option value={2}>Staff Member (Limited Access)</option>
                   <option value={1}>Administrator (Full Access)</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">{editingStaff ? 'New Password (Leave blank to keep current)' : 'Account Password'}</label>
-                <input 
-                  type="password" name="password" className="form-input" 
-                  required={!editingStaff} 
-                  value={formData.password} onChange={handleInputChange}
-                  placeholder="Minimum 6 characters"
-                />
-              </div>
+              {(!editingStaff || !editingStaff.isActive) && (
+                <div className="form-group">
+                  <label className="form-label">{editingStaff ? 'Change Password (Optional)' : 'Initial Temporary Password'}</label>
+                  <input 
+                    type="password" name="password" className="form-input" 
+                    required={!editingStaff} 
+                    value={formData.password} onChange={handleInputChange}
+                    placeholder={editingStaff ? "Leave blank to keep current" : "Staff will be asked to change this via email"}
+                  />
+                </div>
+              )}
               <div className="form-actions">
                 <button type="button" className="btn btn-ghost" onClick={() => setIsModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">
