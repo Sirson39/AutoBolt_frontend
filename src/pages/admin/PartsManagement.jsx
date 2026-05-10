@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet } from 'lucide-react';
+import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, RefreshCw, Clock, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -44,6 +44,22 @@ export default function PartsManagement({ onNavigate }) {
     categoryId: ''
   });
 
+  const [clock, setClock] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setClock(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+  
+  const adminName = localStorage.getItem('adminName') || 'Admin';
+
   const fetchParts = async () => {
     try {
       setLoading(true);
@@ -70,6 +86,7 @@ export default function PartsManagement({ onNavigate }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
       const url = URL.createObjectURL(file);
       setImagePreview(url);
     }
@@ -98,6 +115,7 @@ export default function PartsManagement({ onNavigate }) {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingPart(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
   };
 
@@ -162,24 +180,28 @@ export default function PartsManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Package className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Parts & Inventory</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <Package size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Parts & Inventory</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Manage inventory and track stock levels</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(parts, 'Parts_Inventory')}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(parts, 'Parts_Inventory')} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openAddModal}>
-            <Plus size={18} /> Add New Part
+          <button className="btn btn-primary" onClick={openAddModal} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <Plus size={18} /> New Part
           </button>
         </div>
       </header>
 
-      <div className="page-content">
-        <div className="table-card">
+      <div className="page-content" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
@@ -372,27 +394,52 @@ export default function PartsManagement({ onNavigate }) {
             )}
           </div>
           {filteredParts.length > 0 && (
-            <div className="pagination">
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredParts.length)} of {filteredParts.length} entries
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredParts.length)}</span> of {filteredParts.length}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <button 
                   className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Previous
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
-                  Page {currentPage} of {totalPages}
-                </div>
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
                 <button 
                   className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Next
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
                 </button>
               </div>
             </div>

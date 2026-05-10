@@ -1,6 +1,6 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
-import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet } from 'lucide-react';
+import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, Globe } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -73,6 +73,7 @@ export default function VendorManagement({ onNavigate }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
       const url = URL.createObjectURL(file);
       setLogoPreview(url);
     }
@@ -101,6 +102,7 @@ export default function VendorManagement({ onNavigate }) {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingVendor(null);
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
     setLogoPreview(null);
   };
 
@@ -173,24 +175,28 @@ export default function VendorManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Briefcase className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Vendor Management</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <Briefcase size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Vendor Management</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Manage suppliers and maintain business relationships</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(vendors, 'Vendors_List')}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(vendors, 'Vendors_List')} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openAddModal}>
-            <Plus size={18} /> Add New Vendor
+          <button className="btn btn-primary" onClick={openAddModal} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <Plus size={18} /> New Vendor
           </button>
         </div>
       </header>
 
-      <div className="page-content">
-        <div className="table-card">
+      <div className="page-content" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
@@ -276,20 +282,36 @@ export default function VendorManagement({ onNavigate }) {
                       </td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
-                            <Mail size={12} /> <HighlightText text={vendor.email} highlight={searchQuery} />
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
-                            <Phone size={12} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
-                          </div>
+                          {!vendor.email && !vendor.phone ? (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', paddingLeft: '0.2rem' }}>—</div>
+                          ) : (
+                            <>
+                              {vendor.email && (
+                                <a href={`mailto:${vendor.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
+                                  <Mail size={12} /> <HighlightText text={vendor.email} highlight={searchQuery} />
+                                </a>
+                              )}
+                              {vendor.phone && (
+                                <a href={`tel:${vendor.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
+                                  <Phone size={12} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
+                                </a>
+                              )}
+                            </>
+                          )}
                         </div>
                       </td>
                       <td style={{ maxWidth: '200px' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
-                          <MapPin size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
-                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {vendor.address || 'N/A'}
-                          </span>
+                          {vendor.address ? (
+                            <>
+                              <MapPin size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {vendor.address}
+                              </span>
+                            </>
+                          ) : (
+                            <span style={{ paddingLeft: '1.1rem' }}>—</span>
+                          )}
                         </div>
                       </td>
                       <td style={{ textAlign: 'right' }}>
@@ -327,14 +349,20 @@ export default function VendorManagement({ onNavigate }) {
                           </div>
                         )}
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--ink)' }}>
-                          <Mail size={14} style={{ color: 'var(--ink-soft)' }} /> <HighlightText text={vendor.email} highlight={searchQuery} />
+                      {(vendor.email || vendor.phone) && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '1rem' }}>
+                          {vendor.email && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--ink)' }}>
+                              <Mail size={14} style={{ color: 'var(--ink-soft)' }} /> <HighlightText text={vendor.email} highlight={searchQuery} />
+                            </div>
+                          )}
+                          {vendor.phone && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--ink)' }}>
+                              <Phone size={14} style={{ color: 'var(--ink-soft)' }} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
+                            </div>
+                          )}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--ink)' }}>
-                          <Phone size={14} style={{ color: 'var(--ink-soft)' }} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
-                        </div>
-                      </div>
+                      )}
                     </div>
                     <div className="grid-card-footer">
                       <button className="btn btn-ghost btn-sm" onClick={() => setViewingVendor(vendor)} title="View Details">
@@ -353,27 +381,52 @@ export default function VendorManagement({ onNavigate }) {
             )}
           </div>
           {filteredVendors.length > 0 && (
-            <div className="pagination">
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredVendors.length)} of {filteredVendors.length} entries
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredVendors.length)}</span> of {filteredVendors.length}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  className="btn btn-ghost btn-sm"
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Previous
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
-                  Page {currentPage} of {totalPages}
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm"
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Next
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
                 </button>
               </div>
             </div>
@@ -413,35 +466,43 @@ export default function VendorManagement({ onNavigate }) {
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div>
-                  <label className="form-label">Contact Person</label>
-                  <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--ink)' }}>{viewingVendor.contactPerson || 'N/A'}</div>
-                </div>
+                {viewingVendor.contactPerson && (
+                  <div>
+                    <label className="form-label">Contact Person</label>
+                    <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--ink)' }}>{viewingVendor.contactPerson}</div>
+                  </div>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label className="form-label">Email</label>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--ink)' }}>
-                      <Mail size={14} style={{ marginRight: '4px', verticalAlign: 'text-bottom', color: 'var(--ink-soft)' }} />
-                      {viewingVendor.email || 'N/A'}
+                  {viewingVendor.email && (
+                    <div>
+                      <label className="form-label">Email Address</label>
+                      <a href={`mailto:${viewingVendor.email}`} style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Mail size={16} />
+                        {viewingVendor.email}
+                      </a>
                     </div>
-                  </div>
-                  <div>
-                    <label className="form-label">Phone</label>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--ink)' }}>
-                      <Phone size={14} style={{ marginRight: '4px', verticalAlign: 'text-bottom', color: 'var(--ink-soft)' }} />
-                      {viewingVendor.phone || 'N/A'}
+                  )}
+                  {viewingVendor.phone && (
+                    <div>
+                      <label className="form-label">Phone Number</label>
+                      <a href={`tel:${viewingVendor.phone}`} style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Phone size={16} />
+                        {viewingVendor.phone}
+                      </a>
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                <div>
-                  <label className="form-label">Address</label>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--ink)', lineHeight: '1.6', display: 'flex', alignItems: 'flex-start' }}>
-                    <MapPin size={16} style={{ marginRight: '6px', marginTop: '2px', color: 'var(--ink-soft)', flexShrink: 0 }} />
-                    {viewingVendor.address || 'No address provided'}
-                  </p>
-                </div>
+                {viewingVendor.address && (
+                  <div>
+                    <label className="form-label">Address</label>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--ink)', lineHeight: '1.6', display: 'flex', alignItems: 'flex-start' }}>
+                      <MapPin size={16} style={{ marginRight: '6px', marginTop: '2px', color: 'var(--ink-soft)', flexShrink: 0 }} />
+                      {viewingVendor.address}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem' }}>
