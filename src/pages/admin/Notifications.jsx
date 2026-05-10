@@ -115,7 +115,7 @@ export default function Notifications({ onNavigate }) {
                               color: 'var(--ink-soft)' 
                             }}>
                                {part.imageUrl ? (
-                                 <img src={part.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                 <img src={`http://localhost:5098${part.imageUrl}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                ) : (
                                  <Package size={20} />
                                )}

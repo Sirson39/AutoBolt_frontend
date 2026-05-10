@@ -80,6 +80,7 @@ export default function App() {
 
   const onNavigate = (target) => {
     window.location.hash = target;
+    window.scrollTo(0, 0);
   };
 
   if (route === "signin" || route === "signup") {
