@@ -72,7 +72,7 @@ export default function RoleDashboardView({ role, data, onNavigate }) {
                 <strong>{data.leftTitle}</strong>
                 <div className="subtle">{data.leftBody}</div>
               </div>
-              <span className="status good">UI-ready</span>
+              <span className="status good">Ready</span>
             </div>
 
             <div className="panel-grid">
@@ -116,7 +116,7 @@ export default function RoleDashboardView({ role, data, onNavigate }) {
                 </article>
                 <article className="card">
                   <h3>Activity mix</h3>
-                  <p>Small visual indicators are enough for this prototype and keep the UI light without extra dependencies.</p>
+                  <p>Small visual indicators keep the interface light while still making the activity mix easy to scan.</p>
                   <div className="chart-list">
                     {data.chart.map(([label, value]) => (
                       <div className="chart-row" key={label}>

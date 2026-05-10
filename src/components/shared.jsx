@@ -1,11 +1,11 @@
 import React, { useId } from "react";
-import { ShieldCheck, Users, Wrench } from "lucide-react";
+import { Car, ShieldCheck, Users } from "lucide-react";
 
 export function FeatureCard({ title, text, icon: Icon }) {
   return (
     <article className="card feature-card">
       <div className="feature-icon">
-        {Icon ? <Icon size={22} strokeWidth={2.1} /> : <span aria-hidden="true">✦</span>}
+        {Icon ? <Icon size={22} strokeWidth={2.1} /> : <span aria-hidden="true">*</span>}
       </div>
       <h3>{title}</h3>
       <p>{text}</p>
@@ -13,11 +13,23 @@ export function FeatureCard({ title, text, icon: Icon }) {
   );
 }
 
-export function RoleCard({ role, data, onNavigate }) {
+export function BenefitCard({ title, text, icon: Icon }) {
+  return (
+    <article className="card benefit-card">
+      <div className="feature-icon benefit-icon">
+        {Icon ? <Icon size={22} strokeWidth={2.1} /> : <span aria-hidden="true">*</span>}
+      </div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </article>
+  );
+}
+
+export function RoleCard({ role, data }) {
   const Icon = {
     admin: ShieldCheck,
     staff: Users,
-    customer: Wrench
+    customer: Car
   }[role] || ShieldCheck;
 
   return (
@@ -26,8 +38,9 @@ export function RoleCard({ role, data, onNavigate }) {
         <Icon size={24} strokeWidth={2.15} />
       </div>
       <div className="role-content">
-        <span className="role-label">For</span>
+        <span className="role-label">{data.badge}</span>
         <h3>{capitalize(role)}</h3>
+        <p className="role-summary">{data.description}</p>
         <ul className="role-list">
           {data.items.map((item) => <li key={item}>{item}</li>)}
         </ul>
@@ -61,8 +74,8 @@ export function SigninFields() {
       <Field label="Email" type="email" placeholder="name@example.com" />
       <Field label="Password" type="password" placeholder="Enter password" />
       <div className="field-row">
-        <Field label="Workspace" as="select" options={["Admin", "Staff", "Customer"]} />
-        <Field label="Demo code" placeholder="Optional" />
+        <Field label="Role / Workspace" as="select" options={["Admin", "Staff", "Customer"]} />
+        <Field label="Workspace note" placeholder="Optional" />
       </div>
     </>
   );
@@ -72,8 +85,8 @@ export function SignupFields() {
   return (
     <>
       <div className="field-row">
-        <Field label="Full name" placeholder="Your name" />
-        <Field label="Register as" as="select" options={["Customer", "Staff", "Admin"]} />
+        <Field label="Full Name" placeholder="Your name" />
+        <Field label="Register As" as="select" options={["Customer", "Staff", "Admin"]} />
       </div>
       <div className="field-row">
         <Field label="Email" type="email" placeholder="name@example.com" />
@@ -81,9 +94,9 @@ export function SignupFields() {
       </div>
       <div className="field-row">
         <Field label="Password" type="password" placeholder="Create password" />
-        <Field label="Confirm password" type="password" placeholder="Repeat password" />
+        <Field label="Confirm Password" type="password" placeholder="Repeat password" />
       </div>
-      <Field label="Notes" as="textarea" rows={3} placeholder="Optional vehicle or business note" />
+      <Field label="Vehicle or Business Notes" as="textarea" rows={3} placeholder="Optional vehicle or business note" />
     </>
   );
 }
