@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer | Loyalty Rewards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../assets/css/customer-loyalty.css" />
+</head>
+<body>
+    <div class="orb orb-left"></div>
+    <div class="orb orb-right"></div>
+
+    <header class="page-header">
+        <a class="brand" href="customer-dashboard.html">AutoBolt Customer</a>
+        <nav class="quick-nav" aria-label="Customer navigation">
+            <a href="customer-dashboard.html">Dashboard</a>
+            <a href="customer-profile.html">Profile</a>
+            <a href="customer-history.html">History</a>
+            <a href="customer-prediction.html">AI prediction</a>
+            <a href="book-appointment.html">Book appointment</a>
+        </nav>
+    </header>
+
+    <main class="layout">
+        <section class="panel loyalty-panel">
+            <p class="kicker">Loyalty program</p>
+            <h1>Discounts and rewards for repeat customers.</h1>
+            <p class="lead">This page turns the scenario's loyalty rule into a clear customer view so they can see when a 10% discount applies.</p>
+
+            <div class="hero-grid">
+                <article class="hero-card highlight-card">
+                    <span>Current spend</span>
+                    <strong>NPR 5,600</strong>
+                    <p>Last single purchase qualifies for the loyalty discount rule.</p>
+                </article>
+                <article class="hero-card">
+                    <span>Discount rate</span>
+                    <strong>10%</strong>
+                    <p>Applies to any single purchase above NPR 5,000.</p>
+                </article>
+                <article class="hero-card">
+                    <span>Loyalty points</span>
+                    <strong>120</strong>
+                    <p>Earned from service visits and successful purchases.</p>
+                </article>
+            </div>
+
+            <div class="rules-card">
+                <h2>How the reward works</h2>
+                <ul>
+                    <li>Spend more than NPR 5,000 in a single purchase.</li>
+                    <li>Receive a 10% discount on that purchase.</li>
+                    <li>Keep servicing and buying to collect loyalty points.</li>
+                </ul>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Purchase</th>
+                            <th>Amount</th>
+                            <th>Eligible</th>
+                            <th>Discount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Brake service invoice</td>
+                            <td>NPR 6,200</td>
+                            <td><span class="status good">Yes</span></td>
+                            <td>NPR 620</td>
+                        </tr>
+                        <tr>
+                            <td>Oil filter purchase</td>
+                            <td>NPR 2,400</td>
+                            <td><span class="status warn">No</span></td>
+                            <td>NPR 0</td>
+                        </tr>
+                        <tr>
+                            <td>Battery replacement</td>
+                            <td>NPR 5,800</td>
+                            <td><span class="status good">Yes</span></td>
+                            <td>NPR 580</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="panel side-panel">
+            <p class="kicker">Benefits</p>
+            <div class="benefit-card">
+                <h2>Why this matters</h2>
+                <p>Customers can plan purchases more confidently and get a visible reward for larger single purchases.</p>
+            </div>
+
+            <div class="benefit-card accent-card">
+                <h2>Next action</h2>
+                <p>Use booking or parts request pages, then return here to check the discount eligibility for the latest invoice.</p>
+                <a class="return-link" href="customer-dashboard.html">Back to dashboard</a>
+            </div>
+        </aside>
+    </main>
+</body>
+</html>
