@@ -195,6 +195,61 @@ textarea:focus {
     padding: 1.1rem;
 }
 
+.loyalty-tracker {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+
+.loyalty-tracker h3 {
+    margin: 0 0 0.8rem;
+    font-family: "Lexend", "Segoe UI", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.tracker-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    padding: 0.5rem 0;
+    color: var(--muted);
+}
+
+.tracker-row strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.tracker-row.plus strong {
+    color: var(--ok);
+}
+
+.tracker-row.total {
+    padding: 0.6rem 0.6rem;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 8px;
+    color: var(--ink);
+}
+
+.tracker-row.total strong {
+    font-size: 1.1rem;
+}
+
+.tracker-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0.5rem 0;
+}
+
+.tier-info {
+    margin: 0.7rem 0 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
 .score-panel h2 {
     margin-top: 0;
     font-family: "Lexend", "Segoe UI", sans-serif;

@@ -6,40 +6,54 @@
     const followup = document.getElementById("followup");
     const bonus = document.getElementById("bonus");
     const reviewMessage = document.getElementById("reviewMessage");
+    const currentBalance = document.getElementById("currentBalance");
+    const reviewPoints = document.getElementById("reviewPoints");
+    const projectedBalance = document.getElementById("projectedBalance");
+    const tierInfo = document.getElementById("tierInfo");
 
     if (!form || !starGroup) {
         return;
     }
 
     let rating = 0;
+    let loyaltyBalance = 850;
 
     const updateSnapshot = () => {
+        let points = 0;
         scoreValue.textContent = rating ? `${rating.toFixed(1)}` : "0.0";
 
         if (rating >= 4) {
             scoreCaption.textContent = "Excellent feedback";
             followup.textContent = "No follow-up needed";
-            bonus.textContent = "60";
-            return;
-        }
-
-        if (rating >= 3) {
+            points = 60;
+        } else if (rating >= 3) {
             scoreCaption.textContent = "Good with minor issues";
             followup.textContent = "Quality check in 2 days";
-            bonus.textContent = "40";
-            return;
-        }
-
-        if (rating > 0) {
+            points = 40;
+        } else if (rating > 0) {
             scoreCaption.textContent = "Needs improvement";
             followup.textContent = "Manager callback within 24h";
-            bonus.textContent = "20";
-            return;
+            points = 20;
+        } else {
+            scoreCaption.textContent = "No rating selected";
+            followup.textContent = "Pending review";
+            points = 0;
         }
 
-        scoreCaption.textContent = "No rating selected";
-        followup.textContent = "Pending review";
-        bonus.textContent = "0";
+        bonus.textContent = points.toString();
+        reviewPoints.textContent = points > 0 ? `+${points}` : "+0";
+        reviewPoints.parentElement.style.opacity = points > 0 ? "1" : "0.5";
+
+        const projected = loyaltyBalance + points;
+        projectedBalance.textContent = projected.toString();
+
+        const nextTier = 1000;
+        const pointsNeeded = Math.max(0, nextTier - projected);
+        if (pointsNeeded > 0) {
+            tierInfo.textContent = `Next tier at ${nextTier.toLocaleString()} points (${pointsNeeded} more)`;
+        } else {
+            tierInfo.textContent = "🎉 Elite tier reached! Enjoy premium benefits.";
+        }
     };
 
     const setActiveStars = () => {
