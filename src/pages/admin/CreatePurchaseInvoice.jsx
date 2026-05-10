@@ -120,8 +120,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
   };
 
   const filteredParts = parts.filter(p => 
-    p.name.toLowerCase().includes(searchPartQuery.toLowerCase()) || 
-    p.sku?.toLowerCase().includes(searchPartQuery.toLowerCase())
+    p.name.toLowerCase().includes(searchPartQuery.toLowerCase())
   );
 
   const filteredVendors = vendors.filter(v => 
@@ -279,8 +278,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
                 onClick={() => addToCart(part)}
               >
                 <div style={{ padding: '1rem' }}>
-                  <div style={{ fontWeight: '800', fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--ink)' }}>{part.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>SKU: {part.sku}</div>
+                  <div style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--ink)' }}>{part.name}</div>
                   <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                      <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-soft)' }}>
                         Stock: {part.stockQuantity}
