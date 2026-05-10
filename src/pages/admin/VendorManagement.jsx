@@ -287,14 +287,14 @@ export default function VendorManagement({ onNavigate }) {
                           ) : (
                             <>
                               {vendor.email && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
+                                <a href={`mailto:${vendor.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
                                   <Mail size={12} /> <HighlightText text={vendor.email} highlight={searchQuery} />
-                                </div>
+                                </a>
                               )}
                               {vendor.phone && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
+                                <a href={`tel:${vendor.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
                                   <Phone size={12} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
-                                </div>
+                                </a>
                               )}
                             </>
                           )}

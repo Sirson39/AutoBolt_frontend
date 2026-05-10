@@ -791,12 +791,22 @@ body {
 }
 
 /* ===== Search Highlight ===== */
+.contact-link {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.contact-link:hover {
+  color: var(--brand) !important;
+  opacity: 1 !important;
+}
+
 .highlight {
-  background: var(--warning-light);
-  color: var(--warning);
-  font-weight: 800;
+  background: rgba(217, 93, 57, 0.15);
+  color: var(--brand);
   padding: 0 2px;
   border-radius: 2px;
+  font-weight: 700;
 }
 
 /* ===== Side Panel ===== */

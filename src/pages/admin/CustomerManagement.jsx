@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet, FileSpreadsheet } from 'lucide-react';
+import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet, FileSpreadsheet, ArrowLeft, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -140,24 +140,28 @@ export default function CustomerManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Users className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Customer Management</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <Users size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Customer Management</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Manage client relationships and track account balances</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(customers, 'Customers_List')}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(customers, 'Customers_List')} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openAddModal}>
-            <Plus size={18} /> Add New Customer
+          <button className="btn btn-primary" onClick={openAddModal} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <Plus size={18} /> New Customer
           </button>
         </div>
       </header>
 
-      <div className="page-content">
-        <div className="table-card">
+      <div className="page-content" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
@@ -217,8 +221,16 @@ export default function CustomerManagement({ onNavigate }) {
                         </div>
                       </td>
                       <td>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--ink-soft)' }}><Phone size={12} /> {customer.phone}</div>
-                        {customer.email && <div style={{ fontSize: '0.8rem', color: 'var(--ink-soft)' }}><Mail size={12} /> {customer.email}</div>}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <a href={`tel:${customer.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
+                            <Phone size={12} /> <HighlightText text={customer.phone} highlight={searchQuery} />
+                          </a>
+                          {customer.email && (
+                            <a href={`mailto:${customer.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
+                              <Mail size={12} /> <HighlightText text={customer.email} highlight={searchQuery} />
+                            </a>
+                          )}
+                        </div>
                       </td>
                       <td><span style={{ fontWeight: '700' }}>Rs {customer.creditBalance.toFixed(2)}</span></td>
                       <td style={{ textAlign: 'right' }}>
@@ -254,11 +266,53 @@ export default function CustomerManagement({ onNavigate }) {
             )}
           </div>
           {filteredCustomers.length > 0 && (
-            <div className="pagination">
-              <span>Page {currentPage} of {totalPages}</span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button className="btn btn-ghost btn-sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Previous</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</button>
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredCustomers.length)}</span> of {filteredCustomers.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
+                </button>
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+                </button>
               </div>
             </div>
           )}
@@ -279,11 +333,43 @@ export default function CustomerManagement({ onNavigate }) {
                 </div>
                 <h2>{viewingCustomer.fullName}</h2>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div><label className="form-label">Phone</label><div>{viewingCustomer.phone}</div></div>
-                <div><label className="form-label">Email</label><div>{viewingCustomer.email || 'N/A'}</div></div>
-                <div><label className="form-label">Address</label><div>{viewingCustomer.address || 'N/A'}</div></div>
-                <div><label className="form-label">Balance</label><div>Rs {viewingCustomer.creditBalance.toFixed(2)}</div></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <label className="form-label">Phone Number</label>
+                  <a href={`tel:${viewingCustomer.phone}`} style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Phone size={16} />
+                    {viewingCustomer.phone}
+                  </a>
+                </div>
+                {viewingCustomer.email && (
+                  <div>
+                    <label className="form-label">Email Address</label>
+                    <a href={`mailto:${viewingCustomer.email}`} style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--brand)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Mail size={16} />
+                      {viewingCustomer.email}
+                    </a>
+                  </div>
+                )}
+                {viewingCustomer.address && (
+                  <div>
+                    <label className="form-label">Physical Address</label>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--ink)', lineHeight: '1.6', display: 'flex', alignItems: 'flex-start' }}>
+                      <MapPin size={16} style={{ marginRight: '6px', marginTop: '2px', color: 'var(--ink-soft)', flexShrink: 0 }} />
+                      {viewingCustomer.address}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <label className="form-label">Current Balance</label>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: viewingCustomer.creditBalance > 0 ? 'var(--warning)' : 'var(--success)' }}>
+                    Rs {viewingCustomer.creditBalance.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '2.5rem' }}>
+                <button className="btn btn-primary" onClick={() => { setViewingCustomer(null); openEditModal(viewingCustomer); }} style={{ width: '100%', justifyContent: 'center' }}>
+                  <Edit2 size={16} /> Edit Customer
+                </button>
               </div>
             </div>
           </div>
