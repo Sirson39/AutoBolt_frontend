@@ -175,7 +175,7 @@ export default function CreateInvoice({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header glass-card no-print" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
+      <header className="top-header glass-card no-print" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button className="btn btn-ghost btn-sm" onClick={() => onNavigate('admin-sales')} style={{ padding: '0.4rem' }}>
             <ChevronLeft size={20} />
@@ -523,7 +523,8 @@ export default function CreateInvoice({ onNavigate }) {
         }
       `}</style>
 
-    </div>
+      </div>
+    </>
   );
 }
 

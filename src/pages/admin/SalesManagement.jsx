@@ -1,7 +1,9 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
-  CheckCircle, ArrowLeft, FileSpreadsheet, ArrowLeft as PrevIcon, ArrowRight as NextIcon 
+  Receipt, Plus, Search, Eye, Calendar, 
+  Printer, X, Tag, CheckCircle, FileSpreadsheet,
+  ArrowLeft as PrevIcon, ArrowRight as NextIcon 
 } from 'lucide-react';
 // react-router-dom removed
 import axios from 'axios';
@@ -77,7 +79,7 @@ export default function SalesManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header glass-card no-print" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
+      <header className="top-header glass-card no-print" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              <Receipt size={20} />
@@ -258,7 +260,7 @@ export default function SalesManagement({ onNavigate }) {
 
       {/* Invoice Detail Modal / Print View */}
       {viewingInvoice && (
-        <div className="modal-overlay" style={{ background: 'rgba(0,0,0,0.8)', zIndex: 1000 }}>
+        <div className="modal-overlay" style={{ background: 'rgba(0,0,0,0.8)' }}>
           <div className="modal" style={{ maxWidth: '550px', width: '100%', padding: 0, overflow: 'hidden' }}>
             <div className="no-print" style={{ padding: '0.75rem 1.5rem', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontWeight: '800', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

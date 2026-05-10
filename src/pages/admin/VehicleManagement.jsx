@@ -184,7 +184,7 @@ export default function VehicleManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header glass-card" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
+      <header className="top-header glass-card" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              <Car size={20} />
