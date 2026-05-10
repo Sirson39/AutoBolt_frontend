@@ -23,7 +23,6 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
   const [vendorSearchQuery, setVendorSearchQuery] = useState('');
   const [createdPurchase, setCreatedPurchase] = useState(null);
 
-  // Calculations
   const total = cart.reduce((sum, item) => sum + (item.unitCost * item.quantity), 0);
 
   useEffect(() => {
@@ -36,7 +35,6 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         setVendors(vendRes.data);
         setParts(partRes.data);
 
-        // Check for restockPart from Notifications
         const restockData = localStorage.getItem('restockPart');
         if (restockData) {
           const part = JSON.parse(restockData);

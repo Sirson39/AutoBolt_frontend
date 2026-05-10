@@ -1,10 +1,12 @@
 import React from "react";
 import { staffNav, staffPages } from "../../data/siteContent";
 import { Field, InvoiceRow, KpiCard, SummaryItem, TimelineItem } from "../../components/shared";
+import { clearAuth, getUser } from "../../utils/auth";
 
 export default function StaffWorkspace({ routeKey, onNavigate }) {
   const config = staffPages[routeKey];
   const isNavActive = (key) => key === routeKey;
+  const currentUser = getUser();
 
   return (
     <>
@@ -18,8 +20,14 @@ export default function StaffWorkspace({ routeKey, onNavigate }) {
             </div>
           </a>
           <div className="header-actions">
-            <button className="btn btn-secondary" type="button" onClick={() => onNavigate("signin")}>Sign In</button>
-            <button className="btn btn-primary" type="button" onClick={() => onNavigate("home")}>Landing Page</button>
+            {currentUser && (
+              <span style={{ fontSize: '0.82rem', color: 'var(--ink-soft)', marginRight: 8 }}>
+                {currentUser.fullName}
+              </span>
+            )}
+            <button className="btn btn-secondary" type="button" onClick={() => onNavigate("change-password")}>Change Password</button>
+            <button className="btn btn-secondary" type="button" onClick={() => onNavigate("update-profile")}>Profile</button>
+            <button className="btn btn-danger" type="button" onClick={() => { clearAuth(); onNavigate("signin"); }}>Logout</button>
           </div>
         </div>
       </header>
