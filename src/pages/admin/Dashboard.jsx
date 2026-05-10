@@ -33,6 +33,7 @@ export default function Dashboard({ onNavigate }) {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   const dropdownRef = useRef(null);
   
   // Get admin name from profile data (mocked for now, but dynamic in behavior)
@@ -45,6 +46,10 @@ export default function Dashboard({ onNavigate }) {
         setShowUserDropdown(false);
       }
     };
+    
+    const savedImg = localStorage.getItem('admin_profile_img');
+    if (savedImg) setProfileImage(savedImg);
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -203,7 +208,10 @@ export default function Dashboard({ onNavigate }) {
           </div>
           <NotificationDropdown onNavigate={onNavigate} />
           <div style={{ position: 'relative' }} ref={dropdownRef}>
-            <div className="avatar" onClick={() => setShowUserDropdown(!showUserDropdown)}>{avatarLetter}</div>
+            <div className="avatar" onClick={() => setShowUserDropdown(!showUserDropdown)} style={{ overflow: 'hidden' }}>
+              {profileImage ? <img src={profileImage} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : avatarLetter}
+            </div>
+
             
             {showUserDropdown && (
               <div className="user-dropdown">
@@ -295,8 +303,8 @@ export default function Dashboard({ onNavigate }) {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--ink-soft)' }} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--ink-soft)' }} tickFormatter={v => `Rs ${(v/1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(v) => [`Rs ${v.toLocaleString()}`, 'Revenue']} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.8rem' }} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--ink-soft)' }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(v) => [`${v.toLocaleString()}`, 'Revenue']} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.8rem' }} />
                   <Area type="monotone" dataKey="Revenue" stroke="#d95d39" strokeWidth={2.5} fill="url(#revGrad)" />
                 </AreaChart>
               </ResponsiveContainer>

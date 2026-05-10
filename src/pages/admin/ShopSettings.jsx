@@ -1,4 +1,3 @@
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   Settings, MapPin, Phone, Mail, Globe, 
@@ -104,9 +103,12 @@ export default function ShopSettings({ onNavigate }) {
   return (
     <>
       <header className="top-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Settings style={{ color: 'var(--brand)' }} size={22} />
-          <span className="page-title">Shop Settings</span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Settings style={{ color: 'var(--brand)' }} size={22} />
+            <span className="page-title">Shop Settings</span>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '4px', marginLeft: '2.5rem' }}>Configure shop details and business rules</p>
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
@@ -134,16 +136,22 @@ export default function ShopSettings({ onNavigate }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`btn ${activeTab === tab.id ? 'btn-primary' : 'btn-ghost'}`}
-              style={{ justifyContent: 'flex-start', gap: '0.75rem', padding: '1rem' }}
+              style={{ 
+                justifyContent: 'flex-start', 
+                gap: '1rem', 
+                padding: '1.25rem',
+                borderRadius: '12px',
+                transition: 'all 0.3s ease'
+              }}
             >
               <tab.icon size={18} />
-              <span style={{ fontWeight: '700' }}>{tab.label}</span>
+              <span style={{ fontWeight: '800', letterSpacing: '-0.2px' }}>{tab.label}</span>
             </button>
           ))}
         </div>
 
         {/* Content Area */}
-        <div className="table-card" style={{ padding: '2rem' }}>
+        <div className="table-card" style={{ padding: '2.5rem', boxShadow: 'var(--shadow-luxury)' }}>
           
           {activeTab === 'general' && (
             <div style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -207,13 +215,13 @@ export default function ShopSettings({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
+                <div className="settings-toggle-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', border: '1px solid var(--border)', borderRadius: '12px', transition: 'all 0.3s ease' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'var(--surface-2)', borderRadius: '50%' }}>
-                      <Bell size={20} color="var(--ink)" />
+                    <div style={{ padding: '0.6rem', background: 'var(--surface-2)', borderRadius: '50%' }}>
+                      <Bell size={20} color="var(--brand)" />
                     </div>
                     <div>
-                      <div style={{ fontWeight: '700' }}>Push Notifications</div>
+                      <div style={{ fontWeight: '800' }}>Push Notifications</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>Receive alerts for low stock and new orders</div>
                     </div>
                   </div>
@@ -221,17 +229,17 @@ export default function ShopSettings({ onNavigate }) {
                     type="checkbox" 
                     checked={settings.enableNotifications} 
                     onChange={(e) => setSettings({ ...settings, enableNotifications: e.target.checked })}
-                    style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                    style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: 'var(--brand)' }}
                   />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
+                <div className="settings-toggle-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', border: '1px solid var(--border)', borderRadius: '12px', transition: 'all 0.3s ease' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'var(--surface-2)', borderRadius: '50%' }}>
-                      {settings.darkMode ? <Layout size={20} color="var(--ink)" /> : <Palette size={20} color="var(--ink)" />}
+                    <div style={{ padding: '0.6rem', background: 'var(--surface-2)', borderRadius: '50%' }}>
+                      {settings.darkMode ? <Layout size={20} color="var(--brand)" /> : <Palette size={20} color="var(--brand)" />}
                     </div>
                     <div>
-                      <div style={{ fontWeight: '700' }}>Dark Mode</div>
+                      <div style={{ fontWeight: '800' }}>Dark Mode</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>Switch between light and dark themes</div>
                     </div>
                   </div>
@@ -240,7 +248,7 @@ export default function ShopSettings({ onNavigate }) {
                     disabled={!isEditing}
                     checked={settings.darkMode} 
                     onChange={(e) => setSettings({ ...settings, darkMode: e.target.checked })}
-                    style={{ width: '20px', height: '20px', cursor: isEditing ? 'pointer' : 'not-allowed' }}
+                    style={{ width: '22px', height: '22px', cursor: isEditing ? 'pointer' : 'not-allowed', accentColor: 'var(--brand)' }}
                   />
                 </div>
               </div>
@@ -281,6 +289,11 @@ export default function ShopSettings({ onNavigate }) {
       <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .dropdown-item:hover { background: var(--brand-light); color: var(--brand); }
+        .settings-toggle-card:hover {
+          background: var(--surface-2) !important;
+          border-color: var(--brand) !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
       `}</style>
     </>
   );
