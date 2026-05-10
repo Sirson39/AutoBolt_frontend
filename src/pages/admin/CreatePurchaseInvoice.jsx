@@ -130,16 +130,40 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
   );
 
   return (
-    <div className="pos-container" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', height: 'calc(100vh - 100px)', gap: '1.5rem', padding: '1.5rem' }}>
-      
-      {/* Left Column */}
-      <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
-        
-        {/* Step 1: Vendor & Invoice Info */}
-        <div className="table-card" style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', fontWeight: '800', color: 'var(--ink)' }}>
-            <Truck size={20} color="var(--brand)" /> 1. VENDOR & TRANSACTION INFO
+    <>
+      <header className="top-header glass-card no-print" style={{ position: 'sticky', top: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => onNavigate('admin-purchase')} style={{ padding: '0.4rem' }}>
+            <ChevronLeft size={20} />
+          </button>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <ShoppingCart size={20} />
           </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Restock Inventory</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Select a supplier and inventory parts to securely restock your catalog</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="pos-container" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 400px', 
+        height: 'calc(100vh - 100px)', 
+        gap: '2rem', 
+        padding: '2rem',
+        animation: 'fadeUp 0.6s ease both'
+      }}>
+        
+        {/* Left Column */}
+        <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
+          
+          {/* Step 1: Vendor & Invoice Info */}
+          <div className="table-card" style={{ padding: '1.75rem', boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', fontWeight: '800', color: 'var(--ink)', fontSize: '1rem', letterSpacing: '0.5px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>1</div>
+              VENDOR & TRANSACTION LOGISTICS
+            </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div className="form-group">
@@ -176,11 +200,29 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
                 )}
               </div>
               {selectedVendor && (
-                <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'var(--brand-light)', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <div style={{ fontWeight: '700', color: 'var(--brand)', fontSize: '0.85rem' }}>
-                    {selectedVendor.name}
+                <div style={{ 
+                  marginTop: '0.75rem', 
+                  padding: '1rem', 
+                  background: 'var(--brand-light)', 
+                  borderRadius: '12px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  border: '1px solid var(--brand-soft)',
+                  animation: 'scaleIn 0.3s ease'
+                }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '0.8rem' }}>
+                       {selectedVendor.name.charAt(0).toUpperCase()}
+                     </div>
+                     <div>
+                       <div style={{ fontWeight: '800', color: 'var(--brand)', fontSize: '0.9rem' }}>{selectedVendor.name}</div>
+                       <div style={{ fontSize: '0.75rem', color: 'var(--brand)', opacity: 0.8 }}>{selectedVendor.phone}</div>
+                     </div>
                    </div>
-                   <button className="btn btn-ghost btn-sm" onClick={() => setSelectedVendor(null)}><Trash2 size={14} /></button>
+                   <button className="btn btn-ghost btn-sm" onClick={() => setSelectedVendor(null)} style={{ color: 'var(--brand)' }}>
+                     <Trash2 size={14} />
+                   </button>
                 </div>
               )}
             </div>
@@ -211,16 +253,17 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         </div>
 
         {/* Step 2: Parts Selection */}
-        <div className="table-card" style={{ flex: 1, padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', color: 'var(--ink)' }}>
-              <Package size={20} color="var(--brand)" /> 2. SELECT PARTS TO RESTOCK
+        <div className="table-card" style={{ flex: 1, padding: '1.75rem', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '800', color: 'var(--ink)', fontSize: '1rem', letterSpacing: '0.5px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</div>
+              INVENTORY CATALOG
             </div>
-            <div className="search-box" style={{ width: '300px' }}>
+            <div className="search-box" style={{ width: '350px' }}>
               <Search size={16} color="var(--ink-soft)" />
               <input 
                 type="text" 
-                placeholder="Search parts to add..." 
+                placeholder="Search catalog by name or SKU..." 
                 value={searchPartQuery}
                 onChange={(e) => setSearchPartQuery(e.target.value)}
               />
@@ -252,9 +295,19 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
       </div>
 
       {/* Right Column: Cart */}
-      <div className="table-card no-print" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: '#1a202c', color: '#fff', borderRadius: 'var(--radius) var(--radius) 0 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '800', fontSize: '1.1rem' }}>
+      <div className="table-card no-print glass-card" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        height: 'calc(100vh - 140px)', 
+        position: 'sticky', 
+        top: '20px',
+        boxShadow: 'var(--shadow-luxury)',
+        border: '1px solid rgba(255,255,255,0.6)',
+        background: 'rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(20px)'
+      }}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: '#0f1923', color: '#fff', borderRadius: 'var(--radius) var(--radius) 0 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '900', fontSize: '1.1rem', letterSpacing: '1px' }}>
             <ShoppingCart size={22} /> PURCHASE LIST
           </div>
         </div>
@@ -308,24 +361,19 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
           <button 
             className="btn btn-primary" 
             style={{ 
-              width: '100%', padding: '1rem', fontSize: '1.1rem', justifyContent: 'center',
-              opacity: loading ? 0.7 : 1
+              width: '100%', padding: '1.25rem', fontSize: '1.1rem', justifyContent: 'center',
+              fontWeight: '800', letterSpacing: '1px',
+              opacity: (loading || cart.length === 0 || !selectedVendor) ? 0.7 : 1,
+              boxShadow: '0 8px 20px rgba(217, 93, 57, 0.3)'
             }}
             disabled={loading}
             onClick={handleSavePurchase}
           >
-            {loading ? <div className="spinner" /> : <><CheckCircle size={20} style={{ marginRight: '8px' }} /> COMPLETE PURCHASE</>}
-          </button>
-          
-          <button 
-            onClick={() => onNavigate('admin-purchase')} 
-            className="btn btn-ghost" 
-            style={{ display: 'flex', width: '100%', justifyContent: 'center', marginTop: '1rem', fontSize: '0.85rem', color: 'var(--ink-soft)' }}
-          >
-            <ChevronLeft size={14} style={{ verticalAlign: 'middle' }} /> Back to Management
+            {loading ? <div className="spinner" /> : <><CheckCircle size={20} style={{ marginRight: '8px' }} /> FINALIZE RESTOCK</>}
           </button>
         </div>
       </div>
+    </div>
 
       {/* Printable Receipt View */}
       <div id="printable-purchase-receipt" className="print-only">
@@ -405,7 +453,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
           @page { margin: 1cm; }
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
