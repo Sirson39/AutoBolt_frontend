@@ -5,7 +5,8 @@ import {
   Save, LogOut, CheckCircle2, Clock, Globe,
   ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
+import { getUser, setAuth, getToken } from '../../utils/auth';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -14,13 +15,14 @@ export default function AdminProfile({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   
-  // Mocking the current admin data (in a real app, this would come from a /me endpoint)
+  const currentUser = getUser() || {};
+  
   const [profileData, setProfileData] = useState({
-    fullName: 'System Administrator',
-    email: 'admin@autobolt.com',
-    phone: '9841234567',
-    role: 'Super Admin',
-    joinedDate: '2026-01-15',
+    fullName: currentUser.fullName || '',
+    email: currentUser.email || '',
+    phone: '',
+    role: currentUser.role || 'Super Admin',
+    joinedDate: 'N/A',
     lastLogin: new Date().toLocaleString()
   });
 
@@ -30,30 +32,51 @@ export default function AdminProfile({ onNavigate }) {
     confirm: ''
   });
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     const loadToast = toast.loading("Updating profile...");
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await api.put('/api/auth/profile', { 
+        fullName: profileData.fullName, 
+        phone: profileData.phone 
+      });
+      
+      setAuth({
+        token: getToken(),
+        role: currentUser.role,
+        fullName: profileData.fullName,
+        email: currentUser.email,
+        expiry: currentUser.expiry
+      });
+      
       setIsEditing(false);
       toast.success("Profile updated successfully!", { id: loadToast });
-    }, 1500);
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to update profile", { id: loadToast });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwordData.new !== passwordData.confirm) {
       return toast.error("Passwords do not match!");
     }
     
     const loadToast = toast.loading("Changing password...");
-    setTimeout(() => {
+    try {
+      await api.post('/api/auth/change-password', { 
+        currentPassword: passwordData.current, 
+        newPassword: passwordData.new 
+      });
       toast.success("Password changed successfully!", { id: loadToast });
       setPasswordData({ current: '', new: '', confirm: '' });
-    }, 1200);
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to change password", { id: loadToast });
+    }
   };
 
   return (
