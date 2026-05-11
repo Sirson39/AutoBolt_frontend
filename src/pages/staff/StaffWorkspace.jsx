@@ -1,10 +1,15 @@
-import React from "react";
-import { staffNav, staffPages } from "../../data/siteContent";
-import { Field, InvoiceRow, KpiCard, SummaryItem, TimelineItem } from "../../components/shared";
+import { useState, useEffect, useCallback } from "react";
+import { staffNav } from "../../data/siteContent";
 import { clearAuth, getUser } from "../../utils/auth";
+import api from "../../utils/api";
+import toast from "react-hot-toast";
+
+function getHashParam(name) {
+  const hash = window.location.hash.replace(/^#[^?]*\??/, "");
+  return new URLSearchParams(hash).get(name);
+}
 
 export default function StaffWorkspace({ routeKey, onNavigate }) {
-  const config = staffPages[routeKey];
   const isNavActive = (key) => key === routeKey;
   const currentUser = getUser();
 
@@ -21,7 +26,7 @@ export default function StaffWorkspace({ routeKey, onNavigate }) {
           </a>
           <div className="header-actions">
             {currentUser && (
-              <span style={{ fontSize: '0.82rem', color: 'var(--ink-soft)', marginRight: 8 }}>
+              <span style={{ fontSize: "0.82rem", color: "var(--ink-soft)", marginRight: 8 }}>
                 {currentUser.fullName}
               </span>
             )}
@@ -53,369 +58,788 @@ export default function StaffWorkspace({ routeKey, onNavigate }) {
           </aside>
 
           <section className="staff-main">
-            <div className="staff-hero">
-              <div>
-                <span className="eyebrow">{config.badge}</span>
-                <h1 className="page-heading">{config.title}</h1>
-                <p className="page-copy">{config.hero}</p>
-              </div>
-              <div className="header-actions">
-                <button className="btn btn-secondary" type="button" onClick={() => onNavigate("staff-dashboard")}>Dashboard</button>
-                <button className="btn btn-primary" type="button" onClick={() => onNavigate("sales-invoice")}>Invoice</button>
-              </div>
+            <div className="header-actions" style={{ marginBottom: 16 }}>
+              <button className="btn btn-secondary" type="button" onClick={() => onNavigate("staff-dashboard")}>Dashboard</button>
+              <button className="btn btn-primary" type="button" onClick={() => onNavigate("sales-invoice")}>New Invoice</button>
             </div>
 
-            <div className="staff-banner">
-              <div>
-                <strong>{config.highlight}</strong>
-                <div className="subtle">{config.highlightText}</div>
-              </div>
-              <span className="status good">Ready</span>
-            </div>
-
-            {config.form && (
-              <div className="staff-grid-2">
-                <article className="card">
-                  <h3>Customer details</h3>
-                  <form className="staff-form" onSubmit={(e) => e.preventDefault()}>
-                    <div className="field-row">
-                      <Field label="Full name" placeholder="Customer name" />
-                      <Field label="Phone" placeholder="98XXXXXXXX" />
-                    </div>
-                    <div className="field-row">
-                      <Field label="Email" type="email" placeholder="name@example.com" />
-                      <Field label="Address" placeholder="City or street" />
-                    </div>
-                    <div className="field-row">
-                      <Field label="Vehicle number" placeholder="Ba 1 Cha 1234" />
-                      <Field label="Vehicle type" as="select" options={["Sedan", "SUV", "Pickup", "Bike"]} />
-                    </div>
-                    <Field label="Notes" as="textarea" rows={4} placeholder="Any service or customer note" />
-                    <div className="staff-form-actions">
-                      <button type="button" className="btn btn-primary">Save registration</button>
-                      <button type="button" className="btn btn-secondary" onClick={() => onNavigate("customer-details")}>View details</button>
-                    </div>
-                  </form>
-                </article>
-                <article className="card">
-                  <h3>Vehicle intake checklist</h3>
-                  <ul className="checklist">
-                    {config.checklist.map((item, index) => (
-                      <li key={item}><span className="check-dot">{index + 1}</span><span>{item}</span></li>
-                    ))}
-                  </ul>
-                  <div className="staff-banner" style={{ marginTop: 18 }}>
-                    <div>
-                      <strong>Next step</strong>
-                      <div className="subtle">Move straight to search, details, or invoice creation.</div>
-                    </div>
-                    <span className="status warn">Draft</span>
-                  </div>
-                </article>
-              </div>
-            )}
-
-            {config.search && (
-              <div className="staff-grid-2">
-                <article className="card">
-                  <div className="staff-toolbar">
-                    <div>
-                      <h3>Search records</h3>
-                      <p>Use one or more fields to narrow the result quickly.</p>
-                    </div>
-                    <div className="staff-searchbar">
-                      <input type="search" placeholder="Search by name, phone, vehicle..." />
-                      <button type="button" className="btn btn-primary">Search</button>
-                    </div>
-                  </div>
-                  <div className="staff-badge-row" style={{ marginTop: 14 }}>
-                    {["Name match", "Phone match", "Vehicle number", "Invoice reference", "Service record"].map((item) => (
-                      <span className="staff-badge" key={item}>{item}</span>
-                    ))}
-                  </div>
-                </article>
-                <article className="card">
-                  <h3>Results</h3>
-                  <div className="table-wrap">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Customer</th>
-                          <th>Vehicle</th>
-                          <th>Status</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          ["Mina Shrestha", "BA 1 CHA 1234", "Active", "good"],
-                          ["Prakash Gurung", "BA 2 KHA 4421", "Needs follow-up", "warn"],
-                          ["Anita Thapa", "BA 3 JA 1109", "Active", "good"],
-                          ["Sujan Rai", "BA 4 PA 7841", "Overdue", "danger"]
-                        ].map(([name, vehicle, status, tone]) => (
-                          <tr key={name}>
-                            <td>{name}</td>
-                            <td>{vehicle}</td>
-                            <td><span className={`status ${tone}`}>{status}</span></td>
-                            <td><button className="btn btn-secondary" type="button" onClick={() => onNavigate("customer-details")}>Open</button></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </article>
-              </div>
-            )}
-
-            {config.profile && (
-              <div className="staff-grid-2">
-                <article className="card">
-                  <h3>Profile summary</h3>
-                  <div className="staff-summary-list">
-                    <SummaryItem title="Mina Shrestha" subtitle="Primary customer" status="Verified" tone="good" />
-                    <SummaryItem title="9841-555-122" subtitle="Phone number" status="Reachable" tone="good" />
-                    <SummaryItem title="mina@example.com" subtitle="Email address" status="Confirmed" tone="good" />
-                    <SummaryItem title="Kathmandu" subtitle="Location" status="Needs update" tone="warn" />
-                  </div>
-                </article>
-                <article className="card">
-                  <h3>Staff notes</h3>
-                  <ul className="checklist">
-                    <li><span className="check-dot">1</span><span>Customer prefers call before service work</span></li>
-                    <li><span className="check-dot">2</span><span>Invoices usually sent by email after approval</span></li>
-                    <li><span className="check-dot">3</span><span>Vehicle history is linked to the same profile</span></li>
-                  </ul>
-                  <div className="staff-banner" style={{ marginTop: 18 }}>
-                    <div>
-                      <strong>Ready for handoff</strong>
-                      <div className="subtle">Move from profile review to vehicle detail or billing immediately.</div>
-                    </div>
-                    <span className="status good">Ready</span>
-                  </div>
-                </article>
-              </div>
-            )}
-
-            {config.vehicle && (
-              <div className="staff-grid-2">
-                <article className="card">
-                  <h3>Vehicle summary</h3>
-                  <div className="staff-summary-list">
-                    <SummaryItem title="BA 1 CHA 1234" subtitle="Vehicle number" status="Active" tone="good" />
-                    <SummaryItem title="Sedan" subtitle="Body type" status="Known" tone="good" />
-                    <SummaryItem title="2019" subtitle="Model year" status="Recorded" tone="good" />
-                    <SummaryItem title="28,430 km" subtitle="Odometer" status="Due check" tone="warn" />
-                  </div>
-                </article>
-                <article className="card">
-                  <h3>Maintenance checklist</h3>
-                  <ul className="checklist">
-                    <li><span className="check-dot">1</span><span>Oil service reviewed last visit</span></li>
-                    <li><span className="check-dot">2</span><span>Brake pads flagged for follow-up</span></li>
-                    <li><span className="check-dot">3</span><span>Battery health estimated at normal range</span></li>
-                    <li><span className="check-dot">4</span><span>Next service reminder prepared</span></li>
-                  </ul>
-                </article>
-              </div>
-            )}
-
-            {config.invoice && (
-              <div className="invoice-layout">
-                <article className="card invoice-box">
-                  <h3>Invoice draft</h3>
-                  <div className="staff-grid-2">
-                    <Field label="Customer" defaultValue="Mina Shrestha" />
-                    <Field label="Invoice date" defaultValue="26 Apr 2026" />
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Item</th>
-                          <th>Qty</th>
-                          <th>Price</th>
-                          <th>Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr><td>Brake pads</td><td>2</td><td>NPR 2,000</td><td>NPR 4,000</td></tr>
-                        <tr><td>Engine oil</td><td>1</td><td>NPR 1,200</td><td>NPR 1,200</td></tr>
-                        <tr><td>Service labour</td><td>1</td><td>NPR 1,800</td><td>NPR 1,800</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="staff-form-actions">
-                    <button type="button" className="btn btn-secondary">Add item</button>
-                    <button type="button" className="btn btn-primary">Save invoice</button>
-                  </div>
-                </article>
-                <article className="card invoice-total">
-                  <h3>Summary</h3>
-                  <InvoiceRow label="Subtotal" value="NPR 7,000" />
-                  <InvoiceRow label="Tax" value="NPR 840" />
-                  <InvoiceRow label="Discount" value="- NPR 0" />
-                  <InvoiceRow label="Total" value="NPR 7,840" />
-                  <div className="staff-banner" style={{ marginTop: 8 }}>
-                    <div>
-                      <strong>Billing status</strong>
-                      <div className="subtle">Invoice can be saved, printed, or emailed next.</div>
-                    </div>
-                    <span className="status good">Draft</span>
-                  </div>
-                  <div className="staff-form-actions">
-                    <button className="btn btn-primary" type="button" onClick={() => onNavigate("email-invoice")}>Email now</button>
-                    <button className="btn btn-secondary" type="button" onClick={() => onNavigate("customer-history")}>View history</button>
-                  </div>
-                </article>
-              </div>
-            )}
-
-            {config.email && (
-              <div className="staff-grid-2">
-                <article className="card">
-                  <h3>Email composer</h3>
-                  <form className="staff-form" onSubmit={(e) => e.preventDefault()}>
-                    <Field label="To" type="email" defaultValue="mina@example.com" />
-                    <Field label="Subject" defaultValue="Your AutoBolt invoice is ready" />
-                    <Field label="Message" as="textarea" rows={7} defaultValue="Hello Mina, your service invoice is attached. Please review the breakdown and let us know if you need anything adjusted." />
-                    <div className="staff-form-actions">
-                      <button type="button" className="btn btn-primary">Send email</button>
-                      <button type="button" className="btn btn-secondary">Save draft</button>
-                    </div>
-                  </form>
-                </article>
-                <article className="card">
-                  <h3>Invoice preview</h3>
-                  <div className="staff-summary-list">
-                    <SummaryItem title="Invoice #AB-2048" subtitle="Draft attached" status="Ready" tone="good" />
-                    <SummaryItem title="NPR 7,840" subtitle="Total amount" status="Pending send" tone="warn" />
-                    <SummaryItem title="mina@example.com" subtitle="Customer email" status="Verified" tone="good" />
-                  </div>
-                  <div className="staff-banner" style={{ marginTop: 18 }}>
-                    <div>
-                      <strong>Recent sends</strong>
-                      <div className="subtle">Track what was emailed and when it was sent.</div>
-                    </div>
-                    <span className="status good">History linked</span>
-                  </div>
-                  <ul className="checklist" style={{ marginTop: 14 }}>
-                    <li><span className="check-dot">1</span><span>Invoice attached to email</span></li>
-                    <li><span className="check-dot">2</span><span>Customer address verified</span></li>
-                    <li><span className="check-dot">3</span><span>Send log available in history</span></li>
-                  </ul>
-                </article>
-              </div>
-            )}
-
-            {config.history && (
-              <>
-                <div className="staff-grid-2">
-                  <article className="card">
-                    <h3>Timeline</h3>
-                    <div className="timeline" style={{ marginTop: 12 }}>
-                      <TimelineItem title="Today" text="Battery reminder created and added to follow-up queue." />
-                      <TimelineItem title="18 Apr 2026" text="Service appointment completed with invoice sent by email." />
-                      <TimelineItem title="07 Apr 2026" text="Brake check completed and parts suggested." />
-                      <TimelineItem title="10 Mar 2026" text="Oil filter purchased from the parts counter." />
-                    </div>
-                  </article>
-                  <article className="card">
-                    <h3>Summary</h3>
-                    <div className="staff-summary-list">
-                      <SummaryItem title="6 service visits" subtitle="Year to date" status="Stable" tone="good" />
-                      <SummaryItem title="18 purchases" subtitle="Parts history" status="Tracked" tone="good" />
-                      <SummaryItem title="2 reminders" subtitle="Follow-up queue" status="Open" tone="warn" />
-                    </div>
-                  </article>
-                </div>
-                <article className="card">
-                  <h3>Record table</h3>
-                  <div className="table-wrap">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Type</th>
-                          <th>Reference</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr><td>Today</td><td>Reminder</td><td>Battery review</td><td><span className="status warn">Pending</span></td></tr>
-                        <tr><td>18 Apr 2026</td><td>Service</td><td>Invoice AB-2048</td><td><span className="status good">Closed</span></td></tr>
-                        <tr><td>07 Apr 2026</td><td>Repair</td><td>Brake check</td><td><span className="status good">Closed</span></td></tr>
-                        <tr><td>10 Mar 2026</td><td>Purchase</td><td>Oil filter</td><td><span className="status good">Closed</span></td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </article>
-              </>
-            )}
-
-            {config.reports && (
-              <>
-                <div className="staff-kpis">
-                  <KpiCard kpi={{ label: "Repeat customers", value: "68%", delta: "Strong retention" }} />
-                  <KpiCard kpi={{ label: "Open follow-ups", value: "12", delta: "Needs attention" }} />
-                  <KpiCard kpi={{ label: "Invoices closed", value: "91%", delta: "Healthy billing flow" }} />
-                  <KpiCard kpi={{ label: "Services on time", value: "74%", delta: "Improving trend" }} />
-                </div>
-                <div className="staff-grid-2">
-                  <article className="card">
-                    <h3>Report breakdown</h3>
-                    <div className="report-list" style={{ marginTop: 12 }}>
-                      {[
-                        ["Customer registrations", 82],
-                        ["Service completion", 74],
-                        ["Invoice delivery", 91],
-                        ["Follow-up closure", 55]
-                      ].map(([label, value]) => (
-                        <div className="report-row" key={label}>
-                          <div className="report-head"><span>{label}</span><span>{value}%</span></div>
-                          <div className="progress"><span style={{ width: `${value}%` }} /></div>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                  <article className="card">
-                    <h3>Report notes</h3>
-                    <ul className="checklist">
-                      <li><span className="check-dot">1</span><span>Keep the follow-up queue visible to staff</span></li>
-                      <li><span className="check-dot">2</span><span>Track repeat service and repeat purchase trends</span></li>
-                      <li><span className="check-dot">3</span><span>Use the report to support billing and reminders</span></li>
-                    </ul>
-                    <div className="staff-form-actions" style={{ marginTop: 18 }}>
-                      <button type="button" className="btn btn-primary">Export report</button>
-                      <button type="button" className="btn btn-secondary">Refresh</button>
-                    </div>
-                  </article>
-                </div>
-                <article className="card">
-                  <h3>Monthly snapshot</h3>
-                  <div className="table-wrap">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Metric</th>
-                          <th>Current</th>
-                          <th>Previous</th>
-                          <th>Trend</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr><td>New customers</td><td>24</td><td>19</td><td><span className="status good">Up</span></td></tr>
-                        <tr><td>Completed services</td><td>31</td><td>28</td><td><span className="status good">Up</span></td></tr>
-                        <tr><td>Open reminders</td><td>12</td><td>9</td><td><span className="status warn">Watch</span></td></tr>
-                        <tr><td>Invoices emailed</td><td>26</td><td>22</td><td><span className="status good">Up</span></td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </article>
-              </>
-            )}
+            {routeKey === "staff-dashboard" && <StaffDashboard onNavigate={onNavigate} />}
+            {routeKey === "customer-registration" && <CustomerRegistration onNavigate={onNavigate} />}
+            {routeKey === "customer-search" && <CustomerSearch onNavigate={onNavigate} />}
+            {routeKey === "customer-details" && <CustomerDetails onNavigate={onNavigate} />}
+            {routeKey === "vehicle-details" && <VehicleDetails onNavigate={onNavigate} />}
+            {routeKey === "sales-invoice" && <SalesInvoice onNavigate={onNavigate} />}
+            {routeKey === "email-invoice" && <EmailInvoice onNavigate={onNavigate} />}
+            {routeKey === "customer-history" && <CustomerHistory onNavigate={onNavigate} />}
+            {routeKey === "customer-reports" && <CustomerReports />}
           </section>
         </section>
       </main>
+    </>
+  );
+}
+
+function StaffDashboard({ onNavigate }) {
+  return (
+    <div>
+      <h1 className="page-heading">Staff Workspace</h1>
+      <p className="page-copy">Customer handling and invoice operations.</p>
+      <div className="staff-grid-2" style={{ marginTop: 20 }}>
+        <article className="card">
+          <h3>Quick actions</h3>
+          <div className="staff-form-actions" style={{ flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+            <button className="btn btn-primary" onClick={() => onNavigate("customer-registration")}>Register Customer</button>
+            <button className="btn btn-secondary" onClick={() => onNavigate("customer-search")}>Search Customer</button>
+            <button className="btn btn-secondary" onClick={() => onNavigate("sales-invoice")}>New Invoice</button>
+            <button className="btn btn-secondary" onClick={() => onNavigate("email-invoice")}>Email Invoice</button>
+          </div>
+        </article>
+        <article className="card">
+          <h3>Reports</h3>
+          <div className="staff-form-actions" style={{ marginTop: 12 }}>
+            <button className="btn btn-secondary" onClick={() => onNavigate("customer-reports")}>View Reports</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+}
+
+function CustomerRegistration({ onNavigate }) {
+  const [form, setForm] = useState({
+    fullName: "", email: "", phone: "", address: "",
+    vehicleLicensePlate: "", vehicleMake: "", vehicleModel: "",
+    vehicleYear: new Date().getFullYear(), vehicleMileage: 0, vehiclePlateType: 1,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const t = toast.loading("Registering customer...");
+    try {
+      const payload = {
+        ...form,
+        vehicleYear: parseInt(form.vehicleYear),
+        vehicleMileage: parseFloat(form.vehicleMileage) || 0,
+        vehiclePlateType: parseInt(form.vehiclePlateType),
+      };
+      const res = await api.post("/api/customers/register", payload);
+      toast.success("Customer registered", { id: t });
+      onNavigate(`customer-details?id=${res.data.customer.id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration failed", { id: t });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-grid-2">
+      <article className="card">
+        <h3>Customer details</h3>
+        <form className="staff-form" onSubmit={handleSubmit}>
+          <div className="field-row">
+            <label className="field-label">Full name<input className="form-input" required value={form.fullName} onChange={set("fullName")} placeholder="Customer name" /></label>
+            <label className="field-label">Phone<input className="form-input" required value={form.phone} onChange={set("phone")} placeholder="98XXXXXXXX" /></label>
+          </div>
+          <div className="field-row">
+            <label className="field-label">Email<input className="form-input" type="email" value={form.email} onChange={set("email")} placeholder="name@example.com" /></label>
+            <label className="field-label">Address<input className="form-input" value={form.address} onChange={set("address")} placeholder="City or street" /></label>
+          </div>
+          <h4 style={{ marginTop: 16, marginBottom: 8 }}>Vehicle</h4>
+          <div className="field-row">
+            <label className="field-label">License plate<input className="form-input" required value={form.vehicleLicensePlate} onChange={set("vehicleLicensePlate")} placeholder="Ba 1 Cha 1234" /></label>
+            <label className="field-label">Plate type
+              <select className="form-input" value={form.vehiclePlateType} onChange={set("vehiclePlateType")}>
+                <option value={1}>Private</option>
+                <option value={2}>Commercial</option>
+                <option value={3}>Government</option>
+              </select>
+            </label>
+          </div>
+          <div className="field-row">
+            <label className="field-label">Make<input className="form-input" required value={form.vehicleMake} onChange={set("vehicleMake")} placeholder="Toyota" /></label>
+            <label className="field-label">Model<input className="form-input" required value={form.vehicleModel} onChange={set("vehicleModel")} placeholder="Corolla" /></label>
+          </div>
+          <div className="field-row">
+            <label className="field-label">Year<input className="form-input" type="number" min="1900" max="2100" value={form.vehicleYear} onChange={set("vehicleYear")} /></label>
+            <label className="field-label">Mileage (km)<input className="form-input" type="number" min="0" value={form.vehicleMileage} onChange={set("vehicleMileage")} /></label>
+          </div>
+          <div className="staff-form-actions">
+            <button type="submit" className="btn btn-primary" disabled={saving}>Save registration</button>
+            <button type="button" className="btn btn-secondary" onClick={() => onNavigate("customer-search")}>Search existing</button>
+          </div>
+        </form>
+      </article>
+      <article className="card">
+        <h3>Intake checklist</h3>
+        <ul className="checklist">
+          {["Verify customer identity", "Confirm phone number is reachable", "Record accurate license plate", "Note vehicle condition on arrival", "Check for any outstanding invoices"].map((item, i) => (
+            <li key={item}><span className="check-dot">{i + 1}</span><span>{item}</span></li>
+          ))}
+        </ul>
+      </article>
+    </div>
+  );
+}
+
+function CustomerSearch({ onNavigate }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const search = async (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setLoading(true);
+    setSearched(true);
+    try {
+      const res = await api.get(`/api/customers/search?query=${encodeURIComponent(query)}`);
+      setResults(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      toast.error("Search failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="staff-grid-2">
+      <article className="card">
+        <div className="staff-toolbar">
+          <div>
+            <h3>Search records</h3>
+            <p>Search by name, phone, or email.</p>
+          </div>
+        </div>
+        <form className="staff-searchbar" style={{ marginTop: 14 }} onSubmit={search}>
+          <input type="search" placeholder="Name, phone, email..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <button type="submit" className="btn btn-primary" disabled={loading}>Search</button>
+        </form>
+        <div className="staff-form-actions" style={{ marginTop: 16 }}>
+          <button className="btn btn-secondary" onClick={() => onNavigate("customer-registration")}>Register new</button>
+        </div>
+      </article>
+      <article className="card">
+        <h3>Results</h3>
+        {loading && <p className="subtle">Searching...</p>}
+        {!loading && searched && results.length === 0 && <p className="subtle">No customers found.</p>}
+        {results.length > 0 && (
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr><th>Name</th><th>Phone</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {results.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.fullName}</td>
+                    <td>{c.phone}</td>
+                    <td>
+                      <button className="btn btn-secondary" onClick={() => onNavigate(`customer-details?id=${c.id}`)}>Open</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </article>
+    </div>
+  );
+}
+
+function CustomerDetails({ onNavigate }) {
+  const [customerId, setCustomerId] = useState(() => getHashParam("id"));
+  const [customer, setCustomer] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ fullName: "", email: "", phone: "", address: "" });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const onHash = () => setCustomerId(getHashParam("id"));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  useEffect(() => {
+    if (!customerId) return;
+    api.get(`/api/customers/${customerId}`).then((res) => {
+      setCustomer(res.data);
+      setForm({ fullName: res.data.fullName, email: res.data.email || "", phone: res.data.phone, address: res.data.address || "" });
+    }).catch(() => toast.error("Failed to load customer"));
+  }, [customerId]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const t = toast.loading("Saving...");
+    try {
+      await api.put(`/api/customers/${customerId}`, form);
+      setCustomer((p) => ({ ...p, ...form }));
+      setEditing(false);
+      toast.success("Updated", { id: t });
+    } catch {
+      toast.error("Save failed", { id: t });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!customerId) return <p className="subtle">No customer selected. Use <button className="btn btn-secondary" onClick={() => onNavigate("customer-search")}>Search</button> to find one.</p>;
+  if (!customer) return <p className="subtle">Loading...</p>;
+
+  return (
+    <div className="staff-grid-2">
+      <article className="card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h3>Profile</h3>
+          <button className="btn btn-secondary" onClick={() => setEditing((p) => !p)}>{editing ? "Cancel" : "Edit"}</button>
+        </div>
+        {editing ? (
+          <form className="staff-form" onSubmit={handleSave}>
+            <label className="field-label">Full name<input className="form-input" required value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} /></label>
+            <label className="field-label">Phone<input className="form-input" required value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} /></label>
+            <label className="field-label">Email<input className="form-input" type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} /></label>
+            <label className="field-label">Address<input className="form-input" value={form.address} onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))} /></label>
+            <div className="staff-form-actions"><button type="submit" className="btn btn-primary" disabled={saving}>Save</button></div>
+          </form>
+        ) : (
+          <div className="staff-summary-list">
+            {[["Name", customer.fullName], ["Phone", customer.phone], ["Email", customer.email || "—"], ["Address", customer.address || "—"], ["Credit balance", `Rs ${customer.creditBalance?.toLocaleString()}`]].map(([label, val]) => (
+              <div key={label} className="summary-item"><span className="subtle">{label}</span><span>{val}</span></div>
+            ))}
+          </div>
+        )}
+      </article>
+      <article className="card">
+        <h3>Actions</h3>
+        <div className="staff-form-actions" style={{ flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+          <button className="btn btn-primary" onClick={() => onNavigate(`vehicle-details?customerId=${customerId}`)}>Vehicles</button>
+          <button className="btn btn-secondary" onClick={() => onNavigate(`sales-invoice?customerId=${customerId}`)}>New invoice</button>
+          <button className="btn btn-secondary" onClick={() => onNavigate(`customer-history?id=${customerId}`)}>History</button>
+          <button className="btn btn-secondary" onClick={() => onNavigate("customer-search")}>Back to search</button>
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function VehicleDetails({ onNavigate }) {
+  const [customerId] = useState(() => getHashParam("customerId"));
+  const [vehicles, setVehicles] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [form, setForm] = useState({ licensePlate: "", make: "", model: "", year: new Date().getFullYear(), mileage: 0, plateType: 1, customerId: 0 });
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(() => {
+    if (!customerId) return;
+    api.get(`/api/vehicles/customer/${customerId}`).then((res) => setVehicles(Array.isArray(res.data) ? res.data : [])).catch(() => toast.error("Failed to load vehicles"));
+  }, [customerId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    const t = toast.loading("Adding vehicle...");
+    try {
+      await api.post("/api/vehicles", { ...form, customerId: parseInt(customerId), year: parseInt(form.year), mileage: parseFloat(form.mileage) || 0, plateType: parseInt(form.plateType) });
+      toast.success("Vehicle added", { id: t });
+      setShowAdd(false);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed", { id: t });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!customerId) return <p className="subtle">No customer selected.</p>;
+
+  return (
+    <div className="staff-grid-2">
+      <article className="card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h3>Vehicles</h3>
+          <button className="btn btn-primary" onClick={() => setShowAdd((p) => !p)}>{showAdd ? "Cancel" : "+ Add"}</button>
+        </div>
+        {showAdd && (
+          <form className="staff-form" onSubmit={handleAdd} style={{ marginBottom: 16 }}>
+            <div className="field-row">
+              <label className="field-label">Plate<input className="form-input" required value={form.licensePlate} onChange={(e) => setForm((p) => ({ ...p, licensePlate: e.target.value }))} /></label>
+              <label className="field-label">Type
+                <select className="form-input" value={form.plateType} onChange={(e) => setForm((p) => ({ ...p, plateType: e.target.value }))}>
+                  <option value={1}>Private</option><option value={2}>Commercial</option><option value={3}>Government</option>
+                </select>
+              </label>
+            </div>
+            <div className="field-row">
+              <label className="field-label">Make<input className="form-input" required value={form.make} onChange={(e) => setForm((p) => ({ ...p, make: e.target.value }))} /></label>
+              <label className="field-label">Model<input className="form-input" required value={form.model} onChange={(e) => setForm((p) => ({ ...p, model: e.target.value }))} /></label>
+            </div>
+            <div className="field-row">
+              <label className="field-label">Year<input className="form-input" type="number" value={form.year} onChange={(e) => setForm((p) => ({ ...p, year: e.target.value }))} /></label>
+              <label className="field-label">Mileage<input className="form-input" type="number" value={form.mileage} onChange={(e) => setForm((p) => ({ ...p, mileage: e.target.value }))} /></label>
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={saving}>Save</button>
+          </form>
+        )}
+        {vehicles.length === 0 ? <p className="subtle">No vehicles on file.</p> : (
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Plate</th><th>Make / Model</th><th>Year</th><th></th></tr></thead>
+              <tbody>
+                {vehicles.map((v) => (
+                  <tr key={v.id} className={selected?.id === v.id ? "row-active" : ""}>
+                    <td>{v.licensePlate}</td>
+                    <td>{v.make} {v.model}</td>
+                    <td>{v.year}</td>
+                    <td><button className="btn btn-secondary" onClick={() => setSelected(v)}>Select</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </article>
+      <article className="card">
+        <h3>Vehicle detail</h3>
+        {selected ? (
+          <div className="staff-summary-list">
+            {[["Plate", selected.licensePlate], ["Make", selected.make], ["Model", selected.model], ["Year", selected.year], ["Mileage", `${selected.mileage?.toLocaleString()} km`], ["Owner", selected.ownerName]].map(([l, v]) => (
+              <div key={l} className="summary-item"><span className="subtle">{l}</span><span>{v}</span></div>
+            ))}
+            <div className="staff-form-actions" style={{ marginTop: 12 }}>
+              <button className="btn btn-primary" onClick={() => onNavigate(`sales-invoice?customerId=${customerId}&vehicleId=${selected.id}`)}>Invoice for this vehicle</button>
+            </div>
+          </div>
+        ) : <p className="subtle">Select a vehicle to see details.</p>}
+      </article>
+    </div>
+  );
+}
+
+function SalesInvoice({ onNavigate }) {
+  const initCustomerId = getHashParam("customerId");
+  const initVehicleId = getHashParam("vehicleId");
+
+  const [customerQuery, setCustomerQuery] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(initVehicleId || "");
+  const [partQuery, setPartQuery] = useState("");
+  const [parts, setParts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [taxRate] = useState(0.13);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (initCustomerId) {
+      api.get(`/api/customers/${initCustomerId}`).then((res) => {
+        setSelectedCustomer(res.data);
+        api.get(`/api/vehicles/customer/${initCustomerId}`).then((r) => setVehicles(Array.isArray(r.data) ? r.data : []));
+      });
+    }
+    api.get("/api/parts").then((res) => setParts(Array.isArray(res.data) ? res.data : []));
+  }, []);
+
+  const searchCustomers = async (e) => {
+    e.preventDefault();
+    if (!customerQuery.trim()) return;
+    try {
+      const res = await api.get(`/api/customers/search?query=${encodeURIComponent(customerQuery)}`);
+      setCustomers(Array.isArray(res.data) ? res.data : []);
+    } catch { toast.error("Search failed"); }
+  };
+
+  const selectCustomer = async (c) => {
+    setSelectedCustomer(c);
+    setCustomers([]);
+    setCustomerQuery("");
+    const res = await api.get(`/api/vehicles/customer/${c.id}`);
+    setVehicles(Array.isArray(res.data) ? res.data : []);
+  };
+
+  const filteredParts = parts.filter((p) =>
+    !partQuery || p.name.toLowerCase().includes(partQuery.toLowerCase()) || p.category?.toLowerCase().includes(partQuery.toLowerCase())
+  );
+
+  const addToCart = (part) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.partId === part.id);
+      if (existing) return prev.map((i) => i.partId === part.id ? { ...i, quantity: i.quantity + 1 } : i);
+      return [...prev, { partId: part.id, name: part.name, price: part.price, quantity: 1 }];
+    });
+  };
+
+  const updateQty = (partId, qty) => {
+    if (qty < 1) { setCart((p) => p.filter((i) => i.partId !== partId)); return; }
+    setCart((p) => p.map((i) => i.partId === partId ? { ...i, quantity: qty } : i));
+  };
+
+  const subTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const tax = subTotal * taxRate;
+  const total = subTotal + tax;
+
+  const handleSubmit = async () => {
+    if (!selectedCustomer) { toast.error("Select a customer first"); return; }
+    if (cart.length === 0) { toast.error("Add at least one item"); return; }
+    setSaving(true);
+    const t = toast.loading("Creating invoice...");
+    try {
+      const res = await api.post("/api/invoices", {
+        customerId: selectedCustomer.id,
+        vehicleId: selectedVehicleId ? parseInt(selectedVehicleId) : null,
+        status: 0,
+        taxRate,
+        items: cart.map((i) => ({ partId: i.partId, quantity: i.quantity })),
+      });
+      toast.success(`Invoice ${res.data.invoiceNumber} created`, { id: t });
+      onNavigate(`email-invoice?id=${res.data.id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to create invoice", { id: t });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="invoice-layout">
+      <article className="card invoice-box">
+        <h3>New Invoice</h3>
+
+        {!selectedCustomer ? (
+          <div style={{ marginBottom: 16 }}>
+            <form className="staff-searchbar" onSubmit={searchCustomers} style={{ marginBottom: 10 }}>
+              <input type="search" placeholder="Search customer by name or phone..." value={customerQuery} onChange={(e) => setCustomerQuery(e.target.value)} />
+              <button type="submit" className="btn btn-primary">Find</button>
+            </form>
+            {customers.length > 0 && (
+              <div className="table-wrap">
+                <table className="table">
+                  <tbody>
+                    {customers.map((c) => (
+                      <tr key={c.id}>
+                        <td>{c.fullName}</td>
+                        <td>{c.phone}</td>
+                        <td><button className="btn btn-secondary" onClick={() => selectCustomer(c)}>Select</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span><strong>{selectedCustomer.fullName}</strong> — {selectedCustomer.phone}</span>
+            <button className="btn btn-secondary" onClick={() => { setSelectedCustomer(null); setVehicles([]); setSelectedVehicleId(""); }}>Change</button>
+          </div>
+        )}
+
+        {vehicles.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <label className="field-label">Vehicle (optional)
+              <select className="form-input" value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)}>
+                <option value="">— No vehicle —</option>
+                {vehicles.map((v) => <option key={v.id} value={v.id}>{v.licensePlate} — {v.make} {v.model}</option>)}
+              </select>
+            </label>
+          </div>
+        )}
+
+        <div style={{ marginBottom: 10 }}>
+          <input className="form-input" placeholder="Filter parts by name or category..." value={partQuery} onChange={(e) => setPartQuery(e.target.value)} style={{ marginBottom: 8 }} />
+          <div className="table-wrap" style={{ maxHeight: 180, overflowY: "auto" }}>
+            <table className="table">
+              <thead><tr><th>Part</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+              <tbody>
+                {filteredParts.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.name}</td>
+                    <td>{p.category}</td>
+                    <td>Rs {p.price?.toLocaleString()}</td>
+                    <td><span className={`status ${p.stockQuantity < 1 ? "danger" : p.isLowStock ? "warn" : "good"}`}>{p.stockQuantity}</span></td>
+                    <td><button className="btn btn-secondary" disabled={p.stockQuantity < 1} onClick={() => addToCart(p)}>Add</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {cart.length > 0 && (
+          <div className="table-wrap" style={{ marginTop: 12 }}>
+            <table className="table">
+              <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Total</th><th></th></tr></thead>
+              <tbody>
+                {cart.map((i) => (
+                  <tr key={i.partId}>
+                    <td>{i.name}</td>
+                    <td><input type="number" min="1" value={i.quantity} onChange={(e) => updateQty(i.partId, parseInt(e.target.value))} style={{ width: 60 }} className="form-input" /></td>
+                    <td>Rs {i.price?.toLocaleString()}</td>
+                    <td>Rs {(i.price * i.quantity).toLocaleString()}</td>
+                    <td><button className="btn btn-secondary" onClick={() => updateQty(i.partId, 0)}>✕</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </article>
+
+      <article className="card invoice-total">
+        <h3>Summary</h3>
+        <div className="staff-summary-list">
+          <div className="summary-item"><span>Subtotal</span><span>Rs {subTotal.toLocaleString()}</span></div>
+          <div className="summary-item"><span>Tax (13%)</span><span>Rs {tax.toFixed(0)}</span></div>
+          <div className="summary-item"><strong>Total</strong><strong>Rs {total.toFixed(0)}</strong></div>
+        </div>
+        <div className="staff-form-actions" style={{ marginTop: 16 }}>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !selectedCustomer || cart.length === 0}>Create invoice</button>
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function EmailInvoice({ onNavigate }) {
+  const initId = getHashParam("id");
+  const [invoices, setInvoices] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [query, setQuery] = useState("");
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    api.get("/api/invoices").then((res) => {
+      const list = Array.isArray(res.data) ? res.data : [];
+      setInvoices(list);
+      if (initId) {
+        const found = list.find((i) => i.id === parseInt(initId));
+        if (found) { setSelected(found); setRecipientEmail(found.customerEmail || ""); }
+      }
+    }).catch(() => toast.error("Failed to load invoices"));
+  }, []);
+
+  const handleSend = async () => {
+    if (!selected) { toast.error("Select an invoice"); return; }
+    setSending(true);
+    const t = toast.loading("Sending...");
+    try {
+      const url = recipientEmail ? `/api/invoices/${selected.id}/email?recipientEmail=${encodeURIComponent(recipientEmail)}` : `/api/invoices/${selected.id}/email`;
+      await api.post(url);
+      toast.success("Invoice emailed", { id: t });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Send failed", { id: t });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const filtered = invoices.filter((i) =>
+    !query || i.invoiceNumber?.toLowerCase().includes(query.toLowerCase()) || i.customerName?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="staff-grid-2">
+      <article className="card">
+        <h3>Select invoice</h3>
+        <input className="form-input" placeholder="Search by number or customer..." value={query} onChange={(e) => setQuery(e.target.value)} style={{ marginBottom: 10 }} />
+        <div className="table-wrap" style={{ maxHeight: 300, overflowY: "auto" }}>
+          <table className="table">
+            <thead><tr><th>Number</th><th>Customer</th><th>Total</th><th></th></tr></thead>
+            <tbody>
+              {filtered.map((inv) => (
+                <tr key={inv.id} className={selected?.id === inv.id ? "row-active" : ""}>
+                  <td>{inv.invoiceNumber}</td>
+                  <td>{inv.customerName}</td>
+                  <td>Rs {inv.totalAmount?.toLocaleString()}</td>
+                  <td><button className="btn btn-secondary" onClick={() => { setSelected(inv); setRecipientEmail(inv.customerEmail || ""); }}>Select</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article className="card">
+        <h3>Send email</h3>
+        {selected ? (
+          <>
+            <div className="staff-summary-list" style={{ marginBottom: 12 }}>
+              <div className="summary-item"><span>Invoice</span><span>{selected.invoiceNumber}</span></div>
+              <div className="summary-item"><span>Customer</span><span>{selected.customerName}</span></div>
+              <div className="summary-item"><span>Total</span><span>Rs {selected.totalAmount?.toLocaleString()}</span></div>
+              <div className="summary-item"><span>Status</span><span className={`status ${selected.status === "Paid" ? "good" : "warn"}`}>{selected.status}</span></div>
+            </div>
+            <label className="field-label">Recipient email
+              <input className="form-input" type="email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} placeholder="Leave blank to use customer email" />
+            </label>
+            <div className="staff-form-actions" style={{ marginTop: 12 }}>
+              <button className="btn btn-primary" onClick={handleSend} disabled={sending}>Send invoice</button>
+              <button className="btn btn-secondary" onClick={() => onNavigate("sales-invoice")}>New invoice</button>
+            </div>
+          </>
+        ) : <p className="subtle">Select an invoice from the list.</p>}
+      </article>
+    </div>
+  );
+}
+
+function CustomerHistory({ onNavigate }) {
+  const [customerId] = useState(() => getHashParam("id"));
+  const [history, setHistory] = useState(null);
+
+  useEffect(() => {
+    if (!customerId) return;
+    api.get(`/api/customers/${customerId}/history`).then((res) => setHistory(res.data)).catch(() => toast.error("Failed to load history"));
+  }, [customerId]);
+
+  if (!customerId) return <p className="subtle">No customer selected. <button className="btn btn-secondary" onClick={() => onNavigate("customer-search")}>Search</button></p>;
+  if (!history) return <p className="subtle">Loading...</p>;
+
+  return (
+    <>
+      <div style={{ marginBottom: 12 }}>
+        <h2 className="page-heading">{history.fullName}</h2>
+        <p className="subtle">{history.phone} {history.email ? `· ${history.email}` : ""}</p>
+      </div>
+
+      <div className="staff-grid-2">
+        <article className="card">
+          <h3>Vehicles ({history.vehicles?.length ?? 0})</h3>
+          {history.vehicles?.length > 0 ? (
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>Plate</th><th>Make / Model</th><th>Year</th></tr></thead>
+                <tbody>
+                  {history.vehicles.map((v) => (
+                    <tr key={v.id}><td>{v.licensePlate}</td><td>{v.make} {v.model}</td><td>{v.year}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <p className="subtle">No vehicles on file.</p>}
+        </article>
+
+        <article className="card">
+          <h3>Invoices ({history.invoices?.length ?? 0})</h3>
+          {history.invoices?.length > 0 ? (
+            <div className="table-wrap" style={{ maxHeight: 200, overflowY: "auto" }}>
+              <table className="table">
+                <thead><tr><th>Number</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+                <tbody>
+                  {history.invoices.map((inv) => (
+                    <tr key={inv.id}>
+                      <td>{inv.invoiceNumber}</td>
+                      <td>{new Date(inv.invoiceDate).toLocaleDateString()}</td>
+                      <td>Rs {inv.totalAmount?.toLocaleString()}</td>
+                      <td><span className={`status ${inv.status === "Paid" ? "good" : inv.status === "Cancelled" ? "danger" : "warn"}`}>{inv.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <p className="subtle">No invoices yet.</p>}
+        </article>
+      </div>
+
+      {history.purchasedParts?.length > 0 && (
+        <article className="card" style={{ marginTop: 16 }}>
+          <h3>Parts purchased</h3>
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Part</th><th>Qty</th><th>Date</th></tr></thead>
+              <tbody>
+                {history.purchasedParts.map((p, i) => (
+                  <tr key={i}><td>{p.partName}</td><td>{p.quantity}</td><td>{new Date(p.purchaseDate).toLocaleDateString()}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      )}
+    </>
+  );
+}
+
+function CustomerReports() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    api.get("/api/reports/staff").then((res) => setData(res.data)).catch(() => toast.error("Failed to load reports"));
+  }, []);
+
+  if (!data) return <p className="subtle">Loading reports...</p>;
+
+  return (
+    <>
+      <div className="staff-grid-2">
+        <article className="card">
+          <h3>Top spenders</h3>
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Customer</th><th>Orders</th><th>Total spent</th></tr></thead>
+              <tbody>
+                {data.topSpenders?.map((s) => (
+                  <tr key={s.customerId}>
+                    <td>{s.customerName}</td>
+                    <td>{s.orders}</td>
+                    <td>Rs {s.totalSpent?.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article className="card">
+          <h3>Regular customers</h3>
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Customer</th><th>Visits</th><th>Invoices</th></tr></thead>
+              <tbody>
+                {data.regulars?.map((r) => (
+                  <tr key={r.customerId}>
+                    <td>{r.customerName}</td>
+                    <td>{r.visitCount}</td>
+                    <td>{r.invoiceCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      {data.pendingCredits?.length > 0 && (
+        <article className="card" style={{ marginTop: 16 }}>
+          <h3>Pending credits</h3>
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Customer</th><th>Outstanding</th><th>Days overdue</th><th>Phone</th></tr></thead>
+              <tbody>
+                {data.pendingCredits.map((c) => (
+                  <tr key={c.customerId}>
+                    <td>{c.customerName}</td>
+                    <td>Rs {c.outstandingAmount?.toLocaleString()}</td>
+                    <td><span className={`status ${c.daysOutstanding > 60 ? "danger" : "warn"}`}>{c.daysOutstanding}d</span></td>
+                    <td>{c.phone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      )}
     </>
   );
 }

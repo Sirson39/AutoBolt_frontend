@@ -36,7 +36,7 @@ function isProtected(route) {
 
 function parseRoute() {
   const hash = window.location.hash.replace(/^#/, "");
-  const route = hash || "home";
+  const route = (hash || "home").split("?")[0];
   if (route.startsWith('admin-')) return route;
   return appRoutes.has(route) ? route : "home";
 }
