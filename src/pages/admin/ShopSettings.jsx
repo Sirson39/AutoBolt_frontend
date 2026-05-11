@@ -7,7 +7,7 @@ import {
   Store, User, Award, ArrowRight, Package, Edit3, Eye, Lock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+import api from '../../utils/api';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
 export default function ShopSettings({ onNavigate }) {
@@ -17,9 +17,9 @@ export default function ShopSettings({ onNavigate }) {
   const [isEditing, setIsEditing] = useState(false);
 
   const [settings, setSettings] = useState({
-    shopName: 'AutoBolt',
-    tagline: 'Modern Vehicle Service Center',
-    address: 'Kathmandu, Nepal',
+    shopName: '',
+    tagline: '',
+    address: '',
     phone: '+977-9800000000',
     email: 'contact@autobolt.com',
     website: 'www.autobolt.com',
@@ -49,21 +49,50 @@ export default function ShopSettings({ onNavigate }) {
   }, [settings.primaryColor]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('shopSettings');
-    if (saved) {
-      setSettings(JSON.parse(saved));
-    }
+    const fetchConfig = async () => {
+      try {
+        const saved = localStorage.getItem('shopSettings');
+        let localSettings = saved ? JSON.parse(saved) : null;
+        
+        const res = await api.get('/api/config');
+        const dbConfig = res.data;
+        
+        setSettings(prev => ({
+          ...prev,
+          ...(localSettings || {}),
+          shopName: dbConfig.shopName || prev.shopName,
+          tagline: dbConfig.tagline || prev.tagline,
+          address: dbConfig.address || prev.address,
+          loyaltyThreshold: dbConfig.loyaltyThreshold || prev.loyaltyThreshold,
+          loyaltyDiscount: dbConfig.loyaltyDiscountPercent || prev.loyaltyDiscount
+        }));
+      } catch (error) {
+        toast.error("Failed to load shop configuration");
+      }
+    };
+    fetchConfig();
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await api.put('/api/config', {
+        shopName: settings.shopName,
+        tagline: settings.tagline,
+        address: settings.address,
+        loyaltyThreshold: Number(settings.loyaltyThreshold),
+        loyaltyDiscountPercent: Number(settings.loyaltyDiscount)
+      });
+      
       localStorage.setItem('shopSettings', JSON.stringify(settings));
-      setLoading(false);
       setIsEditing(false);
       toast.success('Settings updated successfully!');
       window.dispatchEvent(new Event('settingsUpdated'));
-    }, 2000);
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const tabs = [
