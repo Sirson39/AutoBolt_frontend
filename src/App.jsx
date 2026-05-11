@@ -23,6 +23,7 @@ import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
 import AdminProfile from "./pages/admin/AdminProfile";
 import { Toaster } from "react-hot-toast";
+import VerifyEmail from "./pages/public/VerifyEmail";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import StaffWorkspace from "./pages/staff/StaffWorkspace";
@@ -86,6 +87,7 @@ export default function App() {
       "customer-search": "AutoBolt | Customer Search",
       "customer-details": "AutoBolt | Customer Details",
       "vehicle-details": "AutoBolt | Vehicle Details",
+      "verify-email": "AutoBolt | Account Verification",
       "sales-invoice": "AutoBolt | Sales Invoice",
       "email-invoice": "AutoBolt | Email Invoice",
       "customer-history": "AutoBolt | Customer History",
@@ -152,6 +154,8 @@ export default function App() {
         <CustomerDashboard onNavigate={onNavigate} />
       ) : (route === "staff" || staffPages[route]) ? (
         <StaffWorkspace routeKey={route === "staff" ? "staff-dashboard" : route} onNavigate={onNavigate} />
+      ) : route === "verify-email" || route.startsWith("verify-email?") ? (
+        <VerifyEmail onNavigate={onNavigate} />
       ) : publicPages[route] ? (
         <PublicPage route={route} config={publicPages[route]} onNavigate={onNavigate} publicNav={publicNav} />
       ) : (

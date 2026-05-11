@@ -74,9 +74,12 @@ export default function FinancialReports({ onNavigate }) {
   return (
     <>
       <header className="top-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Activity className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Financial Analytics</span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Activity className="nav-icon" style={{ color: 'var(--brand)' }} />
+            <span className="page-title">Financial Analytics</span>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '4px', marginLeft: '2.4rem' }}>Performance metrics and revenue trends</p>
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
@@ -171,14 +174,11 @@ export default function FinancialReports({ onNavigate }) {
                     dy={10}
                   />
                   <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'var(--ink-soft)', fontSize: 11 }}
-                    tickFormatter={(val) => `Rs ${val / 1000}k`}
+                    tickFormatter={(val) => `${val / 1000}k`}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                    formatter={(val) => [`Rs ${val.toLocaleString()}`, "Revenue"]}
+                    formatter={(val) => [val.toLocaleString(), "Revenue"]}
                   />
                   <Area 
                     type="monotone" 
@@ -215,7 +215,7 @@ export default function FinancialReports({ onNavigate }) {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(val) => val.toLocaleString()} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -233,12 +233,12 @@ export default function FinancialReports({ onNavigate }) {
           </div>
         </div>
 
-        {/* Detailed Breakdown */}
         <div className="table-card">
-          <div className="table-toolbar">
-             <h3 style={{ fontSize: '0.9rem', fontWeight: '800' }}>Full Transaction Breakdown</h3>
-             <button className="btn btn-ghost btn-sm">View All Sales <ChevronRight size={14} /></button>
+          <div className="table-toolbar" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <h3 style={{ fontSize: '0.9rem', fontWeight: '800', margin: 0 }}>Full Transaction Breakdown</h3>
+             <button className="btn btn-ghost btn-sm" onClick={() => onNavigate('admin-sales')}>View All Sales <ChevronRight size={14} /></button>
           </div>
+
           <table>
             <thead>
               <tr>
@@ -260,40 +260,78 @@ export default function FinancialReports({ onNavigate }) {
         </div>
 
       </div>
+      {/* --- FORMAL PRINT-ONLY REPORT TEMPLATE --- */}
+      <div className="print-only-report">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', borderBottom: '2px solid #000', paddingBottom: '1.5rem' }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '900', letterSpacing: '-1px' }}>AUTOBOLT <span style={{ color: '#d95d39' }}>ERP</span></h1>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', fontWeight: '700' }}>PREMIUM AUTOMOTIVE SOLUTIONS</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>FINANCIAL PERFORMANCE REPORT</h2>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#666' }}>Generated: {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+          <div style={{ border: '1px solid #000', padding: '1rem' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.7rem', color: '#666' }}>TOTAL REVENUE</h4>
+            <div style={{ fontSize: '1.5rem', fontWeight: '900' }}>Rs {data?.totalRevenue.toLocaleString()}</div>
+          </div>
+          <div style={{ border: '1px solid #000', padding: '1rem' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.7rem', color: '#666' }}>TOTAL ORDERS</h4>
+            <div style={{ fontSize: '1.5rem', fontWeight: '900' }}>{data?.totalOrders}</div>
+          </div>
+          <div style={{ border: '1px solid #000', padding: '1rem' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.7rem', color: '#666' }}>AVG ORDER VALUE</h4>
+            <div style={{ fontSize: '1.5rem', fontWeight: '900' }}>Rs {Math.round(data?.averageOrderValue).toLocaleString()}</div>
+          </div>
+        </div>
+
+        <h3 style={{ fontSize: '1rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem', marginBottom: '1rem' }}>TRANSACTION HISTORY BREAKDOWN</h3>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid #000', textAlign: 'left', fontSize: '0.8rem' }}>
+              <th style={{ padding: '0.5rem 0' }}>PERIOD / DATE</th>
+              <th>SALES COUNT</th>
+              <th style={{ textAlign: 'right' }}>REVENUE</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.revenueTrend.slice(0).reverse().map((point, i) => (
+              <tr key={i} style={{ borderBottom: '1px solid #eee', fontSize: '0.8rem' }}>
+                <td style={{ padding: '0.5rem 0', fontWeight: '700' }}>{point.label}</td>
+                <td>{point.orderCount} Transactions</td>
+                <td style={{ textAlign: 'right', fontWeight: '800' }}>Rs {point.revenue.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={{ marginTop: '3rem', borderTop: '1px solid #eee', paddingTop: '1rem', fontSize: '0.7rem', color: '#999', textAlign: 'center' }}>
+          This is a computer-generated financial report from AutoBolt ERP. Confidential.
+        </div>
+      </div>
+
       <style>{`
-        .stat-card:hover {
-          transform: translateY(-12px) scale(1.02) !important;
-          box-shadow: 0 20px 40px rgba(217, 93, 57, 0.15) !important;
-          border-color: var(--brand) !important;
-          z-index: 10;
-        }
+        .stat-card:hover { transform: translateY(-8px) !important; box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; border-color: var(--brand-soft) !important; }
+        .print-only-report { display: none; }
 
         @media print {
-          .sidebar, .top-header, .header-actions, .no-print, .nav-icon { display: none !important; }
-          .admin-layout { display: block !important; }
-          .main-content { margin-left: 0 !important; width: 100% !important; padding: 0 !important; display: block !important; }
-          .page-content { padding: 0 !important; width: 100% !important; }
-          .stat-grid { 
-            display: grid !important; 
-            grid-template-columns: repeat(4, 1fr) !important; 
-            gap: 15px !important; 
-            margin-bottom: 30px !important;
+          .admin-layout > *:not(.main-content), .top-header, .page-content, .sidebar, .sidebar-overlay, .no-print {
+            display: none !important;
           }
-          .stat-card { 
-            border: 1px solid #eee !important; 
-            box-shadow: none !important; 
-            transform: none !important;
-            break-inside: avoid;
-            padding: 15px !important;
+
+          .admin-layout, .main-content, .page-wrapper {
+            margin: 0 !important; padding: 0 !important; display: block !important; width: 100% !important;
           }
-          .table-card { 
-            border: 1px solid #eee !important; 
-            box-shadow: none !important; 
-            break-inside: avoid; 
-            margin-top: 20px !important;
+
+          .print-only-report { 
+            display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; color: #000 !important;
           }
-          body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-          @page { size: A4 landscape; margin: 1cm; }
+
+          body, html { background: #fff !important; height: auto !important; margin: 0 !important; }
+          @page { margin: 1.5cm; size: auto; }
         }
       `}</style>
     </>
