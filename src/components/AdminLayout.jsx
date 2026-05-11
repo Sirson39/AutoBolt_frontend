@@ -4,6 +4,8 @@ import {
   BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings
 } from 'lucide-react';
 import axios from 'axios';
+import AIAssistant from './AIAssistant';
+
 
 const navItems = [
   { label: 'Overview', section: true },
@@ -31,6 +33,8 @@ export default function AdminLayout({ children, onNavigate }) {
   const [unseenCount, setUnseenCount] = useState(0);
   const [shopName, setShopName] = useState('AutoBolt');
   const [tagline, setTagline] = useState('Admin Panel');
+  const [globalStats, setGlobalStats] = useState({ totalParts: 0, lowStockParts: 0, totalCustomers: 0, todayRevenue: 0 });
+
 
   const loadSettings = () => {
     try {
@@ -66,8 +70,36 @@ export default function AdminLayout({ children, onNavigate }) {
       }
     };
 
+    const fetchGlobalStats = async () => {
+      try {
+        const [parts, lowStock, customers, invoices] = await Promise.all([
+          axios.get('/api/parts'),
+          axios.get('/api/parts/low-stock'),
+          axios.get('/api/customers'),
+          axios.get('/api/invoices')
+        ]);
+
+        const today = new Date().toDateString();
+        const todayRevenue = (invoices.data || [])
+          .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === today)
+          .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+
+        setGlobalStats({
+          totalParts: (parts.data || []).length,
+          lowStockParts: (lowStock.data || []).length,
+          totalCustomers: (customers.data || []).length,
+          todayRevenue: `Rs ${todayRevenue.toLocaleString()}`
+        });
+      } catch (err) {
+        console.error("AI Stats fetch failed", err);
+      }
+    };
+
     fetchLowStockCount();
+    fetchGlobalStats();
     loadSettings();
+
+
 
     window.addEventListener('settingsUpdated', loadSettings);
 
@@ -149,6 +181,10 @@ export default function AdminLayout({ children, onNavigate }) {
       <div className="main-content">
         {children}
       </div>
+
+      {/* Global AI Assistant */}
+      <AIAssistant stats={globalStats} onNavigate={onNavigate} />
     </div>
+
   );
 }

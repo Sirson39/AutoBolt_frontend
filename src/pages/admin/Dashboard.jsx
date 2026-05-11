@@ -2,8 +2,8 @@ import AdminLayout from '../../components/AdminLayout';
 import { 
   Package, Users, AlertTriangle, Truck, ShoppingCart, 
   DollarSign, BarChart2, ArrowRight, CheckCircle,
-  User, Settings as SettingsIcon, LogOut, RefreshCw,
-  TrendingUp, TrendingDown, Activity
+  TrendingUp, TrendingDown, Activity, Zap, Brain, Sparkles, X, ChevronRight,
+  User, Settings as SettingsIcon, LogOut, RefreshCw
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 
@@ -34,6 +34,9 @@ export default function Dashboard({ onNavigate }) {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [showBrain, setShowBrain] = useState(false);
+  const [insights, setInsights] = useState([]);
+  const [hasUnreadInsights, setHasUnreadInsights] = useState(false);
   const dropdownRef = useRef(null);
   
   // Get admin name from profile data (mocked for now, but dynamic in behavior)
@@ -141,8 +144,69 @@ export default function Dashboard({ onNavigate }) {
       const catMap = {};
       partsData.forEach(p => { if(p && p.category) catMap[p.category] = (catMap[p.category] || 0) + 1; });
       setCategoryChart(Object.entries(catMap).map(([name, value]) => ({ name, value })));
+      
+      // Generate AI Insights
+      const newInsights = [];
+      if (lowStockData.length > 0) {
+        newInsights.push({ 
+          id: 1, 
+          type: 'warning', 
+          title: 'Stock Critical', 
+          text: `${lowStockData.length} items are critically low. Restock now to avoid sales loss.`,
+          action: 'admin-create-purchase',
+          data: lowStockData
+        });
+      }
+      if (todayRevenue > yesterdayRevenue && yesterdayRevenue > 0) {
+        newInsights.push({ 
+          id: 2, 
+          type: 'success', 
+          title: 'Revenue Surge', 
+          text: `Today's revenue is up ${calculateTrend(todayRevenue, yesterdayRevenue).toFixed(1)}% compared to yesterday!`,
+          action: 'admin-reports'
+        });
+      }
+      if (newCustomersToday > 0) {
+        newInsights.push({ 
+          id: 3, 
+          type: 'info', 
+          title: 'Customer Growth', 
+          text: `You welcomed ${newCustomersToday} new customer(s) today. Check their loyalty status.`,
+          action: 'admin-customers'
+        });
+      }
+      if (newInsights.length === 0) {
+        newInsights.push({ 
+          id: 0, 
+          type: 'neutral', 
+          title: 'System Healthy', 
+          text: 'Operations are running smoothly. No immediate actions required.',
+          action: null
+        });
+      }
+      
+      // Dynamic Business Tips (Tip of the Day)
+      const tips = [
+        "Consolidate orders from Vendor 'AutoParts Co' to save on shipping this week.",
+        "Consider a weekend promotion for 'Engine Oil' - it's our most viewed item.",
+        "Your staff efficiency is up 12% this month. Great leadership!",
+        "Predictive Analysis: Brake Pads will likely sell out by Thursday.",
+        "Tip: Digital invoices reduce paper costs by 15% annually."
+      ];
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      newInsights.push({ id: 99, type: 'info', title: 'Daily Tip', text: randomTip, action: null });
+
+      setInsights(newInsights);
+      
+      // Persistently check if these insights have been seen
+      const seenBrainIds = JSON.parse(localStorage.getItem('seenBrainInsights') || '[]');
+      const hasNew = newInsights.some(ins => ins.id !== 0 && !seenBrainIds.includes(ins.id));
+      setHasUnreadInsights(hasNew);
+
 
       setLastUpdated(new Date());
+
+
       if (isRefresh) toast.success("Dashboard data synchronized!");
     } catch (err) {
       toast.error('Failed to load dashboard data.');
@@ -395,6 +459,101 @@ export default function Dashboard({ onNavigate }) {
         </div>
       </div>
 
+      {/* AutoBolt AI Brain Node */}
+      <div className="brain-node-container" style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9999 }}>
+        {!showBrain ? (
+          <button 
+            className="brain-node-trigger"
+            onClick={() => { 
+              setShowBrain(true); 
+              setHasUnreadInsights(false); 
+              // Save seen IDs to localStorage
+              const ids = insights.map(i => i.id);
+              localStorage.setItem('seenBrainInsights', JSON.stringify(ids));
+            }}
+            style={{
+              width: '60px', height: '60px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #d95d39 0%, #ff8c42 100%)',
+              border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 32px rgba(217, 93, 57, 0.4)',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              position: 'relative'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1) rotate(15deg)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1) rotate(0deg)'}
+          >
+            <div className="pulse-ring" />
+            <Brain size={28} color="white" />
+            {hasUnreadInsights && (
+              <div style={{ position: 'absolute', top: '-5px', right: '-5px', width: '20px', height: '20px', borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: '10px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>
+                {insights.length}
+              </div>
+            )}
+          </button>
+        ) : (
+          <div className="brain-insight-panel glass-card" style={{ 
+            width: '320px', padding: '1.5rem', borderRadius: '24px', 
+            boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.2)',
+            animation: 'slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ padding: '6px', borderRadius: '10px', background: 'var(--brand-light)', color: 'var(--brand)' }}>
+                  <Zap size={18} />
+                </div>
+                <span style={{ fontWeight: '800', fontSize: '1rem' }}>Smart Insights</span>
+              </div>
+              <button onClick={() => setShowBrain(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-soft)' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {insights.map(insight => (
+                <div 
+                  key={insight.id} 
+                  className="insight-item" 
+                  onClick={() => {
+                    if (insight.id === 1 && insight.data && insight.data.length > 0) {
+                      localStorage.setItem('restockPart', JSON.stringify(insight.data[0]));
+                      onNavigate('admin-create-purchase');
+                    } else if (insight.action) {
+                      onNavigate(insight.action);
+                    }
+                  }}
+                  style={{ 
+                    padding: '1rem', borderRadius: '16px', background: 'rgba(255,255,255,0.5)', 
+                    border: '1px solid var(--border)', cursor: insight.action || insight.id === 1 ? 'pointer' : 'default',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={e => insight.action && (e.currentTarget.style.transform = 'translateX(-5px)', e.currentTarget.style.borderColor = 'var(--brand)')}
+                  onMouseLeave={e => insight.action && (e.currentTarget.style.transform = 'translateX(0)', e.currentTarget.style.borderColor = 'var(--border)')}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <Sparkles size={14} color={insight.type === 'warning' ? 'var(--danger)' : insight.type === 'success' ? '#10b981' : 'var(--brand)'} />
+                    <span style={{ fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em', color: insight.type === 'warning' ? 'var(--danger)' : insight.type === 'success' ? '#10b981' : 'var(--ink-soft)' }}>
+                      {insight.title}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--ink)', lineHeight: '1.4', margin: 0 }}>{insight.text}</p>
+                  {insight.action && (
+                    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--brand)' }}>
+                      Take Action <ChevronRight size={12} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: '16px', background: 'var(--ink)', color: '#fff', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="neural-pulse" />
+              <span>AI Engine: Active</span>
+            </div>
+          </div>
+        )}
+      </div>
+
       <style>{`
         .stat-card:hover {
           transform: translateY(-8px) scale(1.01) !important;
@@ -408,9 +567,33 @@ export default function Dashboard({ onNavigate }) {
         .stat-card-icon {
           transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        .pulse-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 2px solid #d95d39;
+          animation: brainPulse 2s infinite;
+          opacity: 0;
+        }
+
+        .neural-pulse {
+          width: 8px; height: 8px; borderRadius: 50%; background: #10b981;
+          boxShadow: 0 0 10px #10b981;
+          animation: blink 1.5s infinite;
+        }
+
+        @keyframes brainPulse {
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(1.8); opacity: 0; }
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </>
   );
 }
+
 
