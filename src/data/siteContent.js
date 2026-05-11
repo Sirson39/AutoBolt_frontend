@@ -457,5 +457,6 @@ export const appRoutes = new Set([
   "admin-create-invoice",
   "admin-create-purchase",
   "admin-loyalty",
+  "verify-email",
   ...Object.keys(staffPages)
 ]);

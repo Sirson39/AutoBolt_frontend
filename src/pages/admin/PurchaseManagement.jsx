@@ -2,7 +2,8 @@ import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   ShoppingCart, Plus, Search, Eye, Calendar, 
-  X, Truck, FileSpreadsheet, Trash2, Hash, Printer
+  X, Truck, FileSpreadsheet, Trash2, Hash, Printer,
+  ArrowLeft as PrevIcon, ArrowRight as NextIcon
 } from 'lucide-react';
 // react-router-dom removed
 import axios from 'axios';
@@ -67,24 +68,28 @@ export default function PurchaseManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header no-print">
+      <header className="top-header glass-card no-print" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <ShoppingCart className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Purchase Management</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <ShoppingCart size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Purchase Management</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Manage supply chain, track inventory restocking, and verify supplier expenditure</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Purchase_History')}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(invoices, 'Purchase_History')} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button onClick={() => onNavigate('admin-create-purchase')} className="btn btn-primary">
-            <Plus size={18} /> New Purchase (Restock)
+          <button onClick={() => onNavigate('admin-create-purchase')} className="btn btn-primary" style={{ borderRadius: 'var(--radius-sm)' }}>
+            <Plus size={18} /> Restock Inventory
           </button>
         </div>
       </header>
 
-      <div className="page-content no-print">
-        <div className="table-card">
+      <div className="page-content no-print" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
@@ -135,8 +140,13 @@ export default function PurchaseManagement({ onNavigate }) {
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       <td>
+                        <div 
+                          onClick={() => onNavigate('vendors')}
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--brand)'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
+                        >
                           <Truck size={14} color="var(--ink-soft)" />
                           <div style={{ fontWeight: '700' }}>
                             <HighlightText text={inv.vendorName} highlight={searchQuery} />
@@ -161,27 +171,52 @@ export default function PurchaseManagement({ onNavigate }) {
           </div>
 
           {filteredInvoices.length > 0 && (
-            <div className="pagination">
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredInvoices.length)} of {filteredInvoices.length} entries
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredInvoices.length)}</span> of {filteredInvoices.length}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  className="btn btn-ghost btn-sm"
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Previous
+                  <PrevIcon size={14} style={{ marginRight: '6px' }} /> Prev
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
-                  Page {currentPage} of {totalPages}
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm"
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Next
+                  Next <NextIcon size={14} style={{ marginLeft: '6px' }} />
                 </button>
               </div>
             </div>

@@ -19,6 +19,7 @@ import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
 import AdminProfile from "./pages/admin/AdminProfile";
 import { Toaster } from "react-hot-toast";
+import VerifyEmail from "./pages/public/VerifyEmail";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import StaffWorkspace from "./pages/staff/StaffWorkspace";
@@ -26,9 +27,10 @@ import StaffWorkspace from "./pages/staff/StaffWorkspace";
 function parseRoute() {
   const hash = window.location.hash.replace(/^#/, "");
   const route = hash || "home";
-  // Always allow admin routes to prevent redirection issues
+  const baseRoute = route.split('?')[0];
+  
   if (route.startsWith('admin-')) return route;
-  return appRoutes.has(route) ? route : "home";
+  return appRoutes.has(baseRoute) ? route : "home";
 }
 
 export default function App() {
@@ -63,6 +65,7 @@ export default function App() {
       "customer-search": "AutoBolt | Customer Search",
       "customer-details": "AutoBolt | Customer Details",
       "vehicle-details": "AutoBolt | Vehicle Details",
+      "verify-email": "AutoBolt | Account Verification",
       "sales-invoice": "AutoBolt | Sales Invoice",
       "email-invoice": "AutoBolt | Email Invoice",
       "customer-history": "AutoBolt | Customer History",
@@ -83,6 +86,7 @@ export default function App() {
 
   const onNavigate = (target) => {
     window.location.hash = target;
+    window.scrollTo(0, 0);
   };
 
   if (route === "signin" || route === "signup") {

@@ -1,6 +1,6 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
-import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet } from 'lucide-react';
+import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet, ArrowLeft, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -184,24 +184,28 @@ export default function VehicleManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header">
+      <header className="top-header glass-card" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Car className="nav-icon" style={{ color: 'var(--brand)' }} />
-          <span className="page-title">Vehicle Management</span>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <Car size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+             <span className="page-title">Vehicle Management</span>
+             <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>Track fleet maintenance, license categories, and ownership records</span>
+          </div>
         </div>
         <div className="header-actions">
-          <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(vehicles, 'Vehicles_List')}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(vehicles, 'Vehicles_List')} style={{ borderRadius: 'var(--radius-sm)' }}>
             <FileSpreadsheet size={18} /> Export CSV
           </button>
-          <button className="btn btn-primary" onClick={openAddModal}>
+          <button className="btn btn-primary" onClick={openAddModal} style={{ borderRadius: 'var(--radius-sm)' }}>
             <Plus size={18} /> Register Vehicle
           </button>
         </div>
       </header>
 
-      <div className="page-content">
-        <div className="table-card">
+      <div className="page-content" style={{ animation: 'fadeUp 0.6s ease both' }}>
+        <div className="table-card" style={{ boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div className="table-toolbar">
             <div className="search-box">
               <Search size={18} color="var(--ink-soft)" />
@@ -282,7 +286,11 @@ export default function VehicleManagement({ onNavigate }) {
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.75rem', borderRadius: '999px', background: 'var(--brand-light)', color: 'var(--brand)', fontWeight: '700', fontSize: '0.85rem' }}>
+                        <div 
+                          onClick={() => onNavigate('customers')}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.75rem', borderRadius: '999px', background: 'var(--brand-light)', color: 'var(--brand)', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                          className="owner-badge-hover"
+                        >
                           <User size={14} />
                           <HighlightText text={vehicle.ownerName} highlight={searchQuery} />
                         </div>
@@ -358,27 +366,52 @@ export default function VehicleManagement({ onNavigate }) {
             )}
           </div>
           {filteredVehicles.length > 0 && (
-            <div className="pagination">
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredVehicles.length)} of {filteredVehicles.length} entries
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, filteredVehicles.length)}</span> of {filteredVehicles.length}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  className="btn btn-ghost btn-sm"
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Previous
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontWeight: '700', fontSize: '0.9rem' }}>
-                  Page {currentPage} of {totalPages}
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm"
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
                 >
-                  Next
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
                 </button>
               </div>
             </div>
@@ -487,7 +520,7 @@ export default function VehicleManagement({ onNavigate }) {
 
               <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem' }}>
                 <button className="btn btn-primary" onClick={() => { setViewingVehicle(null); openEditModal(viewingVehicle); }} style={{ flex: 1, justifyContent: 'center' }}>
-                  <Edit2 size={16} /> Edit Details
+                  <Edit2 size={16} /> Edit Vehicle
                 </button>
               </div>
             </div>

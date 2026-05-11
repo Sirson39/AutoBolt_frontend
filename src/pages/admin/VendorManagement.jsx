@@ -175,7 +175,7 @@ export default function VendorManagement({ onNavigate }) {
 
   return (
     <>
-      <header className="top-header glass-card" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
+      <header className="top-header glass-card" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              <Briefcase size={20} />
@@ -287,14 +287,14 @@ export default function VendorManagement({ onNavigate }) {
                           ) : (
                             <>
                               {vendor.email && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
+                                <a href={`mailto:${vendor.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
                                   <Mail size={12} /> <HighlightText text={vendor.email} highlight={searchQuery} />
-                                </div>
+                                </a>
                               )}
                               {vendor.phone && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
+                                <a href={`tel:${vendor.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--ink-soft)', textDecoration: 'none' }} className="contact-link">
                                   <Phone size={12} /> <HighlightText text={vendor.phone} highlight={searchQuery} />
-                                </div>
+                                </a>
                               )}
                             </>
                           )}
