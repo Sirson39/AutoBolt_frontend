@@ -22,6 +22,7 @@ import CreateInvoice from "./pages/admin/CreateInvoice";
 import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
 import AdminProfile from "./pages/admin/AdminProfile";
+import BookingManagement from "./pages/admin/BookingManagement";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/public/VerifyEmail";
 
@@ -143,6 +144,7 @@ export default function App() {
     "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
     "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
     "admin-profile": <AdminProfile onNavigate={onNavigate} />,
+    "admin-bookings": <BookingManagement onNavigate={onNavigate} />,
   };
 
   return (

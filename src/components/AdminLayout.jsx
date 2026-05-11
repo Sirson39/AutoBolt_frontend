@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
-  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings, KeyRound, UserCircle
+  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings, KeyRound, UserCircle, CalendarDays
 } from 'lucide-react';
 import axios from 'axios';
 import { clearAuth, getUser } from '../utils/auth';
@@ -19,6 +19,7 @@ const navItems = [
   { to: 'admin-customers', label: 'Customer Management', icon: Users },
   { to: 'admin-vehicles',  label: 'Vehicle Management',  icon: Car },
   { to: 'admin-loyalty',   label: 'Loyalty Program',     icon: Gift },
+  { to: 'admin-bookings',  label: 'Booking Management',  icon: CalendarDays },
   { label: 'Staff & Security', section: true },
   { to: 'admin-staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },
