@@ -3,15 +3,71 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronRight,
+  Clock3,
+  Boxes,
+  BrainCircuit,
   Mail,
+  MapPin,
   Package,
+  ShieldCheck,
   Sparkles,
   ShoppingCart
 } from "lucide-react";
 import { benefits, features, footerNav, roleCards } from "../../data/siteContent";
 import { BenefitCard, FeatureCard, RoleCard, SigninFields, SignupFields } from "../../components/shared";
 
+const aboutCards = [
+  {
+    label: "Our Mission",
+    title: "Streamlining Parts Operations",
+    text: "AutoBolt brings inventory, invoicing, vendor management, and customer records into one unified platform so service centres can focus on vehicles, not spreadsheets.",
+    icon: Boxes
+  },
+  {
+    label: "Role-Based Platform",
+    title: "Designed Around Your Team",
+    text: "Every role gets exactly what they need. Admins control stock and financials. Staff handle customers and sales. Customers self-serve, book appointments, and track their history.",
+    icon: ShieldCheck
+  },
+  {
+    label: "Smart by Design",
+    title: "AI-Driven Intelligence",
+    text: "AutoBolt's built-in AI analyses vehicle usage patterns to predict part failures before they happen, while automated alerts keep the team ahead of low stock and overdue payments.",
+    icon: BrainCircuit
+  }
+];
+
+const contactCards = [
+  {
+    label: "General Enquiries",
+    title: "Email Us",
+    text: "support@autobolt.io - For platform questions, feature requests, or account help. We typically respond within 24 hours on business days.",
+    icon: Mail
+  },
+  {
+    label: "Business Hours",
+    title: "Support Hours",
+    text: "Monday to Friday, 9:00 AM - 6:00 PM (NPT). Our support team is available to assist with onboarding, technical issues, and training.",
+    icon: Clock3
+  },
+  {
+    label: "Location",
+    title: "Kathmandu, Nepal",
+    text: "Illustrative project location for coursework use only. Serving vehicle service and parts businesses across Nepal.",
+    icon: MapPin
+  },
+  {
+    label: "Request a Demo",
+    title: "See It Live",
+    text: "Want to see AutoBolt in action before committing? Book a free walkthrough and we'll show you how it fits your service centre's workflow.",
+    icon: Sparkles
+  }
+];
+
 function Shell({ route, onNavigate, publicNav, children, footerText }) {
+  const navLinks = publicNav.filter((item) => item.kind !== "action");
+  const actionLinks = publicNav.filter((item) => item.kind === "action");
+
   return (
     <>
       <header className={`site-header ${route === "home" ? "home-header" : ""}`}>
@@ -25,16 +81,13 @@ function Shell({ route, onNavigate, publicNav, children, footerText }) {
           </a>
 
           <nav className="header-nav" aria-label="Primary navigation">
-            {publicNav.map((item) => {
-              const active =
-                (item.kind === "page" && route === item.target) ||
-                (item.kind === "section" && route === "home" && item.target === "home") ||
-                (item.kind === "action" && route === item.target);
+            {navLinks.map((item) => {
+              const active = item.kind === "section" ? route === item.target : route === item.target;
 
               return (
                 <a
                   key={item.target}
-                  className={`header-link ${item.kind === "action" ? "header-link-action" : ""} ${active ? "active" : ""}`}
+                  className={`header-link ${active ? "active" : ""}`}
                   href={`#${item.target}`}
                   aria-current={active ? "page" : undefined}
                 >
@@ -43,6 +96,24 @@ function Shell({ route, onNavigate, publicNav, children, footerText }) {
               );
             })}
           </nav>
+
+          <div className="header-actions-group">
+            {actionLinks.map((item) => {
+              const variant = item.target === "signup" ? "header-link-primary" : "header-link-secondary";
+              const active = route === item.target;
+
+              return (
+                <a
+                  key={item.target}
+                  className={`header-link-action ${variant} ${active ? "active" : ""}`}
+                  href={`#${item.target}`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </div>
         </div>
       </header>
 
@@ -83,6 +154,21 @@ function InfoCard({ title, text, icon: Icon }) {
       </div>
       <h3>{title}</h3>
       <p>{text}</p>
+    </article>
+  );
+}
+
+function CompactCard({ label, title, text, icon: Icon }) {
+  return (
+    <article className="compact-card">
+      <div className="compact-card-badge" aria-hidden="true">
+        <Icon size={18} strokeWidth={2.2} />
+      </div>
+      <div className="compact-card-copy">
+        <div className="compact-card-label">{label}</div>
+        <h3>{title}</h3>
+        <p>{text}</p>
+      </div>
     </article>
   );
 }
@@ -160,13 +246,13 @@ const workflowTimeline = [
   }
 ];
 
-export function LandingPage({ onNavigate, publicNav }) {
+export function LandingPage({ route = "home", onNavigate, publicNav }) {
   return (
     <Shell
-      route="home"
+      route={route}
       onNavigate={onNavigate}
       publicNav={publicNav}
-      footerText="\u00A9 2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
+      footerText="2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
     >
       <section className="home-hero" id="home">
         <div className="home-hero-bg" />
@@ -202,7 +288,7 @@ export function LandingPage({ onNavigate, publicNav }) {
         <div className="roles-layout">
           <div className="roles-intro">
             <div className="eyebrow eyebrow-light">Roles</div>
-            <h2 className="roles-title">Built for Admin, Staff, and Customer workflows.</h2>
+            <h2 className="roles-title">The right tools for every person on your team.</h2>
             <p className="roles-copy">
               Each role gets a focused experience so teams can move faster without exposing unrelated tools or clutter.
             </p>
@@ -278,6 +364,52 @@ export function LandingPage({ onNavigate, publicNav }) {
           </button>
         </div>
       </section>
+
+      <section className="section home-about" id="about">
+        <div className="split-section home-about-layout">
+          <div className="split-copy">
+            <div className="eyebrow eyebrow-light">ABOUT AUTOBOLT</div>
+            <h2 className="split-title">Built for Vehicle Service Centres</h2>
+            <p className="split-copy-text">
+              AutoBolt was designed to solve the real operational challenges faced by vehicle parts retailers and
+              service centres - messy inventory, manual invoicing, and disconnected customer records.
+            </p>
+            <p className="split-support">
+              With role-based access for Admin, Staff, and Customer users, AutoBolt keeps daily operations structured,
+              faster, and easier to manage.
+            </p>
+          </div>
+
+          <div className="compact-card-grid about-card-grid">
+            {aboutCards.map((card) => (
+              <CompactCard key={card.title} {...card} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section home-contact" id="contact">
+        <div className="split-section home-contact-layout">
+          <div className="split-copy">
+            <div className="eyebrow eyebrow-light">CONTACT AUTOBOLT</div>
+            <h2 className="split-title">Get support for your parts and service workflow</h2>
+            <p className="split-copy-text">
+              Need help with system access, customer records, inventory, invoices, or service bookings? Contact the
+              AutoBolt team using the details below.
+            </p>
+            <p className="split-support">
+              We keep support practical and responsive so your team can stay focused on the workshop.
+            </p>
+          </div>
+
+          <div className="compact-card-grid contact-card-grid">
+            {contactCards.map((card) => (
+              <CompactCard key={card.title} {...card} />
+            ))}
+          </div>
+        </div>
+      </section>
+
     </Shell>
   );
 }
@@ -334,7 +466,7 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                 Sign In
               </button>
               <button className={`auth-tab ${!isSignIn ? "active" : ""}`} type="button" onClick={() => onNavigate("signup")}>
-                Sign Up
+                Create Your Account
               </button>
             </div>
 
@@ -356,7 +488,7 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             >
               {isSignIn ? <SigninFields /> : <SignupFields />}
               <button className="btn btn-primary auth-submit" type="submit">
-                {isSignIn ? "Sign In" : "Create Account"}
+                {isSignIn ? "Sign In" : "Create Your Account"}
               </button>
             </form>
 
@@ -383,11 +515,11 @@ export function PublicPage({ route, config, onNavigate, publicNav }) {
             <h1>{config.title}</h1>
             <p>{config.copy}</p>
             <div className="hero-actions">
-              <button className="btn btn-primary" type="button" onClick={() => onNavigate("signin")}>
-                Sign In
-              </button>
-              <button className="btn btn-secondary" type="button" onClick={() => onNavigate("signup")}>
+              <button className="btn btn-primary" type="button" onClick={() => onNavigate("signup")}>
                 Get Started
+              </button>
+              <button className="btn btn-secondary" type="button" onClick={() => onNavigate("signin")}>
+                Sign In
               </button>
             </div>
           </div>

@@ -105,38 +105,31 @@ export const roleCards = {
   admin: {
     badge: "Admin",
     title: "Operations, stock, and oversight",
-    description: "Admins manage the core business workflows, inventory controls, financial visibility, and user access.",
+    description: "Full control over inventory, finances, and your team.",
     items: [
-      "Manage staff accounts and roles",
-      "Manage parts, vendors, and stock levels",
-      "Create purchase invoices",
-      "View financial and inventory reports",
+      "Manage staff, vendors, and parts inventory",
+      "Create purchase invoices and financial reports",
       "Receive low-stock alerts"
     ]
   },
   staff: {
     badge: "Staff",
     title: "Service desk and sales execution",
-    description: "Staff handle customer intake, sales tasks, invoicing, and customer history at the point of service.",
+    description: "Handle customers, sales, and invoicing at the counter.",
     items: [
-      "Register customers with vehicle details",
-      "Search customers by name, phone, ID, or vehicle number",
-      "Sell parts and create sales invoices",
-      "Email invoices to customers",
-      "View customer history and reports"
+      "Register customers and manage vehicle details",
+      "Sell parts, create and email sales invoices",
+      "Search customers and generate sales reports"
     ]
   },
   customer: {
     badge: "Customer",
     title: "Self-service and account management",
-    description: "Customers can manage their profile, vehicle records, bookings, requests, and service feedback.",
+    description: "Self-service access to bookings, history, and AI insights.",
     items: [
-      "Self-register and manage profile",
-      "Add and update vehicle details",
-      "Book service appointments",
-      "Request unavailable parts",
-      "View purchase and service history",
-      "Submit service reviews"
+      "Book appointments and request unavailable parts",
+      "View full purchase and service history",
+      "AI predicts part failures before they happen"
     ]
   }
 };
@@ -371,23 +364,24 @@ export const staffPages = {
 
 export const publicPages = {
   about: {
-    title: "About AutoBolt",
-    eyebrow: "About",
-    copy: "AutoBolt is a web-based Vehicle Parts Selling and Inventory Management System designed for vehicle service centres and parts retail businesses. It provides role-based access for admins, staff, and customers, helping each user complete their tasks through a clean and structured interface.",
+    title: "Built for Vehicle Service Centres",
+    eyebrow: "About AutoBolt",
+    copy: "AutoBolt was designed to solve the real operational challenges faced by vehicle parts retailers and service centres - messy inventory, manual invoicing, and disconnected customer records.",
     cards: [
-      ["Role-Based Access", "Separate workflows are provided for admin, staff, and customer users."],
-      ["Automotive-Focused Design", "The interface is designed around parts inventory, vehicle records, invoices, and service operations."],
-      ["Smart System Support", "The system supports alerts, reports, customer history, and AI-based part failure prediction."]
+      ["Our Mission", "Streamlining Parts Operations", "AutoBolt brings inventory, invoicing, vendor management, and customer records into one unified platform so service centres can focus on vehicles, not spreadsheets."],
+      ["Role-Based Platform", "Designed Around Your Team", "Every role gets exactly what they need. Admins control stock and financials. Staff handle customers and sales. Customers self-serve, book appointments, and track their history."],
+      ["Smart by Design", "AI-Driven Intelligence", "AutoBolt's built-in AI analyses vehicle usage patterns to predict part failures before they happen, while automated alerts keep the team ahead of low stock and overdue payments."]
     ]
   },
   contact: {
-    title: "Contact AutoBolt",
-    eyebrow: "Support",
-    copy: "For support, service enquiries, or system-related questions, please use the contact details below.",
+    title: "Get in Touch",
+    eyebrow: "Contact Us",
+    copy: "Have a question about AutoBolt or want to request a demo for your service centre? Reach out and our team will get back to you within one business day.",
     cards: [
-      ["Support Email", "support@autobolt.local"],
-      ["Phone", "+977-98XXXXXXXX"],
-      ["Location", "Kathmandu, Nepal"]
+      ["General Enquiries", "Email Us", "support@autobolt.io - For platform questions, feature requests, or account help. We typically respond within 24 hours on business days."],
+      ["Business Hours", "Support Hours", "Monday to Friday, 9:00 AM - 6:00 PM (NPT). Our support team is available to assist with onboarding, technical issues, and training."],
+      ["Location", "Kathmandu, Nepal", "Illustrative project location for coursework use only. Serving vehicle service and parts businesses across Nepal."],
+      ["Request a Demo", "See It Live", "Want to see AutoBolt in action before committing? Book a free walkthrough and we'll show you how it fits your service centre's workflow."]
     ]
   },
   "customer-register": {
@@ -404,20 +398,20 @@ export const publicPages = {
 
 export const publicNav = [
   { label: "Home", target: "home", kind: "section" },
+  { label: "Roles", target: "home-roles", kind: "section" },
   { label: "Features", target: "home-features", kind: "section" },
   { label: "Workflow", target: "home-workflow", kind: "section" },
-  { label: "Roles", target: "home-roles", kind: "section" },
-  { label: "About", target: "about", kind: "page" },
-  { label: "Contact", target: "contact", kind: "page" },
-  { label: "Customer Registration", target: "customer-register", kind: "page" },
+  { label: "About", target: "about", kind: "section" },
+  { label: "Contact", target: "contact", kind: "section" },
   { label: "Sign In", target: "signin", kind: "action" },
   { label: "Get Started", target: "signup", kind: "action" }
 ];
 
 export const footerNav = [
   { label: "Home", target: "home" },
-  { label: "Features", target: "home-features" },
   { label: "Roles", target: "home-roles" },
+  { label: "Features", target: "home-features" },
+  { label: "Workflow", target: "home-workflow" },
   { label: "About", target: "about" },
   { label: "Contact", target: "contact" },
   { label: "Sign In", target: "signin" }
@@ -437,6 +431,10 @@ export const staffNav = [
 
 export const appRoutes = new Set([
   "home",
+  "home-roles",
+  "home-features",
+  "home-workflow",
+  "home-benefits",
   "about",
   "contact",
   "customer-register",

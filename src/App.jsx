@@ -46,6 +46,10 @@ export default function App() {
   useEffect(() => {
     const titles = {
       home: "AutoBolt | Home",
+      "home-roles": "AutoBolt | Roles",
+      "home-features": "AutoBolt | Features",
+      "home-workflow": "AutoBolt | Workflow",
+      "home-benefits": "AutoBolt | Benefits",
       about: "AutoBolt | About",
       contact: "AutoBolt | Contact",
       "customer-register": "AutoBolt | Customer Registration",
@@ -113,10 +117,12 @@ export default function App() {
         <CustomerDashboard onNavigate={onNavigate} />
       ) : (route === "staff" || staffPages[route]) ? (
         <StaffWorkspace routeKey={route === "staff" ? "staff-dashboard" : route} onNavigate={onNavigate} />
-      ) : publicPages[route] ? (
+      ) : route === "customer-register" ? (
         <PublicPage route={route} config={publicPages[route]} onNavigate={onNavigate} publicNav={publicNav} />
+      ) : route === "home" || route === "home-roles" || route === "home-features" || route === "home-workflow" || route === "home-benefits" || route === "about" || route === "contact" ? (
+        <LandingPage route={route} onNavigate={onNavigate} publicNav={publicNav} />
       ) : (
-        <LandingPage onNavigate={onNavigate} publicNav={publicNav} />
+        <LandingPage route="home" onNavigate={onNavigate} publicNav={publicNav} />
       )}
     </>
   );
