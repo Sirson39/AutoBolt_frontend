@@ -1,7 +1,7 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { Gift, DollarSign, Users, TrendingUp, Award, ArrowRight, Star } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -11,19 +11,24 @@ export default function LoyaltyProgram({ onNavigate }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  const [config, setConfig] = useState(null);
 
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get('/api/invoices');
-        setInvoices(res.data);
+        const [invoicesRes, configRes] = await Promise.all([
+          api.get('/api/invoices'),
+          api.get('/api/config')
+        ]);
+        setInvoices(invoicesRes.data);
+        setConfig(configRes.data);
       } catch {
         toast.error('Failed to load loyalty data.');
       } finally {
         setLoading(false);
       }
     };
-    fetchInvoices();
+    fetchData();
   }, []);
 
   // --- Derived stats from invoices ---
@@ -98,7 +103,7 @@ export default function LoyaltyProgram({ onNavigate }) {
           <div>
             <div style={{ fontWeight: '900', fontSize: '1rem', letterSpacing: '0.02em' }}>How the Loyalty Program Works</div>
             <div style={{ fontSize: '0.82rem', opacity: 0.88, marginTop: '3px' }}>
-              Any single purchase exceeding <strong>Rs 5,000</strong> automatically receives a <strong>10% discount</strong> at checkout. 
+              Any single purchase exceeding <strong>Rs {config?.loyaltyThreshold?.toLocaleString() || '5,000'}</strong> automatically receives a <strong>{config?.loyaltyDiscountPercent || '10'}% discount</strong> at checkout. 
               No signup needed — every qualifying customer benefits instantly.
             </div>
           </div>
@@ -209,7 +214,7 @@ export default function LoyaltyProgram({ onNavigate }) {
                 <th>Invoice #</th>
                 <th>Customer</th>
                 <th>Sub Total</th>
-                <th>Discount (10%)</th>
+                <th>Discount ({config?.loyaltyDiscountPercent || '10'}%)</th>
                 <th>Final Amount</th>
                 <th>Date</th>
               </tr>
