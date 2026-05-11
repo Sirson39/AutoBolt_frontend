@@ -1,62 +1,135 @@
+import {
+  BarChart3,
+  Bell,
+  Boxes,
+  Gauge,
+  ReceiptText,
+  Sparkles,
+  Tag,
+  TrendingUp,
+  Truck,
+  Users,
+  ShieldCheck
+} from "lucide-react";
+
 export const features = [
   {
-    title: "Inventory control",
-    text: "Track parts, low-stock alerts, vendors, and purchase flows with a clean admin-first layout."
+    title: "Inventory Management",
+    text: "Track stock levels, part categories, reorder points, and availability across your workshop and retail counter.",
+    icon: Boxes
   },
   {
-    title: "Sales and invoices",
-    text: "Staff can create sales invoices, email them, and see customer purchase history in one place."
+    title: "Sales & Invoice Management",
+    text: "Create sales invoices quickly, keep billing records organized, and share invoices with customers when needed.",
+    icon: ReceiptText
   },
   {
-    title: "Customer self-service",
-    text: "Customers can register, request parts, book appointments, and review service history."
+    title: "Vendor Management",
+    text: "Maintain supplier records, purchase details, and vendor history in one clean operational workspace.",
+    icon: Truck
   },
   {
-    title: "AI prediction",
-    text: "A dedicated customer panel highlights predictive maintenance and upcoming part failure signals."
+    title: "Customer & Vehicle Records",
+    text: "Store customer profiles, vehicle details, and service context for faster searches and better support.",
+    icon: Users
   },
   {
-    title: "Reports and insight",
-    text: "Admin and staff dashboards surface financial, inventory, and customer reports visually."
+    title: "Reports & Analytics",
+    text: "Review sales, inventory, and finance summaries with clear reporting views for better decisions.",
+    icon: BarChart3
   },
   {
-    title: "Authentication flow",
-    text: "Landing page, sign in, and sign up routes are ready for backend integration later."
+    title: "Smart Notifications",
+    text: "Stay informed with low-stock alerts, overdue credit reminders, and operational updates.",
+    icon: Bell
+  },
+  {
+    title: "AI Failure Prediction",
+    text: "Use vehicle-pattern insights to anticipate part failure and improve maintenance planning.",
+    icon: Sparkles
+  },
+  {
+    title: "Loyalty Discount",
+    text: "Apply customer rewards and discount logic consistently across billing and purchase history.",
+    icon: Tag
+  }
+];
+
+export const benefits = [
+  {
+    title: "Faster Daily Operations",
+    text: "Reduce manual steps across sales, registration, billing, and stock updates.",
+    icon: Gauge
+  },
+  {
+    title: "Better Stock Control",
+    text: "Keep inventory levels visible so reorder decisions happen before shortages affect sales.",
+    icon: ShieldCheck
+  },
+  {
+    title: "Improved Customer Experience",
+    text: "Make it easier to register customers, manage vehicles, and share invoices or updates quickly.",
+    icon: Users
+  },
+  {
+    title: "Smarter Business Decisions",
+    text: "Use reports, alerts, and AI-supported insights to understand demand and service trends.",
+    icon: TrendingUp
+  }
+];
+
+export const workflowSteps = [
+  {
+    step: "Step 01",
+    title: "Stock Arrives",
+    text: "Admin records vendor purchases and the system updates stock levels automatically."
+  },
+  {
+    step: "Step 02",
+    title: "Sale Happens",
+    text: "Staff selects parts, registers customer details, and generates a sales invoice."
+  },
+  {
+    step: "Step 03",
+    title: "Customer Receives Invoice",
+    text: "Invoices can be emailed directly to customers, and purchase history is saved."
+  },
+  {
+    step: "Step 04",
+    title: "System Tracks & Alerts",
+    text: "AutoBolt monitors low stock, overdue credits, and AI-based vehicle part predictions."
   }
 ];
 
 export const roleCards = {
   admin: {
-    badge: "Admin workspace",
-    title: "Operations, stock, and business insight",
-    description: "The admin view focuses on inventory, financial performance, staff access, and alerts so leaders can make fast decisions.",
+    badge: "Admin",
+    title: "Operations, stock, and oversight",
+    description: "Full control over inventory, finances, and your team.",
     items: [
-      "Manage parts, vendors, and inventory thresholds",
-      "Review financial and inventory reports",
-      "Register staff and assign roles",
-      "Track low-stock notifications and outstanding issues"
+      "Manage staff, vendors, and parts inventory",
+      "Create purchase invoices and financial reports",
+      "Receive low-stock alerts"
     ]
   },
   staff: {
-    badge: "Staff workspace",
-    title: "Customer handling and transaction flow",
-    description: "The staff view is tuned for daily service work: customer registration, sales, invoices, searches, and customer history.",
+    badge: "Staff",
+    title: "Service desk and sales execution",
+    description: "Handle customers, sales, and invoicing at the counter.",
     items: [
-      "Register customers with vehicle details",
-      "Search by name, phone, ID, or vehicle number",
-      "Create sales and email invoices",
-      "View customer histories and reports"
+      "Register customers and manage vehicle details",
+      "Sell parts, create and email sales invoices",
+      "Search customers and generate sales reports"
     ]
   },
   customer: {
-    badge: "Customer workspace",
-    title: "Self-service and vehicle support",
-    description: "The customer view groups registration, purchase history, service history, requests, appointments, and AI prediction tools.",
+    badge: "Customer",
+    title: "Self-service and account management",
+    description: "Self-service access to bookings, history, and AI insights.",
     items: [
-      "Self-register and manage profile data",
-      "Request parts and book service appointments",
-      "Track purchase and service history",
-      "Review AI-driven maintenance predictions"
+      "Book appointments and request unavailable parts",
+      "View full purchase and service history",
+      "AI predicts part failures before they happen"
     ]
   }
 };
@@ -72,7 +145,7 @@ export const dashboardData = {
       { label: "Registered staff", value: "18", delta: "3 new this term" }
     ],
     leftTitle: "Operational snapshots",
-    leftBody: "This layout mirrors the coursework brief by highlighting reports, stock pressure, and management tasks that belong to the admin role.",
+    leftBody: "This layout highlights reports, stock pressure, and management tasks that belong to the admin role.",
     rows: [
       ["Brake pads", "12", "Top seller", "good"],
       ["Air filters", "8", "Reorder soon", "warn"],
@@ -80,7 +153,7 @@ export const dashboardData = {
       ["Engine oil", "26", "Healthy", "good"]
     ],
     rightTitle: "Core tasks",
-    rightBody: "These are the main actions requested in the brief and represented in the prototype UI.",
+    rightBody: "These are the main actions requested in the system workflow.",
     tasks: [
       "Generate financial and inventory reports",
       "Manage parts, vendors, and purchase logs",
@@ -112,7 +185,7 @@ export const dashboardData = {
       ["Anita Thapa", "9800-112-778", "Sedan", "good"]
     ],
     rightTitle: "Daily service tasks",
-    rightBody: "The brief calls for invoice creation, customer histories, and report generation, which this panel keeps visible.",
+    rightBody: "The staff workspace keeps invoice creation, customer histories, and reports visible.",
     tasks: [
       "Register new customers with vehicle details",
       "Create and email sales or service invoices",
@@ -136,7 +209,7 @@ export const dashboardData = {
       { label: "AI alerts", value: "2", delta: "Predictive reminders active" }
     ],
     leftTitle: "Recent activity",
-    leftBody: "The customer role is centered around self-service, vehicle management, and transparent service history.",
+    leftBody: "The customer role is centered around self-service, vehicle management, and transparent history.",
     rows: [
       ["Oil filter", "Purchased", "10 Apr", "good"],
       ["Appointment", "Booked", "18 Apr", "good"],
@@ -144,7 +217,7 @@ export const dashboardData = {
       ["Battery alert", "Suggested", "Today", "warn"]
     ],
     rightTitle: "Customer tools",
-    rightBody: "The coursework mentions AI prediction, part requests, bookings, and service review. These are grouped into one dashboard view.",
+    rightBody: "This workspace groups part requests, bookings, and AI prediction tools in one place.",
     tasks: [
       "Self-register and manage profile information",
       "Request parts or book service appointments",
@@ -165,8 +238,8 @@ export const staffPages = {
     title: "Staff dashboard",
     subtitle: "Customer handling and invoice operations",
     badge: "Staff dashboard",
-    hero: "This workspace keeps the staff flow focused on registrations, searches, customer records, and billing so the daily work stays quick.",
-    highlight: "Today’s focus",
+    hero: "This workspace keeps the staff flow focused on registrations, searches, customer records, and billing so daily work stays quick.",
+    highlight: "Today's focus",
     highlightText: "Search, register, bill, and follow up without leaving the staff area.",
     kpis: [
       ["Customers served", "42", "11 handled today"],
@@ -291,36 +364,58 @@ export const staffPages = {
 
 export const publicPages = {
   about: {
-    title: "About AutoBolt",
-    eyebrow: "Public page",
-    copy: "AutoBolt is an automotive-focused frontend concept for parts, invoices, booking, and service workflows.",
+    title: "Built for Vehicle Service Centres",
+    eyebrow: "About AutoBolt",
+    copy: "AutoBolt was designed to solve the real operational challenges faced by vehicle parts retailers and service centres - messy inventory, manual invoicing, and disconnected customer records.",
     cards: [
-      ["Role aware", "The UI is split into admin, staff, and customer journeys."],
-      ["Automotive feel", "Deep blues and orange accents keep the branding strong."],
-      ["Frontend first", "The screens are built to be demo-ready before backend wiring."]
+      ["Our Mission", "Streamlining Parts Operations", "AutoBolt brings inventory, invoicing, vendor management, and customer records into one unified platform so service centres can focus on vehicles, not spreadsheets."],
+      ["Role-Based Platform", "Designed Around Your Team", "Every role gets exactly what they need. Admins control stock and financials. Staff handle customers and sales. Customers self-serve, book appointments, and track their history."],
+      ["Smart by Design", "AI-Driven Intelligence", "AutoBolt's built-in AI analyses vehicle usage patterns to predict part failures before they happen, while automated alerts keep the team ahead of low stock and overdue payments."]
     ]
   },
   contact: {
-    title: "Contact AutoBolt",
-    eyebrow: "Public page",
-    copy: "Use this page for support, sales, or project questions while the backend is being finalized.",
+    title: "Get in Touch",
+    eyebrow: "Contact Us",
+    copy: "Have a question about AutoBolt or want to request a demo for your service centre? Reach out and our team will get back to you within one business day.",
     cards: [
-      ["Support email", "support@autobolt.local"],
-      ["Phone", "+977-98XXXXXXXX"],
-      ["Location", "Kathmandu, Nepal"]
+      ["General Enquiries", "Email Us", "support@autobolt.io - For platform questions, feature requests, or account help. We typically respond within 24 hours on business days."],
+      ["Business Hours", "Support Hours", "Monday to Friday, 9:00 AM - 6:00 PM (NPT). Our support team is available to assist with onboarding, technical issues, and training."],
+      ["Location", "Kathmandu, Nepal", "Illustrative project location for coursework use only. Serving vehicle service and parts businesses across Nepal."],
+      ["Request a Demo", "See It Live", "Want to see AutoBolt in action before committing? Book a free walkthrough and we'll show you how it fits your service centre's workflow."]
     ]
   },
   "customer-register": {
-    title: "Customer Register",
-    eyebrow: "Public page",
-    copy: "Public customer registration can be used as the first step before the staff or customer dashboard.",
+    title: "Customer Registration",
+    eyebrow: "Registration",
+    copy: "Create a customer account and capture key vehicle details in a structured setup designed for service and parts workflows.",
     cards: [
-      ["Sign up", "Create an account and capture contact information."],
-      ["Vehicle info", "Attach the vehicle number and service notes."],
-      ["Demo flow", "Route into the customer workspace after signup."]
+      ["Account setup", "Create a customer profile with essential contact information."],
+      ["Vehicle details", "Add the vehicle number, model, and service notes."],
+      ["Next step", "Continue into the customer workspace after registration."]
     ]
   }
 };
+
+export const publicNav = [
+  { label: "Home", target: "home", kind: "section" },
+  { label: "Roles", target: "home-roles", kind: "section" },
+  { label: "Features", target: "home-features", kind: "section" },
+  { label: "Workflow", target: "home-workflow", kind: "section" },
+  { label: "About", target: "about", kind: "section" },
+  { label: "Contact", target: "contact", kind: "section" },
+  { label: "Sign In", target: "signin", kind: "action" },
+  { label: "Get Started", target: "signup", kind: "action" }
+];
+
+export const footerNav = [
+  { label: "Home", target: "home" },
+  { label: "Roles", target: "home-roles" },
+  { label: "Features", target: "home-features" },
+  { label: "Workflow", target: "home-workflow" },
+  { label: "About", target: "about" },
+  { label: "Contact", target: "contact" },
+  { label: "Sign In", target: "signin" }
+];
 
 export const staffNav = [
   ["Dashboard", "staff-dashboard"],
@@ -334,17 +429,12 @@ export const staffNav = [
   ["Customer Reports", "customer-reports"]
 ];
 
-export const publicNav = [
-  ["Landing", "home"],
-  ["About", "about"],
-  ["Contact", "contact"],
-  ["Customer Register", "customer-register"],
-  ["Sign In", "signin"],
-  ["Sign Up", "signup"]
-];
-
 export const appRoutes = new Set([
   "home",
+  "home-roles",
+  "home-features",
+  "home-workflow",
+  "home-benefits",
   "about",
   "contact",
   "customer-register",

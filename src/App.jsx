@@ -47,12 +47,16 @@ export default function App() {
 
   useEffect(() => {
     const titles = {
-      home: "AutoBolt | Landing",
+      home: "AutoBolt | Home",
+      "home-roles": "AutoBolt | Roles",
+      "home-features": "AutoBolt | Features",
+      "home-workflow": "AutoBolt | Workflow",
+      "home-benefits": "AutoBolt | Benefits",
       about: "AutoBolt | About",
       contact: "AutoBolt | Contact",
-      "customer-register": "AutoBolt | Customer Register",
+      "customer-register": "AutoBolt | Customer Registration",
       signin: "AutoBolt | Sign In",
-      signup: "AutoBolt | Sign Up",
+      signup: "AutoBolt | Create Account",
       admin: "AutoBolt | Admin Dashboard",
       staff: "AutoBolt | Staff Dashboard",
       customer: "AutoBolt | Customer Dashboard",
@@ -71,11 +75,13 @@ export default function App() {
   }, [route]);
 
   useEffect(() => {
-    if (route === 'admin' || route.startsWith('admin-')) {
-      document.body.classList.add('admin-mode');
-    } else {
-      document.body.classList.remove('admin-mode');
-    }
+    const isAdmin = route === 'admin' || route.startsWith('admin-');
+    const isAuth = route === 'signin' || route === 'signup';
+    const isPublic = route === 'home' || route === 'about' || route === 'contact' || route === 'customer-register';
+
+    document.body.classList.toggle('admin-mode', isAdmin);
+    document.body.classList.toggle('auth-page', isAuth);
+    document.body.classList.toggle('public-page', isPublic);
   }, [route]);
 
   const onNavigate = (target) => {
@@ -115,12 +121,12 @@ export default function App() {
         <CustomerDashboard onNavigate={onNavigate} />
       ) : (route === "staff" || staffPages[route]) ? (
         <StaffWorkspace routeKey={route === "staff" ? "staff-dashboard" : route} onNavigate={onNavigate} />
-      ) : route === "verify-email" || route.startsWith("verify-email?") ? (
-        <VerifyEmail onNavigate={onNavigate} />
-      ) : publicPages[route] ? (
+      ) : route === "customer-register" ? (
         <PublicPage route={route} config={publicPages[route]} onNavigate={onNavigate} publicNav={publicNav} />
+      ) : route === "home" || route === "home-roles" || route === "home-features" || route === "home-workflow" || route === "home-benefits" || route === "about" || route === "contact" ? (
+        <LandingPage route={route} onNavigate={onNavigate} publicNav={publicNav} />
       ) : (
-        <LandingPage onNavigate={onNavigate} publicNav={publicNav} />
+        <LandingPage route="home" onNavigate={onNavigate} publicNav={publicNav} />
       )}
     </>
   );
