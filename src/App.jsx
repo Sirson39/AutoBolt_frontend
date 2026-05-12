@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { appRoutes, publicNav, publicPages, staffPages } from "./data/siteContent";
 import { AuthPage, LandingPage, PublicPage } from "./pages/public/PublicPages";
+import ForgotPasswordPage from "./pages/public/ForgotPassword";
+import ResetPasswordPage from "./pages/public/ResetPassword";
+import ChangePasswordPage from "./pages/shared/ChangePassword";
+import UpdateProfilePage from "./pages/shared/UpdateProfile";
 import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import PartsManagement from "./pages/admin/PartsManagement";
@@ -18,19 +22,25 @@ import CreateInvoice from "./pages/admin/CreateInvoice";
 import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
 import AdminProfile from "./pages/admin/AdminProfile";
+import BookingManagement from "./pages/admin/BookingManagement";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/public/VerifyEmail";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import StaffWorkspace from "./pages/staff/StaffWorkspace";
+import { isAuthenticated, getRole } from "./utils/auth";
+
+const PROTECTED_PREFIXES = ['admin', 'staff', 'customer'];
+
+function isProtected(route) {
+  return PROTECTED_PREFIXES.some(p => route === p || route.startsWith(`${p}-`));
+}
 
 function parseRoute() {
   const hash = window.location.hash.replace(/^#/, "");
-  const route = hash || "home";
-  const baseRoute = route.split('?')[0];
-  
+  const route = (hash || "home").split("?")[0];
   if (route.startsWith('admin-')) return route;
-  return appRoutes.has(baseRoute) ? route : "home";
+  return appRoutes.has(route) ? route : "home";
 }
 
 export default function App() {
@@ -39,11 +49,24 @@ export default function App() {
   useEffect(() => {
     const onHashChange = () => setRoute(parseRoute());
     window.addEventListener("hashchange", onHashChange);
-    if (!window.location.hash) {
-      window.location.hash = "#home";
-    }
+    if (!window.location.hash) window.location.hash = "#home";
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
+
+  useEffect(() => {
+    if (isProtected(route) && !isAuthenticated()) {
+      window.location.hash = '#signin';
+    }
+  }, [route]);
+
+  useEffect(() => {
+    if ((route === 'signin' || route === 'signup') && isAuthenticated()) {
+      const role = getRole();
+      if (role === 'Admin') window.location.hash = '#admin';
+      else if (role === 'Staff') window.location.hash = '#staff-dashboard';
+      else window.location.hash = '#customer';
+    }
+  }, [route]);
 
   useEffect(() => {
     const titles = {
@@ -56,7 +79,11 @@ export default function App() {
       contact: "AutoBolt | Contact",
       "customer-register": "AutoBolt | Customer Registration",
       signin: "AutoBolt | Sign In",
-      signup: "AutoBolt | Create Account",
+      signup: "AutoBolt | Sign Up",
+      "forgot-password": "AutoBolt | Forgot Password",
+      "reset-password": "AutoBolt | Reset Password",
+      "change-password": "AutoBolt | Change Password",
+      "update-profile": "AutoBolt | Update Profile",
       admin: "AutoBolt | Admin Dashboard",
       staff: "AutoBolt | Staff Dashboard",
       customer: "AutoBolt | Customer Dashboard",
@@ -69,7 +96,7 @@ export default function App() {
       "sales-invoice": "AutoBolt | Sales Invoice",
       "email-invoice": "AutoBolt | Email Invoice",
       "customer-history": "AutoBolt | Customer History",
-      "customer-reports": "AutoBolt | Customer Reports"
+      "customer-reports": "AutoBolt | Customer Reports",
     };
     document.title = titles[route] || "AutoBolt";
   }, [route]);
@@ -84,13 +111,26 @@ export default function App() {
     document.body.classList.toggle('public-page', isPublic);
   }, [route]);
 
-  const onNavigate = (target) => {
-    window.location.hash = target;
-    window.scrollTo(0, 0);
-  };
+  const onNavigate = (target) => { window.location.hash = target; };
 
   if (route === "signin" || route === "signup") {
     return <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />;
+  }
+
+  if (route === "forgot-password") {
+    return <ForgotPasswordPage onNavigate={onNavigate} publicNav={publicNav} />;
+  }
+
+  if (route === "reset-password") {
+    return <ResetPasswordPage onNavigate={onNavigate} publicNav={publicNav} />;
+  }
+
+  if (route === "change-password") {
+    return <ChangePasswordPage onNavigate={onNavigate} />;
+  }
+
+  if (route === "update-profile") {
+    return <UpdateProfilePage onNavigate={onNavigate} />;
   }
 
   const adminRoutes = {
@@ -110,6 +150,7 @@ export default function App() {
     "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
     "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
     "admin-profile": <AdminProfile onNavigate={onNavigate} />,
+    "admin-bookings": <BookingManagement onNavigate={onNavigate} />,
   };
 
   return (

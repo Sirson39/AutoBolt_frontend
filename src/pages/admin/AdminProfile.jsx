@@ -6,7 +6,8 @@ import {
   ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw,
   Eye, EyeOff
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
+import { getUser, setAuth, getToken } from '../../utils/auth';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -18,13 +19,14 @@ export default function AdminProfile({ onNavigate }) {
   const fileInputRef = useState(null); // Will use a proper ref below
 
   
-  // Mocking the current admin data (in a real app, this would come from a /me endpoint)
+  const currentUser = getUser() || {};
+  
   const [profileData, setProfileData] = useState({
-    fullName: 'System Administrator',
-    email: 'admin@autobolt.com',
-    phone: '9841234567',
-    role: 'Super Admin',
-    joinedDate: '2026-01-15',
+    fullName: currentUser.fullName || '',
+    email: currentUser.email || '',
+    phone: '',
+    role: currentUser.role || 'Super Admin',
+    joinedDate: 'N/A',
     lastLogin: new Date().toLocaleString()
   });
 
@@ -34,44 +36,35 @@ export default function AdminProfile({ onNavigate }) {
     confirm: ''
   });
 
-  const [actualPassword, setActualPassword] = useState('admin123'); // Mock true current password
-  const [passwordHistory, setPasswordHistory] = useState(['admin123', 'oldpassword123']); 
-  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
-
-
-  useEffect(() => {
-    const savedImg = localStorage.getItem('admin_profile_img');
-    if (savedImg) setProfileImage(savedImg);
-  }, []);
-
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     const loadToast = toast.loading("Updating profile...");
     
-    setTimeout(() => {
-      if (profileImage) localStorage.setItem('admin_profile_img', profileImage);
-      setLoading(false);
+    try {
+      await api.put('/api/auth/profile', { 
+        fullName: profileData.fullName, 
+        phone: profileData.phone 
+      });
+      
+      setAuth({
+        token: getToken(),
+        role: currentUser.role,
+        fullName: profileData.fullName,
+        email: currentUser.email,
+        expiry: currentUser.expiry
+      });
+      
       setIsEditing(false);
       toast.success("Profile updated successfully!", { id: loadToast });
-    }, 1500);
-  };
-
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-        toast.success("Profile photo updated!");
-      };
-      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to update profile", { id: loadToast });
+    } finally {
+      setLoading(false);
     }
   };
 
-
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     
     if (passwordData.current !== actualPassword) {
@@ -95,12 +88,16 @@ export default function AdminProfile({ onNavigate }) {
     }
     
     const loadToast = toast.loading("Changing password...");
-    setTimeout(() => {
-      setActualPassword(passwordData.new);
-      setPasswordHistory([...passwordHistory, passwordData.new]);
+    try {
+      await api.post('/api/auth/change-password', { 
+        currentPassword: passwordData.current, 
+        newPassword: passwordData.new 
+      });
       toast.success("Password changed successfully!", { id: loadToast });
       setPasswordData({ current: '', new: '', confirm: '' });
-    }, 1200);
+    } catch (error) {
+      toast.error(error.response?.data || "Failed to change password", { id: loadToast });
+    }
   };
 
 

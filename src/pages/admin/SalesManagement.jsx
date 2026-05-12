@@ -5,7 +5,6 @@ import {
   Printer, X, Tag, CheckCircle, FileSpreadsheet,
   ArrowLeft as PrevIcon, ArrowRight as NextIcon 
 } from 'lucide-react';
-// react-router-dom removed
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../utils/exportUtils';

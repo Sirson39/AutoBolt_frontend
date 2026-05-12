@@ -1,68 +1,9 @@
-import React from "react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Boxes,
-  BrainCircuit,
-  Mail,
-  MapPin,
-  Package,
-  ShieldCheck,
-  Sparkles,
-  ShoppingCart
-} from "lucide-react";
-import { benefits, features, footerNav, roleCards } from "../../data/siteContent";
-import { BenefitCard, FeatureCard, RoleCard, SigninFields, SignupFields } from "../../components/shared";
-
-const aboutCards = [
-  {
-    label: "Our Mission",
-    title: "Streamlining Parts Operations",
-    text: "AutoBolt brings inventory, invoicing, vendor management, and customer records into one unified platform so service centres can focus on vehicles, not spreadsheets.",
-    icon: Boxes
-  },
-  {
-    label: "Role-Based Platform",
-    title: "Designed Around Your Team",
-    text: "Every role gets exactly what they need. Admins control stock and financials. Staff handle customers and sales. Customers self-serve, book appointments, and track their history.",
-    icon: ShieldCheck
-  },
-  {
-    label: "Smart by Design",
-    title: "AI-Driven Intelligence",
-    text: "AutoBolt's built-in AI analyses vehicle usage patterns to predict part failures before they happen, while automated alerts keep the team ahead of low stock and overdue payments.",
-    icon: BrainCircuit
-  }
-];
-
-const contactCards = [
-  {
-    label: "General Enquiries",
-    title: "Email Us",
-    text: "support@autobolt.io - For platform questions, feature requests, or account help. We typically respond within 24 hours on business days.",
-    icon: Mail
-  },
-  {
-    label: "Business Hours",
-    title: "Support Hours",
-    text: "Monday to Friday, 9:00 AM - 6:00 PM (NPT). Our support team is available to assist with onboarding, technical issues, and training.",
-    icon: Clock3
-  },
-  {
-    label: "Location",
-    title: "Kathmandu, Nepal",
-    text: "Illustrative project location for coursework use only. Serving vehicle service and parts businesses across Nepal.",
-    icon: MapPin
-  },
-  {
-    label: "Request a Demo",
-    title: "See It Live",
-    text: "Want to see AutoBolt in action before committing? Book a free walkthrough and we'll show you how it fits your service centre's workflow.",
-    icon: Sparkles
-  }
-];
+import React, { useState } from "react";
+import { features, publicPages, roleCards } from "../../data/siteContent";
+import { FeatureCard, Metric, RoleCard } from "../../components/shared";
+import api from "../../utils/api";
+import { setAuth } from "../../utils/auth";
+import toast from "react-hot-toast";
 
 function Shell({ route, onNavigate, publicNav, children, footerText }) {
   const navLinks = publicNav.filter((item) => item.kind !== "action");
@@ -335,9 +276,14 @@ export function LandingPage({ route = "home", onNavigate, publicNav }) {
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </div>
-              {index < workflowTimeline.length - 1 ? <div className="workflow-connector" aria-hidden="true" /> : null}
-            </article>
-          ))}
+              <p className="panel-copy">Users can start from the landing page and move into sign in or sign up, then into the matching workspace.</p>
+              <div className="auth-meta">
+                <span className="status good">Ready</span>
+                <span className="status good">Connected</span>
+                <span className="status good">Responsive</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -415,7 +361,63 @@ export function LandingPage({ route = "home", onNavigate, publicNav }) {
 }
 
 export function AuthPage({ mode, onNavigate, publicNav }) {
-  const isSignIn = mode === "signin";
+  const [loading, setLoading] = useState(false);
+
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  const [regFullName, setRegFullName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirm, setRegConfirm] = useState('');
+  const [regAddress, setRegAddress] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await api.post('/api/auth/login', { email: loginEmail, password: loginPassword });
+      setAuth(data);
+      toast.success(`Welcome back, ${data.fullName}!`);
+      if (data.role === 'Admin') onNavigate('admin');
+      else if (data.role === 'Staff') onNavigate('staff-dashboard');
+      else onNavigate('customer');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid email or password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (regPassword !== regConfirm) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await api.post('/api/auth/register', {
+        fullName: regFullName,
+        email: regEmail,
+        phone: regPhone,
+        password: regPassword,
+        address: regAddress || undefined,
+      });
+      setAuth(data);
+      toast.success(`Account created! Welcome, ${data.fullName}.`);
+      onNavigate('customer');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const config = mode === "signin"
+    ? { title: "Sign in", subtitle: "Enter your credentials to access your workspace.", button: loading ? "Signing in…" : "Sign in" }
+    : { title: "Create account", subtitle: "Register as a customer to access self-service features.", button: loading ? "Creating account…" : "Create profile" };
 
   return (
     <Shell
@@ -440,24 +442,26 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             </div>
             <h1>{isSignIn ? "Welcome Back" : "Create Your Account"}</h1>
             <p>
-              {isSignIn
-                ? "Sign in to access your AutoBolt dashboard."
-                : "Register to access AutoBolt services and manage your vehicle-related information."}
+              {mode === "signin"
+                ? "Sign in with your AutoBolt credentials. You'll be taken to the workspace matching your role."
+                : "Create a customer account to track your vehicles, purchases, and service history."}
             </p>
-            <div className="auth-note-block">
-              <div className="auth-note-row">
-                <CheckCircle2 size={16} />
-                <span>Role-based dashboards for admin, staff, and customer users</span>
-              </div>
-              <div className="auth-note-row">
-                <CheckCircle2 size={16} />
-                <span>Professional workflows for inventory, billing, and customer records</span>
-              </div>
-              <div className="auth-note-row">
-                <CheckCircle2 size={16} />
-                <span>Built for vehicle service centres and parts retail businesses</span>
-              </div>
+            <div className="metrics">
+              <Metric title="Role aware" text="Admin, staff, or customer entry" />
+              <Metric title="JWT secured" text="Token-based authentication" />
             </div>
+            {mode === "signin" && (
+              <div style={{ marginTop: 24 }}>
+                <button
+                  className="btn btn-ghost"
+                  type="button"
+                  onClick={() => onNavigate("forgot-password")}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="auth-panel auth-form-panel">
@@ -478,21 +482,72 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                   : "Register to access AutoBolt services and manage your vehicle-related information."}
               </p>
             </div>
+            <h2 style={{ margin: "18px 0 6px" }}>{config.title}</h2>
+            <p className="panel-copy">{config.subtitle}</p>
 
-            <form
-              className="form-grid"
-              onSubmit={(e) => {
-                e.preventDefault();
-                onNavigate(isSignIn ? "staff-dashboard" : "customer");
-              }}
-            >
-              {isSignIn ? <SigninFields /> : <SignupFields />}
-              <button className="btn btn-primary auth-submit" type="submit">
-                {isSignIn ? "Sign In" : "Create Your Account"}
-              </button>
-            </form>
-
-            <p className="mini-note">Access is provided based on your assigned role.</p>
+            {mode === "signin" ? (
+              <form className="form-grid" onSubmit={handleLogin}>
+                <div className="field">
+                  <label htmlFor="login-email">Email</label>
+                  <input id="login-email" type="email" placeholder="name@example.com" required
+                    value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="login-password">Password</label>
+                  <input id="login-password" type="password" placeholder="Enter password" required
+                    value={loginPassword} onChange={e => setLoginPassword(e.target.value)} />
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                <p className="mini-note" style={{ marginTop: 8 }}>
+                  Don't have an account?{' '}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
+                    onClick={() => onNavigate("signup")}>Sign up</button>
+                </p>
+              </form>
+            ) : (
+              <form className="form-grid" onSubmit={handleRegister}>
+                <div className="field-row">
+                  <div className="field">
+                    <label htmlFor="reg-name">Full name</label>
+                    <input id="reg-name" type="text" placeholder="Your name" required
+                      value={regFullName} onChange={e => setRegFullName(e.target.value)} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="reg-phone">Phone</label>
+                    <input id="reg-phone" type="tel" placeholder="98XXXXXXXX" required
+                      value={regPhone} onChange={e => setRegPhone(e.target.value)} />
+                  </div>
+                </div>
+                <div className="field">
+                  <label htmlFor="reg-email">Email</label>
+                  <input id="reg-email" type="email" placeholder="name@example.com" required
+                    value={regEmail} onChange={e => setRegEmail(e.target.value)} />
+                </div>
+                <div className="field-row">
+                  <div className="field">
+                    <label htmlFor="reg-password">Password</label>
+                    <input id="reg-password" type="password" placeholder="Min 8 characters" required
+                      value={regPassword} onChange={e => setRegPassword(e.target.value)} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="reg-confirm">Confirm password</label>
+                    <input id="reg-confirm" type="password" placeholder="Repeat password" required
+                      value={regConfirm} onChange={e => setRegConfirm(e.target.value)} />
+                  </div>
+                </div>
+                <div className="field">
+                  <label htmlFor="reg-address">Address <span style={{ color: 'var(--ink-soft)', fontWeight: 400 }}>(optional)</span></label>
+                  <input id="reg-address" type="text" placeholder="City or street"
+                    value={regAddress} onChange={e => setRegAddress(e.target.value)} />
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                <p className="mini-note" style={{ marginTop: 8 }}>
+                  Already have an account?{' '}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
+                    onClick={() => onNavigate("signin")}>Sign in</button>
+                </p>
+              </form>
+            )}
           </div>
         </div>
       </section>

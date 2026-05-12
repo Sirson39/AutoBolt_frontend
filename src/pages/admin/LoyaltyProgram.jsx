@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Gift, DollarSign, Users, TrendingUp, Award, ArrowRight, Star, Settings2, Save, Info } from 'lucide-react';
-import axios from 'axios';
+import { Gift, DollarSign, Users, TrendingUp, Award, ArrowRight, Star, Settings2, Save } from 'lucide-react';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -8,30 +8,23 @@ import NotificationDropdown from '../../components/NotificationDropdown';
 export default function LoyaltyProgram({ onNavigate }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [config, setConfig] = useState({
-    loyaltyThreshold: 5000,
-    loyaltyDiscountPercent: 10
-  });
+  const [config, setConfig] = useState({ loyaltyThreshold: 5000, loyaltyDiscountPercent: 10 });
   const [isEditingConfig, setIsEditingConfig] = useState(false);
-  const [tempConfig, setTempConfig] = useState({
-    loyaltyThreshold: 5000,
-    loyaltyDiscountPercent: 10
-  });
+  const [tempConfig, setTempConfig] = useState({ loyaltyThreshold: 5000, loyaltyDiscountPercent: 10 });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [invRes, configRes] = await Promise.all([
-          axios.get('/api/invoices'),
-          axios.get('/api/config')
+        const [invoicesRes, configRes] = await Promise.all([
+          api.get('/api/invoices'),
+          api.get('/api/config')
         ]);
-        setInvoices(invRes.data || []);
+        setInvoices(invoicesRes.data || []);
         if (configRes.data) {
           setConfig(configRes.data);
           setTempConfig(configRes.data);
         }
-      } catch (err) {
-        console.error("Loyalty data error:", err);
+      } catch {
         toast.error('Failed to load loyalty data.');
       } finally {
         setLoading(false);
@@ -42,7 +35,7 @@ export default function LoyaltyProgram({ onNavigate }) {
 
   const handleUpdateConfig = async () => {
     try {
-      await axios.put('/api/config', tempConfig);
+      await api.put('/api/config', tempConfig);
       setConfig(tempConfig);
       setIsEditingConfig(false);
       toast.success('Loyalty rules updated successfully!');
@@ -51,28 +44,25 @@ export default function LoyaltyProgram({ onNavigate }) {
     }
   };
 
-  // --- Derived stats from invoices ---
   const loyaltyInvoices = (invoices || []).filter(i => (i.discountAmount || 0) > 0);
   const totalDiscountGiven = loyaltyInvoices.reduce((s, i) => s + (i.discountAmount || 0), 0);
-  
-  // Use CustomerId for grouping
+
   const customerMap = {};
   (invoices || []).forEach(i => {
     const cid = i.customerId || 'unknown';
     const name = i.customerName || 'Anonymous';
     if (!customerMap[cid]) {
-      customerMap[cid] = { name: name, totalDiscount: 0, visits: 0, totalSpend: 0 };
+      customerMap[cid] = { name, totalDiscount: 0, visits: 0, totalSpend: 0 };
     }
     customerMap[cid].totalDiscount += (i.discountAmount || 0);
     customerMap[cid].totalSpend += (i.subTotal || 0);
     customerMap[cid].visits += 1;
   });
-  
+
   const customerList = Object.values(customerMap).sort((a, b) => b.totalDiscount - a.totalDiscount);
   const uniqueLoyalCustomers = customerList.filter(c => c.totalDiscount > 0).length;
-
   const chartData = customerList.slice(0, 6).map(c => ({
-    name: (c.name || 'User').split(' ')[0], 
+    name: (c.name || 'User').split(' ')[0],
     Discount: Math.round(c.totalDiscount || 0),
   }));
 
@@ -99,8 +89,8 @@ export default function LoyaltyProgram({ onNavigate }) {
     <>
       <header className="top-header glass-card" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ 
-            width: '42px', height: '42px', borderRadius: '12px', 
+          <div style={{
+            width: '42px', height: '42px', borderRadius: '12px',
             background: 'linear-gradient(135deg, var(--brand) 0%, #b84a2a 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
             boxShadow: '0 4px 12px rgba(217, 93, 57, 0.3)'
@@ -168,21 +158,21 @@ export default function LoyaltyProgram({ onNavigate }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--brand)', opacity: 0.8 }}>Spending Threshold (Rs)</label>
-                <input 
-                  type="number" className="form-input" 
+                <input
+                  type="number" className="form-input"
                   disabled={!isEditingConfig}
                   value={tempConfig.loyaltyThreshold || ''}
-                  onChange={e => setTempConfig({...tempConfig, loyaltyThreshold: Number(e.target.value)})}
+                  onChange={e => setTempConfig({ ...tempConfig, loyaltyThreshold: Number(e.target.value) })}
                   style={{ background: isEditingConfig ? '#fff' : 'transparent', border: isEditingConfig ? '1px solid var(--brand)' : '1px solid transparent' }}
                 />
               </div>
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--brand)', opacity: 0.8 }}>Discount Percentage (%)</label>
-                <input 
-                  type="number" className="form-input" 
+                <input
+                  type="number" className="form-input"
                   disabled={!isEditingConfig}
                   value={tempConfig.loyaltyDiscountPercent || ''}
-                  onChange={e => setTempConfig({...tempConfig, loyaltyDiscountPercent: Number(e.target.value)})}
+                  onChange={e => setTempConfig({ ...tempConfig, loyaltyDiscountPercent: Number(e.target.value) })}
                   style={{ background: isEditingConfig ? '#fff' : 'transparent', border: isEditingConfig ? '1px solid var(--brand)' : '1px solid transparent' }}
                 />
               </div>
@@ -243,7 +233,14 @@ export default function LoyaltyProgram({ onNavigate }) {
           </div>
           <table>
             <thead>
-              <tr><th style={{ paddingLeft: '2rem' }}>Invoice #</th><th>Customer</th><th>Sub Total</th><th>Reward</th><th>Net Total</th><th style={{ paddingRight: '2rem' }}>Date</th></tr>
+              <tr>
+                <th style={{ paddingLeft: '2rem' }}>Invoice #</th>
+                <th>Customer</th>
+                <th>Sub Total</th>
+                <th>Discount ({config?.loyaltyDiscountPercent || '10'}%)</th>
+                <th>Final Amount</th>
+                <th style={{ paddingRight: '2rem' }}>Date</th>
+              </tr>
             </thead>
             <tbody>
               {loyaltyInvoices.map(inv => (

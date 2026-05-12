@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
-  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings
+  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings, KeyRound, UserCircle, CalendarDays
 } from 'lucide-react';
 import axios from 'axios';
-import AIAssistant from './AIAssistant';
-
+import { clearAuth, getUser } from '../utils/auth';
 
 const navItems = [
   { label: 'Overview', section: true },
@@ -20,6 +19,7 @@ const navItems = [
   { to: 'admin-customers', label: 'Customer Management', icon: Users },
   { to: 'admin-vehicles',  label: 'Vehicle Management',  icon: Car },
   { to: 'admin-loyalty',   label: 'Loyalty Program',     icon: Gift },
+  { to: 'admin-bookings',  label: 'Booking Management',  icon: CalendarDays },
   { label: 'Staff & Security', section: true },
   { to: 'admin-staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },
@@ -27,14 +27,16 @@ const navItems = [
   { to: 'admin-reports',           label: 'Financial Report',  icon: FileText },
   { label: 'Configurations', section: true },
   { to: 'admin-settings',        label: 'Shop Settings',       icon: Settings },
+  { label: 'Account', section: true },
+  { to: 'update-profile',        label: 'Update Profile',      icon: UserCircle },
+  { to: 'change-password',       label: 'Change Password',     icon: KeyRound },
 ];
 
 export default function AdminLayout({ children, onNavigate }) {
   const [unseenCount, setUnseenCount] = useState(0);
   const [shopName, setShopName] = useState('AutoBolt');
   const [tagline, setTagline] = useState('Admin Panel');
-  const [globalStats, setGlobalStats] = useState({ totalParts: 0, lowStockParts: 0, totalCustomers: 0, todayRevenue: 0 });
-
+  const currentUser = getUser();
 
   const loadSettings = () => {
     try {
@@ -171,7 +173,21 @@ export default function AdminLayout({ children, onNavigate }) {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="nav-item" style={{ color: '#e53e3e', width: '100%', border: 'none', background: 'none', textAlign: 'left', display: 'flex', alignItems: 'center' }} onClick={() => onNavigate('home')}>
+          {currentUser && (
+            <div style={{ padding: '8px 16px 12px', borderTop: '1px solid rgba(255,255,255,0.07)', marginBottom: '4px' }}>
+              <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft)', fontWeight: 600, marginBottom: 2 }}>
+                {currentUser.fullName}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {currentUser.email}
+              </div>
+            </div>
+          )}
+          <button
+            className="nav-item"
+            style={{ color: '#e53e3e', width: '100%', border: 'none', background: 'none', textAlign: 'left', display: 'flex', alignItems: 'center' }}
+            onClick={() => { clearAuth(); onNavigate('signin'); }}
+          >
             <LogOut className="nav-icon" size={18} style={{ marginRight: '12px' }} />
             Logout
           </button>

@@ -1,7 +1,7 @@
 import React from "react";
 import { KpiCard, priorityText } from "../../components/shared";
 
-export default function RoleDashboardView({ role, data, onNavigate }) {
+export default function RoleDashboardView({ role, data, onNavigate, onLogout, currentUser }) {
   const title = role === "admin" ? "Admin dashboard" : role === "staff" ? "Staff dashboard" : "Customer dashboard";
 
   return (
@@ -24,7 +24,8 @@ export default function RoleDashboardView({ role, data, onNavigate }) {
             <a className={`header-link ${role === "customer" ? "active" : ""}`} href="#customer">Customer</a>
           </nav>
           <div className="header-actions">
-            <button className="btn btn-secondary" type="button" onClick={() => onNavigate("signin")}>Switch account</button>
+            {currentUser && <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{currentUser.fullName}</span>}
+            <button className="btn btn-secondary" type="button" onClick={onLogout ?? (() => onNavigate("signin"))}>Sign out</button>
             <button className="btn btn-primary" type="button" onClick={() => onNavigate("home")}>Back to landing</button>
           </div>
         </div>
@@ -58,7 +59,7 @@ export default function RoleDashboardView({ role, data, onNavigate }) {
                 <p className="section-copy">{data.subtitle}</p>
               </div>
               <div className="header-actions">
-                <button className="btn btn-secondary" type="button" onClick={() => onNavigate("signin")}>Sign In</button>
+                <button className="btn btn-secondary" type="button" onClick={onLogout ?? (() => onNavigate("signin"))}>Sign out</button>
                 <button className="btn btn-primary" type="button" onClick={() => onNavigate("home")}>Back to landing</button>
               </div>
             </div>
