@@ -1,8 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import "../wwwroot/assets/css/site.css";
-import "../wwwroot/assets/css/auth.css";
+import "./styles/site.css";
 import "./admin.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

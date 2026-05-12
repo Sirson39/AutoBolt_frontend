@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { 
   User, Mail, Phone, Shield, Key, Camera, 
   Save, LogOut, CheckCircle2, Clock, Globe,
-  ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw
+  ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw,
+  Eye, EyeOff
 } from 'lucide-react';
 import api from '../../utils/api';
 import { getUser, setAuth, getToken } from '../../utils/auth';
@@ -14,6 +15,9 @@ export default function AdminProfile({ onNavigate }) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const fileInputRef = useState(null); // Will use a proper ref below
+
   
   const currentUser = getUser() || {};
   
@@ -62,8 +66,25 @@ export default function AdminProfile({ onNavigate }) {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    
+    if (passwordData.current !== actualPassword) {
+      return toast.error("Current password is incorrect!");
+    }
+
+    if (passwordData.new.length < 8) {
+      return toast.error("Password must be at least 8 characters!");
+    }
+    
     if (passwordData.new !== passwordData.confirm) {
-      return toast.error("Passwords do not match!");
+      return toast.error("New passwords do not match!");
+    }
+
+    if (passwordData.new === passwordData.current) {
+      return toast.error("New password cannot be the same as current password!");
+    }
+
+    if (passwordHistory.includes(passwordData.new)) {
+      return toast.error("You have used this password recently.");
     }
     
     const loadToast = toast.loading("Changing password...");
@@ -79,14 +100,18 @@ export default function AdminProfile({ onNavigate }) {
     }
   };
 
+
   return (
     <>
       <header className="top-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn-ghost btn-sm" onClick={() => onNavigate('admin')}>
-            <ArrowLeft size={18} />
-          </button>
-          <span className="page-title">My Profile</span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => onNavigate('admin')} style={{ padding: '0.5rem' }}>
+              <ArrowLeft size={18} />
+            </button>
+            <span className="page-title">My Profile</span>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '4px', marginLeft: '3.1rem' }}>Manage your account settings and security</p>
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
@@ -104,7 +129,9 @@ export default function AdminProfile({ onNavigate }) {
               </div>
             )
           )}
-          <div className="avatar">A</div>
+          <div className="avatar" style={{ background: 'var(--brand)', color: '#fff', fontWeight: '800', overflow: 'hidden' }}>
+            {profileImage ? <img src={profileImage} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : profileData.fullName.charAt(0)}
+          </div>
         </div>
       </header>
 
@@ -120,19 +147,39 @@ export default function AdminProfile({ onNavigate }) {
                   background: 'var(--brand)', color: '#fff', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center', 
                   fontSize: '2.5rem', fontWeight: '800',
-                  boxShadow: '0 8px 24px rgba(217, 93, 57, 0.3)'
+                  boxShadow: '0 8px 24px rgba(217, 93, 57, 0.3)',
+                  overflow: 'hidden'
                 }}>
-                  {profileData.fullName.charAt(0)}
+                  {profileImage ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : profileData.fullName.charAt(0)}
                 </div>
-                <button style={{
-                  position: 'absolute', bottom: '0', right: '0',
-                  width: '32px', height: '32px', borderRadius: '50%',
-                  background: '#fff', border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--ink)', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}>
+                <input 
+                  type="file" 
+                  id="profile-upload"
+                  hidden 
+                  accept="image/*"
+                  disabled={!isEditing}
+                  onChange={handleImageChange}
+                />
+                <label 
+                  htmlFor={isEditing ? "profile-upload" : ""}
+                  style={{
+                    position: 'absolute', bottom: '0', right: '0',
+                    width: '32px', height: '32px', borderRadius: '50%',
+                    background: isEditing ? '#fff' : 'var(--surface-2)', 
+                    border: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: isEditing ? 'var(--brand)' : 'var(--ink-soft)', 
+                    cursor: isEditing ? 'pointer' : 'not-allowed', 
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease',
+                    opacity: isEditing ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => isEditing && (e.currentTarget.style.transform = 'scale(1.1)')}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
                   <Camera size={16} />
-                </button>
+                </label>
+
               </div>
               <h2 style={{ fontSize: '1.25rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>{profileData.fullName}</h2>
               <div className="badge badge-brand">{profileData.role}</div>
@@ -207,12 +254,12 @@ export default function AdminProfile({ onNavigate }) {
                         type="email" className="form-input" 
                         style={{ 
                           paddingLeft: '2.5rem',
-                          opacity: isEditing ? 1 : 0.8,
-                          cursor: isEditing ? 'text' : 'not-allowed'
+                          background: 'var(--surface-2)',
+                          cursor: 'not-allowed',
+                          opacity: 0.7
                         }}
-                        disabled={!isEditing}
+                        disabled
                         value={profileData.email}
-                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
                       />
                     </div>
                   </div>
@@ -259,38 +306,84 @@ export default function AdminProfile({ onNavigate }) {
                   <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>Ensure your account is using a long, random password to stay secure.</p>
                 </div>
 
-                <div className="form-group" style={{ maxWidth: '60%', marginBottom: '1.5rem' }}>
+                <div className="form-group" style={{ maxWidth: '267px', marginBottom: '1.5rem' }}>
                   <label className="form-label">Current Password</label>
-                  <input 
-                    type="password" className="form-input" 
-                    value={passwordData.current}
-                    onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
-                    placeholder="Enter current password"
-                  />
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input 
+                      type={showPass.current ? "text" : "password"} 
+                      className="form-input" 
+                      style={{ paddingRight: '2.5rem', width: '100%' }}
+                      value={passwordData.current}
+                      onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
+                      placeholder="Enter current password"
+                    />
+                    {passwordData.current && (
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPass({...showPass, current: !showPass.current})}
+                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--ink-soft)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      >
+                        {showPass.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    )}
+
+                  </div>
                 </div>
+
+
 
                 <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '2rem 0' }} />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem', maxWidth: '550px' }}>
                   <div className="form-group">
                     <label className="form-label">New Password</label>
-                    <input 
-                      type="password" className="form-input" 
-                      value={passwordData.new}
-                      onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
-                      placeholder="Minimum 8 characters"
-                    />
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <input 
+                        type={showPass.new ? "text" : "password"} 
+                        className="form-input" 
+                        style={{ paddingRight: '2.5rem', width: '100%' }}
+                        value={passwordData.new}
+                        onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
+                        placeholder="Minimum 8 characters"
+                      />
+                      {passwordData.new && (
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPass({...showPass, new: !showPass.new})}
+                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--ink-soft)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                          {showPass.new ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      )}
+
+                    </div>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Confirm New Password</label>
-                    <input 
-                      type="password" className="form-input" 
-                      value={passwordData.confirm}
-                      onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
-                      placeholder="Repeat new password"
-                    />
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <input 
+                        type={showPass.confirm ? "text" : "password"} 
+                        className="form-input" 
+                        style={{ paddingRight: '2.5rem', width: '100%' }}
+                        value={passwordData.confirm}
+                        onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
+                        placeholder="Repeat new password"
+                      />
+                      {passwordData.confirm && (
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})}
+                          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--ink-soft)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        >
+                          {showPass.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      )}
+
+                    </div>
                   </div>
                 </div>
+
+
 
                 <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
                   <Key size={18} /> Update Password
@@ -300,6 +393,17 @@ export default function AdminProfile({ onNavigate }) {
           </div>
         </div>
       </div>
+      <style>{`
+        input::-ms-reveal,
+        input::-ms-clear {
+          display: none;
+        }
+        .form-input {
+          padding-top: 0.6rem !important;
+          padding-bottom: 0.6rem !important;
+          height: 38px !important;
+        }
+      `}</style>
     </>
   );
 }

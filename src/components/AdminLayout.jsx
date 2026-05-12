@@ -72,8 +72,36 @@ export default function AdminLayout({ children, onNavigate }) {
       }
     };
 
+    const fetchGlobalStats = async () => {
+      try {
+        const [parts, lowStock, customers, invoices] = await Promise.all([
+          axios.get('/api/parts'),
+          axios.get('/api/parts/low-stock'),
+          axios.get('/api/customers'),
+          axios.get('/api/invoices')
+        ]);
+
+        const today = new Date().toDateString();
+        const todayRevenue = (invoices.data || [])
+          .filter(i => i && i.invoiceDate && new Date(i.invoiceDate).toDateString() === today)
+          .reduce((sum, i) => sum + (i.totalAmount || 0), 0);
+
+        setGlobalStats({
+          totalParts: (parts.data || []).length,
+          lowStockParts: (lowStock.data || []).length,
+          totalCustomers: (customers.data || []).length,
+          todayRevenue: `Rs ${todayRevenue.toLocaleString()}`
+        });
+      } catch (err) {
+        console.error("AI Stats fetch failed", err);
+      }
+    };
+
     fetchLowStockCount();
+    fetchGlobalStats();
     loadSettings();
+
+
 
     window.addEventListener('settingsUpdated', loadSettings);
 
@@ -169,6 +197,10 @@ export default function AdminLayout({ children, onNavigate }) {
       <div className="main-content">
         {children}
       </div>
+
+      {/* Global AI Assistant */}
+      <AIAssistant stats={globalStats} onNavigate={onNavigate} />
     </div>
+
   );
 }
