@@ -180,7 +180,7 @@ export default function App() {
       <Toaster position="top-right" reverseOrder={false} />
       {adminRoutes[route] ? (
         <AdminLayout onNavigate={onNavigate}>{adminRoutes[route]}</AdminLayout>
-      ) : customerRoutes[route] ? (
+      ) : customerRoutes[route] && getRole() === 'Customer' ? (
         customerRoutes[route]
       ) : route === "customer" ? (
         <CustomerDashboard onNavigate={onNavigate} />
