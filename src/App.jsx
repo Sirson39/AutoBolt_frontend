@@ -29,6 +29,11 @@ import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/public/VerifyEmail";
 
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import MyBookings from "./pages/customer/MyBookings";
+import MyPartRequests from "./pages/customer/MyPartRequests";
+import MyReviews from "./pages/customer/MyReviews";
+import MyVehicles from "./pages/customer/MyVehicles";
+import MyServiceHistory from "./pages/customer/MyServiceHistory";
 import StaffWorkspace from "./pages/staff/StaffWorkspace";
 import { isAuthenticated, getRole } from "./utils/auth";
 
@@ -42,6 +47,7 @@ function parseRoute() {
   const hash = window.location.hash.replace(/^#/, "");
   const route = (hash || "home").split("?")[0];
   if (route.startsWith('admin-')) return route;
+  if (route.startsWith('customer-')) return route;
   return appRoutes.has(route) ? route : "home";
 }
 
@@ -97,8 +103,12 @@ export default function App() {
       "verify-email": "AutoBolt | Account Verification",
       "sales-invoice": "AutoBolt | Sales Invoice",
       "email-invoice": "AutoBolt | Email Invoice",
-      "customer-history": "AutoBolt | Customer History",
+      "customer-history": "AutoBolt | Service History",
       "customer-reports": "AutoBolt | Customer Reports",
+      "customer-bookings": "AutoBolt | My Bookings",
+      "customer-part-requests": "AutoBolt | Part Requests",
+      "customer-reviews": "AutoBolt | My Reviews",
+      "customer-vehicles": "AutoBolt | My Vehicles",
     };
     document.title = titles[route] || "AutoBolt";
   }, [route]);
@@ -157,11 +167,21 @@ export default function App() {
     "admin-reviews": <ServiceReviewsManagement onNavigate={onNavigate} />,
   };
 
+  const customerRoutes = {
+    "customer-bookings": <MyBookings onNavigate={onNavigate} />,
+    "customer-part-requests": <MyPartRequests onNavigate={onNavigate} />,
+    "customer-reviews": <MyReviews onNavigate={onNavigate} />,
+    "customer-vehicles": <MyVehicles onNavigate={onNavigate} />,
+    "customer-history": <MyServiceHistory onNavigate={onNavigate} />,
+  };
+
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
       {adminRoutes[route] ? (
         <AdminLayout onNavigate={onNavigate}>{adminRoutes[route]}</AdminLayout>
+      ) : customerRoutes[route] ? (
+        customerRoutes[route]
       ) : route === "customer" ? (
         <CustomerDashboard onNavigate={onNavigate} />
       ) : (route === "staff" || staffPages[route]) ? (

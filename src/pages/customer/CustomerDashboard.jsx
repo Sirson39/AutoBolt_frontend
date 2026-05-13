@@ -4,6 +4,15 @@ import { dashboardData } from "../../data/siteContent";
 import { clearAuth, getUser } from "../../utils/auth";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
+import { CalendarDays, Wrench, Star, Car, FileText } from "lucide-react";
+
+const QUICK_ACTIONS = [
+  { label: 'My Bookings',    route: 'customer-bookings',      icon: CalendarDays, color: '#2563eb' },
+  { label: 'Part Requests',  route: 'customer-part-requests', icon: Wrench,       color: '#7c3aed' },
+  { label: 'My Reviews',     route: 'customer-reviews',       icon: Star,         color: '#d97706' },
+  { label: 'My Vehicles',    route: 'customer-vehicles',      icon: Car,          color: '#059669' },
+  { label: 'Service History',route: 'customer-history',       icon: FileText,     color: '#dc2626' },
+];
 
 const RISK_COLORS = { Low: '#16a34a', Moderate: '#d97706', High: '#ea580c', Critical: '#dc2626' };
 const RISK_BG = { Low: '#f0fdf4', Moderate: '#fffbeb', High: '#fff7ed', Critical: '#fef2f2' };
@@ -104,8 +113,24 @@ export default function CustomerDashboard({ onNavigate }) {
       onLogout={handleLogout}
       currentUser={currentUser}
     >
+      <section style={{ padding: '1.5rem 2rem 0' }}>
+        <h3 style={{ fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>Quick Actions</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          {QUICK_ACTIONS.map(({ label, route, icon: Icon, color }) => (
+            <button
+              key={route}
+              onClick={() => onNavigate(route)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.1rem', borderRadius: 10, border: `1.5px solid ${color}20`, background: `${color}10`, color, fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {predictions.length > 0 && (
-        <section style={{ padding: '1.5rem 2rem 2rem' }}>
+        <section style={{ padding: '0.5rem 2rem 2rem' }}>
           <h3 style={{ fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>Vehicle Health Overview</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {predictions.map(p => (
