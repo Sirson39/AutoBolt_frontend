@@ -1,8 +1,9 @@
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
-import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet, ArrowLeft, ArrowRight, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import api from '../../utils/api';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -35,6 +36,8 @@ export default function VehicleManagement({ onNavigate }) {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [viewingVehicle, setViewingVehicle] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [loadingPrediction, setLoadingPrediction] = useState(false);
 
   const [formData, setFormData] = useState({
     licensePlate: '',
@@ -66,6 +69,22 @@ export default function VehicleManagement({ onNavigate }) {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handlePredict = async (vehicleId) => {
+    setLoadingPrediction(true);
+    setPrediction(null);
+    try {
+      const res = await api.get(`/api/vehicles/${vehicleId}/prediction`);
+      setPrediction(res.data);
+    } catch {
+      toast.error('Failed to load prediction.');
+    } finally {
+      setLoadingPrediction(false);
+    }
+  };
+
+  const RISK_COLORS = { Low: '#16a34a', Moderate: '#d97706', High: '#ea580c', Critical: '#dc2626' };
+  const RISK_BG = { Low: '#f0fdf4', Moderate: '#fffbeb', High: '#fff7ed', Critical: '#fef2f2' };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -298,6 +317,9 @@ export default function VehicleManagement({ onNavigate }) {
                       <td style={{ textAlign: 'right' }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => setViewingVehicle(vehicle)} style={{ marginRight: '0.25rem' }} title="View Details">
                           <Eye size={16} color="var(--brand)" />
+                        </button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => handlePredict(vehicle.id)} style={{ marginRight: '0.25rem' }} title="Condition Prediction">
+                          <Activity size={16} color="var(--brand)" />
                         </button>
                         <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(vehicle)} style={{ marginRight: '0.25rem' }} title="Edit Vehicle">
                           <Edit2 size={16} />
@@ -672,6 +694,60 @@ export default function VehicleManagement({ onNavigate }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {(prediction || loadingPrediction) && (
+        <div className="modal-overlay" onClick={() => setPrediction(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Condition Prediction</h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setPrediction(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            {loadingPrediction ? (
+              <div className="loading"><div className="spinner" /> Analysing vehicle...</div>
+            ) : prediction && (
+              <div style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: '800', fontSize: '1rem' }}>{prediction.licensePlate}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{prediction.make} {prediction.model}</div>
+                  </div>
+                  <div style={{
+                    padding: '0.6rem 1.2rem', borderRadius: '12px', fontWeight: '900', fontSize: '1rem',
+                    background: RISK_BG[prediction.riskLevel],
+                    color: RISK_COLORS[prediction.riskLevel],
+                    border: `1px solid ${RISK_COLORS[prediction.riskLevel]}30`
+                  }}>
+                    {prediction.riskLevel} Risk — {prediction.riskScore} pts
+                  </div>
+                </div>
+                {prediction.predictions.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--ink-soft)' }}>
+                    No issues detected. Vehicle appears to be in good condition.
+                  </div>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {prediction.predictions.map((msg, i) => (
+                      <li key={i} style={{
+                        padding: '0.75rem 1rem', borderRadius: '10px',
+                        background: RISK_BG[prediction.riskLevel],
+                        borderLeft: `3px solid ${RISK_COLORS[prediction.riskLevel]}`,
+                        fontSize: '0.875rem', color: 'var(--ink)', fontWeight: '500'
+                      }}>
+                        {msg}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '1rem', textAlign: 'right' }}>
+                  Analysed {new Date(prediction.analysedAt).toLocaleString()}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

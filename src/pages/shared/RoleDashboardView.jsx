@@ -1,7 +1,7 @@
 import React from "react";
 import { KpiCard, priorityText } from "../../components/shared";
 
-export default function RoleDashboardView({ role, data, onNavigate, onLogout, currentUser }) {
+export default function RoleDashboardView({ role, data, onNavigate, onLogout, currentUser, children }) {
   const title = role === "admin" ? "Admin dashboard" : role === "staff" ? "Staff dashboard" : "Customer dashboard";
 
   return (
@@ -132,6 +132,7 @@ export default function RoleDashboardView({ role, data, onNavigate, onLogout, cu
                 </article>
               </div>
             </div>
+            {children}
           </main>
         </section>
       </main>
