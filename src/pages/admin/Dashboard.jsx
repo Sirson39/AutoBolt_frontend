@@ -4,7 +4,7 @@ import {
   Package, Users, AlertTriangle, Truck, ShoppingCart, 
   DollarSign, BarChart2, ArrowRight, CheckCircle,
   TrendingUp, TrendingDown, Activity, Zap, Brain, Sparkles, X, ChevronRight,
-  User, Settings as SettingsIcon, LogOut, RefreshCw
+  User, Settings as SettingsIcon, LogOut, RefreshCw, KeyRound
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 

@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-import { features, publicPages, roleCards } from "../../data/siteContent";
-import { FeatureCard, Metric, RoleCard } from "../../components/shared";
+import { features, publicPages, roleCards, footerNav, benefits, workflowSteps, aboutCards, contactCards } from "../../data/siteContent";
+import { FeatureCard, Metric, RoleCard, BenefitCard, CompactCard } from "../../components/shared";
+import { 
+  Package, ShoppingCart, Sparkles, 
+  ArrowRight, CheckCircle2, 
+  ChevronRight, Brain, Boxes, ReceiptText, 
+  Truck, Users, BarChart3, Bell, Tag, TrendingUp, ShieldCheck, Gauge
+} from "lucide-react";
 import api from "../../utils/api";
 import { setAuth } from "../../utils/auth";
 import toast from "react-hot-toast";
@@ -77,6 +83,18 @@ function Shell({ route, onNavigate, publicNav, children, footerText }) {
   );
 }
 
+function InfoCard({ title, text, icon: Icon }) {
+  return (
+    <article className="card info-card">
+      <div className="card-icon" style={{ marginBottom: '1rem', color: 'var(--primary)' }}>
+        {Icon ? <Icon size={24} strokeWidth={2} /> : <Sparkles size={24} strokeWidth={2} />}
+      </div>
+      <h3 style={{ marginBottom: '0.5rem' }}>{title}</h3>
+      <p style={{ color: 'var(--ink-soft)', fontSize: '0.9rem' }}>{text}</p>
+    </article>
+  );
+}
+
 function SectionHeading({ eyebrow, title, copy, centered = false }) {
   return (
     <div className={`section-header ${centered ? "section-header-centered" : ""}`}>
@@ -84,33 +102,6 @@ function SectionHeading({ eyebrow, title, copy, centered = false }) {
       <h2 className="section-title">{title}</h2>
       {copy ? <p className="section-copy section-copy-center">{copy}</p> : null}
     </div>
-  );
-}
-
-function InfoCard({ title, text, icon: Icon }) {
-  return (
-    <article className="card info-card">
-      <div className="feature-icon">
-        {Icon ? <Icon size={20} strokeWidth={2.15} /> : <CheckCircle2 size={20} strokeWidth={2.15} />}
-      </div>
-      <h3>{title}</h3>
-      <p>{text}</p>
-    </article>
-  );
-}
-
-function CompactCard({ label, title, text, icon: Icon }) {
-  return (
-    <article className="compact-card">
-      <div className="compact-card-badge" aria-hidden="true">
-        <Icon size={18} strokeWidth={2.2} />
-      </div>
-      <div className="compact-card-copy">
-        <div className="compact-card-label">{label}</div>
-        <h3>{title}</h3>
-        <p>{text}</p>
-      </div>
-    </article>
   );
 }
 
@@ -160,32 +151,7 @@ function DashboardPreview() {
   );
 }
 
-const workflowTimeline = [
-  {
-    step: "01",
-    title: "Stock Arrives",
-    text: "Admin records vendor purchases and the system updates stock levels automatically.",
-    icon: Package
-  },
-  {
-    step: "02",
-    title: "Sale Happens",
-    text: "Staff selects parts, registers customer details, and generates a sales invoice.",
-    icon: ShoppingCart
-  },
-  {
-    step: "03",
-    title: "Invoice Sent",
-    text: "Invoices can be emailed directly to customers, and purchase history is saved.",
-    icon: Mail
-  },
-  {
-    step: "04",
-    title: "Alerts & AI",
-    text: "AutoBolt monitors low stock, overdue credits, and AI-based vehicle part predictions.",
-    icon: Sparkles
-  }
-];
+
 
 export function LandingPage({ route = "home", onNavigate, publicNav }) {
   return (
@@ -262,7 +228,7 @@ export function LandingPage({ route = "home", onNavigate, publicNav }) {
           centered
         />
         <div className="workflow-timeline" role="list" aria-label="Workflow timeline">
-          {workflowTimeline.map((item, index) => (
+          {workflowSteps.map((item, index) => (
             <article className="workflow-step" key={item.step} role="listitem">
               <div className="workflow-card">
                 <div className="workflow-card-top">
@@ -282,8 +248,8 @@ export function LandingPage({ route = "home", onNavigate, publicNav }) {
                 <span className="status good">Connected</span>
                 <span className="status good">Responsive</span>
               </div>
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -440,7 +406,7 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                 <span>Vehicle Parts Management</span>
               </div>
             </div>
-            <h1>{isSignIn ? "Welcome Back" : "Create Your Account"}</h1>
+            <h1>{mode === "signin" ? "Welcome Back" : "Create Your Account"}</h1>
             <p>
               {mode === "signin"
                 ? "Sign in with your AutoBolt credentials. You'll be taken to the workspace matching your role."
@@ -466,18 +432,18 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
 
           <div className="auth-panel auth-form-panel">
             <div className="auth-tabs">
-              <button className={`auth-tab ${isSignIn ? "active" : ""}`} type="button" onClick={() => onNavigate("signin")}>
+              <button className={`auth-tab ${mode === "signin" ? "active" : ""}`} type="button" onClick={() => onNavigate("signin")}>
                 Sign In
               </button>
-              <button className={`auth-tab ${!isSignIn ? "active" : ""}`} type="button" onClick={() => onNavigate("signup")}>
+              <button className={`auth-tab ${mode !== "signin" ? "active" : ""}`} type="button" onClick={() => onNavigate("signup")}>
                 Create Your Account
               </button>
             </div>
 
             <div className="auth-header-copy">
-              <h2>{isSignIn ? "Welcome Back" : "Create Your Account"}</h2>
+              <h2>{mode === "signin" ? "Welcome Back" : "Create Your Account"}</h2>
               <p>
-                {isSignIn
+                {mode === "signin"
                   ? "Sign in to access your AutoBolt dashboard."
                   : "Register to access AutoBolt services and manage your vehicle-related information."}
               </p>
@@ -580,12 +546,11 @@ export function PublicPage({ route, config, onNavigate, publicNav }) {
           </div>
 
           <div className="grid-3 public-info-grid">
-            {config.cards.map(([title, text]) => (
-              <InfoCard key={title} title={title} text={text} />
+            {config.cards.map((card, idx) => (
+              <InfoCard key={idx} title={card[0]} text={card[1]} />
             ))}
           </div>
         </div>
-
       </section>
     </Shell>
   );

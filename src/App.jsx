@@ -6,6 +6,7 @@ import ForgotPasswordPage from "./pages/public/ForgotPassword";
 import ResetPasswordPage from "./pages/public/ResetPassword";
 import ChangePasswordPage from "./pages/shared/ChangePassword";
 import UpdateProfilePage from "./pages/shared/UpdateProfile";
+import StaffWorkspace from "./pages/staff/StaffWorkspace";
 import AdminLayout from "./components/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import PartsManagement from "./pages/admin/PartsManagement";
@@ -23,19 +24,14 @@ import CreateInvoice from "./pages/admin/CreateInvoice";
 import CreatePurchaseInvoice from "./pages/admin/CreatePurchaseInvoice";
 import LoyaltyProgram from "./pages/admin/LoyaltyProgram";
 import AdminProfile from "./pages/admin/AdminProfile";
-import BookingManagement from "./pages/admin/BookingManagement";
-import PartRequestsManagement from "./pages/admin/PartRequestsManagement";
-import ServiceReviewsManagement from "./pages/admin/ServiceReviewsManagement";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/public/VerifyEmail";
-
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import MyBookings from "./pages/customer/MyBookings";
 import MyPartRequests from "./pages/customer/MyPartRequests";
 import MyReviews from "./pages/customer/MyReviews";
 import MyVehicles from "./pages/customer/MyVehicles";
 import MyServiceHistory from "./pages/customer/MyServiceHistory";
-import StaffWorkspace from "./pages/staff/StaffWorkspace";
 import { isAuthenticated, getRole } from "./utils/auth";
 
 const PROTECTED_PREFIXES = ['admin', 'staff', 'customer'];
@@ -63,18 +59,24 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Disabled redirects for development
+    /*
     if (isProtected(route) && !isAuthenticated()) {
       window.location.hash = '#signin';
     }
+    */
   }, [route]);
 
   useEffect(() => {
+    // Disabled redirects for development
+    /*
     if ((route === 'signin' || route === 'signup') && isAuthenticated()) {
       const role = getRole();
       if (role === 'Admin') window.location.hash = '#admin';
       else if (role === 'Staff') window.location.hash = '#staff-dashboard';
       else window.location.hash = '#customer';
     }
+    */
   }, [route]);
 
   useEffect(() => {
@@ -163,9 +165,6 @@ export default function App() {
     "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
     "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
     "admin-profile": <AdminProfile onNavigate={onNavigate} />,
-    "admin-bookings": <BookingManagement onNavigate={onNavigate} />,
-    "admin-part-requests": <PartRequestsManagement onNavigate={onNavigate} />,
-    "admin-reviews": <ServiceReviewsManagement onNavigate={onNavigate} />,
   };
 
   const customerRoutes = {

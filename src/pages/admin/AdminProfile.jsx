@@ -1,5 +1,4 @@
 import React from 'react';
-import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { 
   User, Mail, Phone, Shield, Key, Camera, 
@@ -7,8 +6,7 @@ import {
   ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw,
   Eye, EyeOff
 } from 'lucide-react';
-import api from '../../utils/api';
-import { getUser, setAuth, getToken } from '../../utils/auth';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -17,17 +15,15 @@ export default function AdminProfile({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const fileInputRef = useState(null); // Will use a proper ref below
+  const fileInputRef = useState(null); 
 
-  
-  const currentUser = getUser() || {};
-  
+  // Mocking the current admin data
   const [profileData, setProfileData] = useState({
-    fullName: currentUser.fullName || '',
-    email: currentUser.email || '',
-    phone: '',
-    role: currentUser.role || 'Super Admin',
-    joinedDate: 'N/A',
+    fullName: 'System Admin',
+    email: 'admin@autobolt.com',
+    phone: '9841234567',
+    role: 'Super Admin',
+    joinedDate: 'Jan 12, 2026',
     lastLogin: new Date().toLocaleString()
   });
 
@@ -37,35 +33,42 @@ export default function AdminProfile({ onNavigate }) {
     confirm: ''
   });
 
-  const handleProfileUpdate = async (e) => {
+  const [actualPassword, setActualPassword] = useState('admin123'); 
+  const [passwordHistory, setPasswordHistory] = useState(['admin123', 'oldpassword123']); 
+  const [showPass, setShowPass] = useState({ current: false, new: false, confirm: false });
+
+  useEffect(() => {
+    const savedImg = localStorage.getItem('admin_profile_img');
+    if (savedImg) setProfileImage(savedImg);
+  }, []);
+
+  const handleProfileUpdate = (e) => {
     e.preventDefault();
     setLoading(true);
     const loadToast = toast.loading("Updating profile...");
-    
-    try {
-      await api.put('/api/auth/profile', { 
-        fullName: profileData.fullName, 
-        phone: profileData.phone 
-      });
-      
-      setAuth({
-        token: getToken(),
-        role: currentUser.role,
-        fullName: profileData.fullName,
-        email: currentUser.email,
-        expiry: currentUser.expiry
-      });
-      
+
+    // Simulate API call
+    setTimeout(() => {
+      if (profileImage) localStorage.setItem('admin_profile_img', profileImage);
+      setLoading(false);
       setIsEditing(false);
       toast.success("Profile updated successfully!", { id: loadToast });
-    } catch (error) {
-      toast.error(error.response?.data || "Failed to update profile", { id: loadToast });
-    } finally {
-      setLoading(false);
+    }, 1500);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+        toast.success("Profile photo updated!");
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handlePasswordChange = async (e) => {
+  const handlePasswordChange = (e) => {
     e.preventDefault();
     
     if (passwordData.current !== actualPassword) {
@@ -87,20 +90,15 @@ export default function AdminProfile({ onNavigate }) {
     if (passwordHistory.includes(passwordData.new)) {
       return toast.error("You have used this password recently.");
     }
-    
+
     const loadToast = toast.loading("Changing password...");
-    try {
-      await api.post('/api/auth/change-password', { 
-        currentPassword: passwordData.current, 
-        newPassword: passwordData.new 
-      });
+    setTimeout(() => {
+      setActualPassword(passwordData.new);
+      setPasswordHistory([...passwordHistory, passwordData.new]);
       toast.success("Password changed successfully!", { id: loadToast });
       setPasswordData({ current: '', new: '', confirm: '' });
-    } catch (error) {
-      toast.error(error.response?.data || "Failed to change password", { id: loadToast });
-    }
+    }, 1200);
   };
-
 
   return (
     <>
@@ -131,7 +129,7 @@ export default function AdminProfile({ onNavigate }) {
             )
           )}
           <div className="avatar" style={{ background: 'var(--brand)', color: '#fff', fontWeight: '800', overflow: 'hidden' }}>
-            {profileImage ? <img src={profileImage} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : profileData.fullName.charAt(0)}
+            {profileImage ? <img src={profileImage} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (profileData?.fullName ? profileData.fullName.charAt(0) : 'A')}
           </div>
         </div>
       </header>
@@ -151,7 +149,7 @@ export default function AdminProfile({ onNavigate }) {
                   boxShadow: '0 8px 24px rgba(217, 93, 57, 0.3)',
                   overflow: 'hidden'
                 }}>
-                  {profileImage ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : profileData.fullName.charAt(0)}
+                  {profileImage ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (profileData?.fullName ? profileData.fullName.charAt(0) : 'A')}
                 </div>
                 <input 
                   type="file" 
@@ -180,7 +178,6 @@ export default function AdminProfile({ onNavigate }) {
                 >
                   <Camera size={16} />
                 </label>
-
               </div>
               <h2 style={{ fontSize: '1.25rem', color: 'var(--ink)', marginBottom: '0.5rem' }}>{profileData.fullName}</h2>
               <div className="badge badge-brand">{profileData.role}</div>
@@ -266,7 +263,7 @@ export default function AdminProfile({ onNavigate }) {
                   </div>
                 </div>
 
-                <div className="form-group" style={{ maxWidth: '50%', marginBottom: '2rem' }}>
+                <div className="form-group" style={{ maxWidth: '267px' }}>
                   <label className="form-label">Phone Number</label>
                   <div style={{ position: 'relative' }}>
                     <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
@@ -284,21 +281,15 @@ export default function AdminProfile({ onNavigate }) {
                   </div>
                 </div>
 
-                <div style={{ padding: '1.25rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--success-light)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ marginTop: '2rem', padding: '1.25rem', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Shield size={20} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--ink)' }}>Verified Account</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>Your account is secured with Super Admin level permissions.</div>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#065f46' }}>Verified Account</h4>
+                    <p style={{ fontSize: '0.8rem', color: '#047857' }}>Your account is secured with Super Admin level permissions.</p>
                   </div>
                 </div>
-
-                {isEditing && (
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
-                    <Save size={18} /> Save Changes
-                  </button>
-                )}
               </form>
             ) : (
               <form onSubmit={handlePasswordChange}>
@@ -327,11 +318,8 @@ export default function AdminProfile({ onNavigate }) {
                         {showPass.current ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     )}
-
                   </div>
                 </div>
-
-
 
                 <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '2rem 0' }} />
 
@@ -356,7 +344,6 @@ export default function AdminProfile({ onNavigate }) {
                           {showPass.new ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       )}
-
                     </div>
                   </div>
                   <div className="form-group">
@@ -379,12 +366,9 @@ export default function AdminProfile({ onNavigate }) {
                           {showPass.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       )}
-
                     </div>
                   </div>
                 </div>
-
-
 
                 <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
                   <Key size={18} /> Update Password

@@ -9,7 +9,10 @@ import {
   TrendingUp,
   Truck,
   Users,
-  ShieldCheck
+  ShieldCheck,
+  Target,
+  Mail,
+  MapPin
 } from "lucide-react";
 
 export const features = [
@@ -55,6 +58,8 @@ export const features = [
   }
 ];
 
+
+
 export const benefits = [
   {
     title: "Faster Daily Operations",
@@ -79,26 +84,10 @@ export const benefits = [
 ];
 
 export const workflowSteps = [
-  {
-    step: "Step 01",
-    title: "Stock Arrives",
-    text: "Admin records vendor purchases and the system updates stock levels automatically."
-  },
-  {
-    step: "Step 02",
-    title: "Sale Happens",
-    text: "Staff selects parts, registers customer details, and generates a sales invoice."
-  },
-  {
-    step: "Step 03",
-    title: "Customer Receives Invoice",
-    text: "Invoices can be emailed directly to customers, and purchase history is saved."
-  },
-  {
-    step: "Step 04",
-    title: "System Tracks & Alerts",
-    text: "AutoBolt monitors low stock, overdue credits, and AI-based vehicle part predictions."
-  }
+  { step: "01", title: "Stock & Inventory", text: "Parts are added, tracked, and organized by category with low-stock alerts.", icon: Boxes },
+  { step: "02", title: "Sales & Invoicing", text: "Create invoices fast for customers, tracking items, taxes, and totals.", icon: ReceiptText },
+  { step: "03", title: "Customer Service", text: "Manage vehicle records, service history, and appointment bookings.", icon: Users },
+  { step: "04", title: "Reports & AI", text: "Review financials and use AI insights to predict part failure patterns.", icon: Sparkles }
 ];
 
 export const roleCards = {
@@ -417,6 +406,16 @@ export const footerNav = [
   { label: "Sign In", target: "signin" }
 ];
 
+export const aboutCards = [
+  { title: "Our Mission", text: "Streamlining operations for the vehicle service industry.", icon: Target },
+  { title: "Our Team", text: "Built by experts who understand workshop friction.", icon: Users }
+];
+
+export const contactCards = [
+  { title: "Email Support", text: "support@autobolt.io", icon: Mail },
+  { title: "Location", text: "Kathmandu, Nepal", icon: MapPin }
+];
+
 export const staffNav = [
   ["Dashboard", "staff-dashboard"],
   ["Customer Registration", "customer-registration"],
@@ -429,6 +428,8 @@ export const staffNav = [
   ["Customer Reports", "customer-reports"]
 ];
 
+
+
 export const appRoutes = new Set([
   "home",
   "home-roles",
@@ -437,7 +438,6 @@ export const appRoutes = new Set([
   "home-benefits",
   "about",
   "contact",
-  "customer-register",
   "signin",
   "signup",
   "forgot-password",

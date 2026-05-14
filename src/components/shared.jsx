@@ -58,6 +58,18 @@ export function Metric({ title, text }) {
   );
 }
 
+export function CompactCard({ title, text, icon: Icon }) {
+  return (
+    <article className="card compact-card" style={{ padding: '1.5rem' }}>
+      <div className="card-icon" style={{ marginBottom: '1rem', color: 'var(--primary)' }}>
+        {Icon ? <Icon size={20} strokeWidth={2} /> : <span aria-hidden="true">*</span>}
+      </div>
+      <h4 style={{ marginBottom: '0.5rem' }}>{title}</h4>
+      <p style={{ color: 'var(--ink-soft)', fontSize: '0.85rem' }}>{text}</p>
+    </article>
+  );
+}
+
 export function KpiCard({ kpi }) {
   return (
     <article className="card kpi">

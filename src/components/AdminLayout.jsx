@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
-  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings, KeyRound, UserCircle, CalendarDays, Wrench, Star
+  BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings
 } from 'lucide-react';
 import axios from 'axios';
 import { clearAuth, getUser } from '../utils/auth';
+import AIAssistant from './AIAssistant';
 
 const navItems = [
   { label: 'Overview', section: true },
@@ -19,9 +20,6 @@ const navItems = [
   { to: 'admin-customers', label: 'Customer Management', icon: Users },
   { to: 'admin-vehicles',  label: 'Vehicle Management',  icon: Car },
   { to: 'admin-loyalty',   label: 'Loyalty Program',     icon: Gift },
-  { to: 'admin-bookings',      label: 'Booking Management',  icon: CalendarDays },
-  { to: 'admin-part-requests', label: 'Part Requests',        icon: Wrench },
-  { to: 'admin-reviews',       label: 'Service Reviews',      icon: Star },
   { label: 'Staff & Security', section: true },
   { to: 'admin-staff',           label: 'Staff Management',    icon: Users },
   { label: 'Reports', section: true },
@@ -29,9 +27,6 @@ const navItems = [
   { to: 'admin-reports',           label: 'Financial Report',  icon: FileText },
   { label: 'Configurations', section: true },
   { to: 'admin-settings',        label: 'Shop Settings',       icon: Settings },
-  { label: 'Account', section: true },
-  { to: 'update-profile',        label: 'Update Profile',      icon: UserCircle },
-  { to: 'change-password',       label: 'Change Password',     icon: KeyRound },
 ];
 
 export default function AdminLayout({ children, onNavigate }) {
@@ -39,6 +34,7 @@ export default function AdminLayout({ children, onNavigate }) {
   const [shopName, setShopName] = useState('AutoBolt');
   const [tagline, setTagline] = useState('Admin Panel');
   const currentUser = getUser();
+  const [globalStats, setGlobalStats] = useState(null);
 
   const loadSettings = () => {
     try {

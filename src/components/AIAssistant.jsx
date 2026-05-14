@@ -60,7 +60,7 @@ export default function AIAssistant({ stats, onNavigate }) {
     1. You are an expert in the automotive world. Feel free to discuss car brands, vehicle types (luxury, performance, etc.), and automotive technology.
     2. ALWAYS try to connect car discussions back to the AutoBolt shop. (e.g., "Since you mentioned luxury vehicles, stocking premium brake pads would be a great strategy").
     3. REJECT topics that have ZERO to do with cars or business (e.g., sports stars, movies, politics).
-    4. Use live data: Rev: ${stats.todayRevenue}, Parts: ${stats.totalParts}, Low Stock: ${stats.lowStockParts}, Customers: ${stats.totalCustomers}.`;
+    4. Use live data: Rev: ${stats?.todayRevenue || 0}, Parts: ${stats?.totalParts || 0}, Low Stock: ${stats?.lowStockParts || 0}, Customers: ${stats?.totalCustomers || 0}.`;
 
     try {
       const groqResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
