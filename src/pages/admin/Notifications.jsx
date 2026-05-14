@@ -116,7 +116,7 @@ export default function Notifications({ onNavigate }) {
                               color: 'var(--ink-soft)' 
                             }}>
                                {part.imageUrl ? (
-                                 <img src={`http://localhost:5098${part.imageUrl}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                 <img src={`${import.meta.env.VITE_API_BASE_URL}${part.imageUrl}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                ) : (
                                  <Package size={20} />
                                )}

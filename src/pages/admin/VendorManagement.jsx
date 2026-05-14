@@ -264,7 +264,7 @@ export default function VendorManagement({ onNavigate }) {
                             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
                           }}>
                             {vendor.logoUrl ? (
-                              <img src={`http://localhost:5098${vendor.logoUrl}`} alt={vendor.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <img src={`${import.meta.env.VITE_API_BASE_URL}${vendor.logoUrl}`} alt={vendor.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               <Briefcase size={20} style={{ color: 'var(--ink-soft)', opacity: 0.6 }} />
                             )}
@@ -336,7 +336,7 @@ export default function VendorManagement({ onNavigate }) {
                   <div key={vendor.id} className="grid-card">
                     <div className="grid-card-image" style={{ background: 'var(--surface-2)' }}>
                       {vendor.logoUrl ? (
-                        <img src={`http://localhost:5098${vendor.logoUrl}`} alt={vendor.name} />
+                        <img src={`${import.meta.env.VITE_API_BASE_URL}${vendor.logoUrl}`} alt={vendor.name} />
                       ) : (
                         <Briefcase size={48} style={{ color: 'var(--brand)', opacity: 0.2 }} />
                       )}
@@ -448,7 +448,7 @@ export default function VendorManagement({ onNavigate }) {
             <div className="side-panel-content">
               <div style={{ background: 'var(--surface-2)', padding: viewingVendor.logoUrl ? '0' : '2.5rem', borderRadius: 'var(--radius)', textAlign: 'center', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
                 {viewingVendor.logoUrl ? (
-                  <img src={`http://localhost:5098${viewingVendor.logoUrl}`} alt={viewingVendor.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                  <img src={`${import.meta.env.VITE_API_BASE_URL}${viewingVendor.logoUrl}`} alt={viewingVendor.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                 ) : (
                   <>
                     <div style={{
@@ -598,7 +598,7 @@ export default function VendorManagement({ onNavigate }) {
                       <img src={logoPreview} alt="Preview" className="image-preview" />
                     ) : editingVendor?.logoUrl ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                        <img src={`http://localhost:5098${editingVendor.logoUrl}`} alt="Current Logo" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={`${import.meta.env.VITE_API_BASE_URL}${editingVendor.logoUrl}`} alt="Current Logo" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: 0, transition: 'opacity 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
                           <ImageIcon size={24} style={{ marginBottom: '0.25rem' }} />
                           <span style={{ fontSize: '0.75rem', fontWeight: '600' }}>Replace Logo</span>

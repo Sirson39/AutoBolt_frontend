@@ -12,6 +12,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import NotificationDropdown from '../../components/NotificationDropdown';
+import { DashboardSkeleton } from '../../components/Skeleton';
+import { EmptyState } from '../../components/EmptyState';
 
 const COLORS = ['#d95d39', '#1f8a70', '#465361', '#f5a623'];
 
@@ -242,7 +244,18 @@ export default function Dashboard({ onNavigate }) {
     { label: 'Manage Staff',   icon: Users,        link: 'admin-staff',           color: '#1f8a70' },
   ];
 
-  if (loading) return <div className="loading"><div className="spinner" /> Loading dashboard...</div>;
+  if (loading) {
+    return (
+      <>
+        <header className="top-header glass-card" style={{ zIndex: 1010, position: 'sticky', top: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="page-title">{getGreeting()}, {adminName} 👋</span>
+          </div>
+        </header>
+        <DashboardSkeleton />
+      </>
+    );
+  }
 
   return (
     <>
@@ -430,7 +443,15 @@ export default function Dashboard({ onNavigate }) {
                     <td><span className="badge badge-success"><CheckCircle size={10} style={{ marginRight: '4px' }} />Paid</span></td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--ink-soft)', padding: '2rem' }}>No sales yet</td></tr>
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--ink-soft)' }}>
+                        <ShoppingCart size={32} style={{ opacity: 0.2, marginBottom: '0.75rem' }} />
+                        <span style={{ fontWeight: '700' }}>No sales recorded today</span>
+                        <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>New transactions will appear here.</p>
+                      </div>
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

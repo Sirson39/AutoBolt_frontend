@@ -145,7 +145,7 @@ export const dashboardData = {
       { label: "Registered staff", value: "18", delta: "3 new this term" }
     ],
     leftTitle: "Operational snapshots",
-    leftBody: "This layout highlights reports, stock pressure, and management tasks that belong to the admin role.",
+    leftBody: "This layout highlights reports, stock pressure, and management tasks that are essential for the admin role.",
     rows: [
       ["Brake pads", "12", "Top seller", "good"],
       ["Air filters", "8", "Reorder soon", "warn"],
@@ -380,7 +380,7 @@ export const publicPages = {
     cards: [
       ["General Enquiries", "Email Us", "support@autobolt.io - For platform questions, feature requests, or account help. We typically respond within 24 hours on business days."],
       ["Business Hours", "Support Hours", "Monday to Friday, 9:00 AM - 6:00 PM (NPT). Our support team is available to assist with onboarding, technical issues, and training."],
-      ["Location", "Kathmandu, Nepal", "Illustrative project location for coursework use only. Serving vehicle service and parts businesses across Nepal."],
+      ["Location", "Kathmandu, Nepal", "Serving vehicle service and parts businesses across the region."],
       ["Request a Demo", "See It Live", "Want to see AutoBolt in action before committing? Book a free walkthrough and we'll show you how it fits your service centre's workflow."]
     ]
   },

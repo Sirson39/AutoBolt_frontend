@@ -6,6 +6,8 @@ import axios from 'axios';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 import AdminLayout from '../../components/AdminLayout';
+import { TableSkeleton } from '../../components/Skeleton';
+import { EmptyState } from '../../components/EmptyState';
 
 const HighlightText = ({ text, highlight }) => {
   if (!highlight.trim() || !text) return <span>{text}</span>;
@@ -241,13 +243,15 @@ export default function PartsManagement({ onNavigate }) {
 
           <div style={{ overflowX: 'auto', minHeight: '300px' }}>
             {loading ? (
-              <div className="loading"><div className="spinner" /> Loading inventory...</div>
+              <TableSkeleton columns={6} rows={8} />
             ) : filteredParts.length === 0 ? (
-              <div className="empty-state">
-                <Package size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                <h3>No parts found</h3>
-                <p>Try adjusting your search or add a new part.</p>
-              </div>
+              <EmptyState 
+                icon={Package}
+                title="No Parts Found"
+                message={searchQuery ? `No results for "${searchQuery}". Try a different search term.` : "Your inventory is currently empty. Start by adding your first auto part."}
+                actionLabel={!searchQuery ? "Add New Part" : null}
+                onAction={openAddModal}
+              />
             ) : viewMode === 'list' ? (
               <table>
                 <thead>
@@ -271,7 +275,7 @@ export default function PartsManagement({ onNavigate }) {
                             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
                           }}>
                             {part.imageUrl ? (
-                              <img src={`http://localhost:5098${part.imageUrl}`} alt={part.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <img src={`${import.meta.env.VITE_API_BASE_URL}${part.imageUrl}`} alt={part.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               <Package size={20} style={{ color: 'var(--ink-soft)', opacity: 0.6 }} />
                             )}
@@ -346,7 +350,7 @@ export default function PartsManagement({ onNavigate }) {
                   <div key={part.id} className="grid-card">
                     <div className="grid-card-image">
                       {part.imageUrl ? (
-                        <img src={`http://localhost:5098${part.imageUrl}`} alt={part.name} />
+                        <img src={`${import.meta.env.VITE_API_BASE_URL}${part.imageUrl}`} alt={part.name} />
                       ) : (
                         <Package size={48} style={{ color: 'var(--ink-soft)', opacity: 0.3 }} />
                       )}
@@ -460,7 +464,7 @@ export default function PartsManagement({ onNavigate }) {
             <div className="side-panel-content">
               <div style={{ background: 'var(--surface-2)', overflow: 'hidden', padding: viewingPart.imageUrl ? '0' : '2rem', borderRadius: 'var(--radius)', textAlign: 'center', marginBottom: '1.5rem', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {viewingPart.imageUrl ? (
-                  <img src={`http://localhost:5098${viewingPart.imageUrl}`} alt={viewingPart.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={`${import.meta.env.VITE_API_BASE_URL}${viewingPart.imageUrl}`} alt={viewingPart.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <Package size={64} style={{ color: 'var(--brand)', opacity: 0.8 }} />
                 )}
@@ -587,7 +591,7 @@ export default function PartsManagement({ onNavigate }) {
                       <img src={imagePreview} alt="Preview" className="image-preview" />
                     ) : editingPart?.imageUrl ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                        <img src={`http://localhost:5098${editingPart.imageUrl}`} alt="Current Part" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={`${import.meta.env.VITE_API_BASE_URL}${editingPart.imageUrl}`} alt="Current Part" className="image-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: 0, transition: 'opacity 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
                           <ImageIcon size={24} style={{ marginBottom: '0.25rem' }} />
                           <span style={{ fontSize: '0.75rem', fontWeight: '600' }}>Replace Photo</span>

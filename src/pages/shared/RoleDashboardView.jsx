@@ -80,7 +80,7 @@ export default function RoleDashboardView({ role, data, onNavigate, onLogout, cu
               <article className="card">
                 <h3>{role === "customer" ? "History and status" : "Operational data"}</h3>
                 <p>{role === "customer"
-                  ? "This table groups orders, bookings, and AI updates the way the coursework scenario describes the customer area."
+                  ? "This table groups orders, bookings, and AI updates to provide a clear overview of customer interactions."
                   : "The table below is a quick mock of the lists that would normally come from the backend."}
                 </p>
                 <div className="table-wrap">
