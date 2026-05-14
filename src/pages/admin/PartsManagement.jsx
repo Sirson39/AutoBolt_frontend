@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, RefreshCw, Clock, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';

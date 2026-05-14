@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { 
   Settings, MapPin, Phone, Mail, Globe, 

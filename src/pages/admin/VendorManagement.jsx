@@ -1,3 +1,4 @@
+import React from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
 import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, Globe } from 'lucide-react';

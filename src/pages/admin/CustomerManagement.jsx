@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet, FileSpreadsheet, ArrowLeft, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';

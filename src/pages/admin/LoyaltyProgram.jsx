@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Gift, DollarSign, Users, TrendingUp, Award, ArrowRight, Star, Settings2, Save } from 'lucide-react';
 import api from '../../utils/api';
