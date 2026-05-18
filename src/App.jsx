@@ -115,7 +115,7 @@ export default function App() {
 
   useEffect(() => {
     const isDashboard = route === 'admin' || route.startsWith('admin-') || route === 'customer' || route.startsWith('customer-');
-    const isAuth = route === 'signin' || route === 'signup' || route === 'forgot-password' || route === 'reset-password';
+    const isAuth = route === 'signin' || route === 'signup' || route === 'forgot-password' || route === 'reset-password' || route === 'verify-email';
     const isPublic = route === 'home' || route === 'about' || route === 'contact' || route === 'customer-register';
 
     document.body.classList.toggle('admin-mode', isDashboard);
@@ -130,6 +130,15 @@ export default function App() {
       <>
         <Toaster position="top-right" reverseOrder={false} />
         <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />
+      </>
+    );
+  }
+
+  if (route === "verify-email") {
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <VerifyEmail onNavigate={onNavigate} />
       </>
     );
   }
