@@ -1,7 +1,7 @@
 /* ===== AutoBolt Admin — Global Design System ===== */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 
-body.admin-mode {
+:root {
   /* Brand Colors (matching team's palette) */
   --brand: #d95d39;
   --brand-deep: #ba4524;
@@ -943,4 +943,23 @@ body.dark-theme ::-webkit-scrollbar-thumb {
   border-radius: var(--radius-sm);
   object-fit: cover;
   border: 1px solid var(--border);
+}
+
+/* ===== Pulsing Green Status Indicator ===== */
+@keyframes pulse-green-glow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+.pulse-green {
+  animation: pulse-green-glow 2s infinite;
 }

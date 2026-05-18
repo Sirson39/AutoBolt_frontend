@@ -3,6 +3,21 @@ import { CalendarDays, Plus, Search, Trash2, AlertCircle, X, CheckCircle, Clock,
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../../utils/exportUtils';
+import { ArrowLeft, ArrowRight, FileSpreadsheet } from 'lucide-react';
+
+const HighlightText = ({ text, highlight }) => {
+  if (!highlight?.trim() || !text) return <span>{text || '—'}</span>;
+  const regex = new RegExp(`(${highlight})`, 'gi');
+  const parts = text.toString().split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? <mark key={i} className="highlight" style={{ background: 'var(--brand-light)', color: 'var(--brand)', padding: '0 2px', borderRadius: '2px' }}>{part}</mark> : <span key={i}>{part}</span>
+      )}
+    </span>
+  );
+};
 
 const STATUS_COLORS = {
   Pending:    { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa' },
@@ -53,6 +68,10 @@ export default function BookingManagement({ onNavigate }) {
     description: ''
   });
   const [filteredVehicles, setFilteredVehicles] = useState([]);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const fetchData = async () => {
     try {
@@ -128,15 +147,20 @@ export default function BookingManagement({ onNavigate }) {
     }
   };
 
-  const displayed = bookings.filter(b => {
-    const matchStatus = statusFilter === 'All' || b.status === statusFilter;
+  let displayed = bookings.filter(b => {
     const q = searchQuery.toLowerCase();
-    const matchSearch = !q ||
-      b.customerName?.toLowerCase().includes(q) ||
-      b.vehiclePlate?.toLowerCase().includes(q) ||
-      b.description?.toLowerCase().includes(q);
-    return matchStatus && matchSearch;
+    const matchSearch =
+      (b.customerName || '').toLowerCase().includes(q) ||
+      (b.vehiclePlate || '').toLowerCase().includes(q) ||
+      (b.description || '').toLowerCase().includes(q);
+    const matchStatus = statusFilter === 'All' || b.status === statusFilter;
+    return matchSearch && matchStatus;
   });
+
+  const totalPages = Math.ceil(displayed.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = displayed.slice(indexOfFirstItem, indexOfLastItem);
 
   const nextStatuses = {
     Pending: ['Confirmed', 'Cancelled'],
@@ -166,7 +190,10 @@ export default function BookingManagement({ onNavigate }) {
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-primary" onClick={openModal}>
+          <button className="btn btn-ghost" onClick={() => exportToCSV(bookings, 'Bookings_List')} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <FileSpreadsheet size={18} /> Export CSV
+          </button>
+          <button className="btn btn-primary" onClick={openModal} style={{ borderRadius: 'var(--radius-sm)' }}>
             <Plus size={18} /> New Booking
           </button>
         </div>
@@ -181,7 +208,7 @@ export default function BookingManagement({ onNavigate }) {
                 type="text"
                 placeholder="Search by customer, plate, or description..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -189,7 +216,7 @@ export default function BookingManagement({ onNavigate }) {
               <select
                 className="form-input"
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
                 style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
               >
                 {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -221,17 +248,17 @@ export default function BookingManagement({ onNavigate }) {
                 </tr>
               </thead>
               <tbody>
-                {displayed.map(b => (
-                  <tr key={b.id}>
-                    <td style={{ fontWeight: '700' }}>{b.customerName || '—'}</td>
+                {currentBookings.map(b => (
+                  <tr key={b.id} style={{ transition: 'all 0.2s ease' }}>
+                    <td style={{ fontWeight: '700' }}><HighlightText text={b.customerName} highlight={searchQuery} /></td>
                     <td>
                       <span style={{ fontFamily: 'monospace', fontWeight: '800', fontSize: '0.9rem' }}>
-                        {b.vehiclePlate || '—'}
+                        <HighlightText text={b.vehiclePlate} highlight={searchQuery} />
                       </span>
                     </td>
                     <td>{new Date(b.serviceDate).toLocaleDateString()}</td>
                     <td style={{ color: 'var(--ink-soft)', fontSize: '0.85rem', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {b.description || '—'}
+                      <HighlightText text={b.description} highlight={searchQuery} />
                     </td>
                     <td><StatusBadge status={b.status} /></td>
                     <td style={{ textAlign: 'right' }}>
@@ -263,6 +290,58 @@ export default function BookingManagement({ onNavigate }) {
                 ))}
               </tbody>
             </table>
+          )}
+
+          {displayed.length > 0 && (
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, displayed.length)}</span> of {displayed.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
+                </button>
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

@@ -2,12 +2,12 @@ export default {
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5098",
+        target: "https://localhost:7176",
         changeOrigin: true,
         secure: false
       },
       "/auth": {
-        target: "http://localhost:5098",
+        target: "https://localhost:7176",
         changeOrigin: true,
         secure: false
       }

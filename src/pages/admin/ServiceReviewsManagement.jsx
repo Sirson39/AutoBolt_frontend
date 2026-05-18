@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Search, Trash2, AlertCircle, Filter } from 'lucide-react';
+import { Star, Search, Trash2, AlertCircle, Filter, Eye, X } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
+import { exportToCSV } from '../../utils/exportUtils';
+import { ArrowLeft, ArrowRight, FileSpreadsheet } from 'lucide-react';
+
+const HighlightText = ({ text, highlight }) => {
+  if (!highlight?.trim() || !text) return <span>{text || '—'}</span>;
+  const regex = new RegExp(`(${highlight})`, 'gi');
+  const parts = text.toString().split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? <mark key={i} className="highlight" style={{ background: 'var(--brand-light)', color: 'var(--brand)', padding: '0 2px', borderRadius: '2px' }}>{part}</mark> : <span key={i}>{part}</span>
+      )}
+    </span>
+  );
+};
 
 function StarRating({ rating }) {
   return (
@@ -26,7 +41,12 @@ export default function ServiceReviewsManagement({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [ratingFilter, setRatingFilter] = useState('All');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [viewReview, setViewReview] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -54,14 +74,19 @@ export default function ServiceReviewsManagement({ onNavigate }) {
     }
   };
 
-  const displayed = reviews.filter(r => {
-    const matchRating = ratingFilter === 'All' || r.rating === Number(ratingFilter);
+  let displayed = reviews.filter(r => {
     const q = searchQuery.toLowerCase();
-    const matchSearch = !q ||
-      r.customerName?.toLowerCase().includes(q) ||
-      r.comment?.toLowerCase().includes(q);
-    return matchRating && matchSearch;
+    const matchSearch =
+      (r.customerName || '').toLowerCase().includes(q) ||
+      (r.comment || '').toLowerCase().includes(q);
+    const matchRating = ratingFilter === 'All' || r.rating.toString() === ratingFilter;
+    return matchSearch && matchRating;
   });
+
+  const totalPages = Math.ceil(displayed.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentReviews = displayed.slice(indexOfFirstItem, indexOfLastItem);
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
@@ -87,6 +112,9 @@ export default function ServiceReviewsManagement({ onNavigate }) {
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
+          <button className="btn btn-ghost" onClick={() => exportToCSV(reviews, 'Service_Reviews')} style={{ borderRadius: 'var(--radius-sm)' }}>
+            <FileSpreadsheet size={18} /> Export CSV
+          </button>
         </div>
       </header>
 
@@ -99,7 +127,7 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                 type="text"
                 placeholder="Search by customer or comment..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -107,7 +135,7 @@ export default function ServiceReviewsManagement({ onNavigate }) {
               <select
                 className="form-input"
                 value={ratingFilter}
-                onChange={e => setRatingFilter(e.target.value)}
+                onChange={e => { setRatingFilter(e.target.value); setCurrentPage(1); }}
                 style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
               >
                 {RATING_FILTERS.map(r => (
@@ -142,9 +170,9 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                 </tr>
               </thead>
               <tbody>
-                {displayed.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ fontWeight: '700' }}>{r.customerName || '—'}</td>
+                {currentReviews.map(r => (
+                  <tr key={r.id} style={{ transition: 'all 0.2s ease' }}>
+                    <td style={{ fontWeight: '700' }}><HighlightText text={r.customerName} highlight={searchQuery} /></td>
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         <StarRating rating={r.rating} />
@@ -155,7 +183,7 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                       color: 'var(--ink-soft)', fontSize: '0.85rem',
                       maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                     }}>
-                      {r.comment || <em style={{ opacity: 0.5 }}>No comment</em>}
+                      {r.comment ? <HighlightText text={r.comment} highlight={searchQuery} /> : <em style={{ opacity: 0.5 }}>No comment</em>}
                     </td>
                     <td style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>
                       {r.invoiceId ? `#${r.invoiceId}` : '—'}
@@ -172,18 +200,81 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                     </td>
                     <td style={{ fontSize: '0.85rem' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
                     <td style={{ textAlign: 'right' }}>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => setDeleteConfirmId(r.id)}
-                        style={{ color: 'var(--danger)' }}
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'flex-end' }}>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => setViewReview(r)}
+                          style={{ color: 'var(--brand)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          title="View review details"
+                        >
+                          <Eye size={15} /> View
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => setDeleteConfirmId(r.id)}
+                          style={{ color: 'var(--danger)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          title="Delete review"
+                        >
+                          <Trash2 size={15} /> Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          )}
+
+          {displayed.length > 0 && (
+            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, displayed.length)}</span> of {displayed.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
+                </button>
+                
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: currentPage === page ? 'var(--brand)' : 'transparent',
+                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {page}
+                      </button>
+                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                >
+                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -205,6 +296,66 @@ export default function ServiceReviewsManagement({ onNavigate }) {
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button className="btn btn-ghost" onClick={() => setDeleteConfirmId(null)} style={{ flex: 1, justifyContent: 'center' }}>Cancel</button>
               <button className="btn btn-danger" onClick={() => handleDelete(deleteConfirmId)} style={{ flex: 1, justifyContent: 'center' }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewReview && (
+        <div className="modal-overlay" onClick={() => setViewReview(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', borderRadius: 16, padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Star size={18} color="var(--brand)" fill="var(--brand)" />
+                <h3 className="modal-title" style={{ margin: 0 }}>Review Details</h3>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setViewReview(null)} style={{ padding: 4 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="staff-summary-list" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+              <div className="summary-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid var(--border)' }}>
+                <span className="subtle" style={{ color: 'var(--ink-soft)' }}>Customer</span>
+                <strong>{viewReview.customerName || '—'}</strong>
+              </div>
+              <div className="summary-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid var(--border)' }}>
+                <span className="subtle" style={{ color: 'var(--ink-soft)' }}>Rating</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <StarRating rating={viewReview.rating} />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>({viewReview.rating}/5)</span>
+                </div>
+              </div>
+              <div className="summary-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid var(--border)' }}>
+                <span className="subtle" style={{ color: 'var(--ink-soft)' }}>Related Invoice</span>
+                <strong>{viewReview.invoiceId ? `#${viewReview.invoiceId}` : 'None'}</strong>
+              </div>
+              <div className="summary-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid var(--border)' }}>
+                <span className="subtle" style={{ color: 'var(--ink-soft)' }}>Date</span>
+                <span>{new Date(viewReview.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              </div>
+              <div className="summary-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid var(--border)' }}>
+                <span className="subtle" style={{ color: 'var(--ink-soft)' }}>Visibility</span>
+                <span style={{
+                  padding: '2px 8px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '800',
+                  background: viewReview.isPublic ? '#f0fdf4' : '#f9fafb',
+                  color: viewReview.isPublic ? '#16a34a' : '#6b7280',
+                  border: `1px solid ${viewReview.isPublic ? '#bbf7d0' : '#d1d5db'}`
+                }}>
+                  {viewReview.isPublic ? 'Public / Visible' : 'Hidden'}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'left', background: 'var(--surface-2)', padding: '1rem', borderRadius: 10, border: '1px solid var(--border)', marginBottom: '1.5rem' }}>
+              <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--ink-soft)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.5px' }}>Customer Comment</span>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink)', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                {viewReview.comment || <em style={{ opacity: 0.5 }}>No written comment provided</em>}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button className="btn btn-primary" onClick={() => setViewReview(null)} style={{ flex: 1, justifyContent: 'center' }}>Close</button>
             </div>
           </div>
         </div>
