@@ -339,6 +339,9 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
   const [regConfirm, setRegConfirm] = useState('');
   const [regAddress, setRegAddress] = useState('');
 
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -356,26 +359,65 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
     }
   };
 
-  const handleRegister = async (e) => {
+  const handleGetOtp = async (e) => {
     e.preventDefault();
     if (regPassword !== regConfirm) {
       toast.error('Passwords do not match.');
       return;
     }
+    if (regPassword.length < 8) {
+      toast.error('Password must be at least 8 characters.');
+      return;
+    }
     setLoading(true);
     try {
-      const { data } = await api.post('/api/auth/register', {
+      await api.post('/api/auth/send-registration-otp', { email: regEmail });
+      setOtpSent(true);
+      toast.success('Verification code sent to your email!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send verification code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      await api.post('/api/auth/send-registration-otp', { email: regEmail });
+      toast.success('Verification code resent to your email!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to resend verification code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.post('/api/auth/register', {
         fullName: regFullName,
         email: regEmail,
         phone: regPhone,
         password: regPassword,
         address: regAddress || undefined,
+        otp: otpCode,
       });
-      setAuth(data);
-      toast.success(`Account created! Welcome, ${data.fullName}.`);
-      onNavigate('customer');
+      toast.success(`Verification successful! Welcome, ${regFullName}. Please sign in.`);
+      // Reset form and go to sign in
+      setOtpSent(false);
+      setOtpCode('');
+      setRegFullName('');
+      setRegEmail('');
+      setRegPhone('');
+      setRegPassword('');
+      setRegConfirm('');
+      setRegAddress('');
+      onNavigate('signin');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+      toast.error(err.response?.data?.message || 'Registration failed. Please check your verification code.');
     } finally {
       setLoading(false);
     }
@@ -383,14 +425,18 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
 
   const config = mode === "signin"
     ? { title: "Sign in", subtitle: "Enter your credentials to access your workspace.", button: loading ? "Signing in…" : "Sign in" }
-    : { title: "Create account", subtitle: "Register as a customer to access self-service features.", button: loading ? "Creating account…" : "Create profile" };
+    : { 
+        title: otpSent ? "Verify Email" : "Create account", 
+        subtitle: otpSent ? "We sent a 6-digit verification code to your email." : "Register as a customer to access self-service features.", 
+        button: loading ? (otpSent ? "Registering…" : "Sending code…") : (otpSent ? "Verify & Register" : "Get a verification code") 
+      };
 
   return (
     <Shell
       route={mode}
       onNavigate={onNavigate}
       publicNav={publicNav}
-      footerText="\u00A9 2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
+      footerText="© 2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
     >
       <section className="section auth-section">
         <div className="auth-layout">
@@ -406,11 +452,11 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                 <span>Vehicle Parts Management</span>
               </div>
             </div>
-            <h1>{mode === "signin" ? "Welcome Back" : "Create Your Account"}</h1>
+            <h1>{mode === "signin" ? "Welcome Back" : (otpSent ? "Verify Your Email" : "Create Your Account")}</h1>
             <p>
               {mode === "signin"
                 ? "Sign in with your AutoBolt credentials. You'll be taken to the workspace matching your role."
-                : "Create a customer account to track your vehicles, purchases, and service history."}
+                : (otpSent ? "A verification code has been sent to your inbox. Enter it below to complete registration." : "Create a customer account to track your vehicles, purchases, and service history.")}
             </p>
             <div className="metrics">
               <Metric title="Role aware" text="Admin, staff, or customer entry" />
@@ -432,7 +478,7 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
 
           <div className="auth-panel auth-form-panel">
             <div className="auth-tabs">
-              <button className={`auth-tab ${mode === "signin" ? "active" : ""}`} type="button" onClick={() => onNavigate("signin")}>
+              <button className={`auth-tab ${mode === "signin" ? "active" : ""}`} type="button" onClick={() => { setOtpSent(false); onNavigate("signin"); }}>
                 Sign In
               </button>
               <button className={`auth-tab ${mode !== "signin" ? "active" : ""}`} type="button" onClick={() => onNavigate("signup")}>
@@ -441,11 +487,11 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             </div>
 
             <div className="auth-header-copy">
-              <h2>{mode === "signin" ? "Welcome Back" : "Create Your Account"}</h2>
+              <h2>{mode === "signin" ? "Welcome Back" : (otpSent ? "Enter Verification Code" : "Create Your Account")}</h2>
               <p>
                 {mode === "signin"
                   ? "Sign in to access your AutoBolt dashboard."
-                  : "Register to access AutoBolt services and manage your vehicle-related information."}
+                  : (otpSent ? "We just sent a code. Verify to activate." : "Register to access AutoBolt services and manage your vehicle-related information.")}
               </p>
             </div>
             <h2 style={{ margin: "18px 0 6px" }}>{config.title}</h2>
@@ -463,7 +509,10 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                   <input id="login-password" type="password" placeholder="Enter password" required
                     value={loginPassword} onChange={e => setLoginPassword(e.target.value)} />
                 </div>
-                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                <button className="btn btn-primary auth-submit" type="submit" disabled={loading}
+                  style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: '#111827', fontWeight: '800', width: '100%', padding: '14px 24px' }}>
+                  {config.button}
+                </button>
                 <p className="mini-note" style={{ marginTop: 8 }}>
                   Don't have an account?{' '}
                   <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
@@ -471,46 +520,69 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                 </p>
               </form>
             ) : (
-              <form className="form-grid" onSubmit={handleRegister}>
+              <form className="form-grid" onSubmit={otpSent ? handleRegister : handleGetOtp}>
                 <div className="field-row">
                   <div className="field">
                     <label htmlFor="reg-name">Full name</label>
-                    <input id="reg-name" type="text" placeholder="Your name" required
+                    <input id="reg-name" type="text" placeholder="Your name" required disabled={otpSent}
                       value={regFullName} onChange={e => setRegFullName(e.target.value)} />
                   </div>
                   <div className="field">
                     <label htmlFor="reg-phone">Phone</label>
-                    <input id="reg-phone" type="tel" placeholder="98XXXXXXXX" required
+                    <input id="reg-phone" type="tel" placeholder="98XXXXXXXX" required disabled={otpSent}
                       value={regPhone} onChange={e => setRegPhone(e.target.value)} />
                   </div>
                 </div>
                 <div className="field">
                   <label htmlFor="reg-email">Email</label>
-                  <input id="reg-email" type="email" placeholder="name@example.com" required
+                  <input id="reg-email" type="email" placeholder="name@example.com" required disabled={otpSent}
                     value={regEmail} onChange={e => setRegEmail(e.target.value)} />
                 </div>
                 <div className="field-row">
                   <div className="field">
                     <label htmlFor="reg-password">Password</label>
-                    <input id="reg-password" type="password" placeholder="Min 8 characters" required
+                    <input id="reg-password" type="password" placeholder="Min 8 characters" required disabled={otpSent}
                       value={regPassword} onChange={e => setRegPassword(e.target.value)} />
                   </div>
                   <div className="field">
                     <label htmlFor="reg-confirm">Confirm password</label>
-                    <input id="reg-confirm" type="password" placeholder="Repeat password" required
+                    <input id="reg-confirm" type="password" placeholder="Repeat password" required disabled={otpSent}
                       value={regConfirm} onChange={e => setRegConfirm(e.target.value)} />
                   </div>
                 </div>
                 <div className="field">
                   <label htmlFor="reg-address">Address <span style={{ color: 'var(--ink-soft)', fontWeight: 400 }}>(optional)</span></label>
-                  <input id="reg-address" type="text" placeholder="City or street"
+                  <input id="reg-address" type="text" placeholder="City or street" disabled={otpSent}
                     value={regAddress} onChange={e => setRegAddress(e.target.value)} />
                 </div>
-                <button className="btn btn-primary" type="submit" disabled={loading}>{config.button}</button>
+                
+                {otpSent && (
+                  <div className="field" style={{ animation: 'slideUp 0.3s ease' }}>
+                    <label htmlFor="reg-otp" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>6-Digit Verification Code</label>
+                    <input id="reg-otp" type="text" placeholder="------" required maxLength={6}
+                      value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))} 
+                      style={{ fontSize: '1.5rem', letterSpacing: '8px', textAlign: 'center', fontWeight: 'bold', border: '2px solid var(--primary)' }} />
+                    <p className="mini-note" style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                      <span>Didn't get the code or made a mistake?</span>
+                      <span style={{ display: 'flex', gap: '12px' }}>
+                        <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline', color: 'var(--accent)', fontWeight: 'bold' }}
+                          onClick={handleResendOtp} disabled={loading}>Resend code</button>
+                        <span style={{ color: 'var(--line)' }}>|</span>
+                        <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline', color: 'var(--muted)' }}
+                          onClick={() => setOtpSent(false)}>Edit details</button>
+                      </span>
+                    </p>
+                  </div>
+                )}
+
+                <button className="btn btn-primary auth-submit" type="submit" disabled={loading}
+                  style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: '#111827', fontWeight: '800', width: '100%', padding: '14px 24px' }}>
+                  {config.button}
+                </button>
                 <p className="mini-note" style={{ marginTop: 8 }}>
                   Already have an account?{' '}
                   <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: '0', textDecoration: 'underline' }}
-                    onClick={() => onNavigate("signin")}>Sign in</button>
+                    onClick={() => { setOtpSent(false); onNavigate("signin"); }}>Sign in</button>
                 </p>
               </form>
             )}
@@ -527,7 +599,7 @@ export function PublicPage({ route, config, onNavigate, publicNav }) {
       route={route}
       onNavigate={onNavigate}
       publicNav={publicNav}
-      footerText="\u00A9 2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
+      footerText="© 2026 AutoBolt. Vehicle Parts Selling and Inventory Management System. All rights reserved."
     >
       <section className="section public-page-section">
         <div className="grid-2 public-page-grid">

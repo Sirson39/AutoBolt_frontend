@@ -113,7 +113,7 @@ export default function App() {
 
   useEffect(() => {
     const isAdmin = route === 'admin' || route.startsWith('admin-');
-    const isAuth = route === 'signin' || route === 'signup';
+    const isAuth = route === 'signin' || route === 'signup' || route === 'forgot-password' || route === 'reset-password';
     const isPublic = route === 'home' || route === 'about' || route === 'contact' || route === 'customer-register';
 
     document.body.classList.toggle('admin-mode', isAdmin);
@@ -124,23 +124,48 @@ export default function App() {
   const onNavigate = (target) => { window.location.hash = target; };
 
   if (route === "signin" || route === "signup") {
-    return <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />
+      </>
+    );
   }
 
   if (route === "forgot-password") {
-    return <ForgotPasswordPage onNavigate={onNavigate} publicNav={publicNav} />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <ForgotPasswordPage onNavigate={onNavigate} publicNav={publicNav} />
+      </>
+    );
   }
 
   if (route === "reset-password") {
-    return <ResetPasswordPage onNavigate={onNavigate} publicNav={publicNav} />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <ResetPasswordPage onNavigate={onNavigate} publicNav={publicNav} />
+      </>
+    );
   }
 
   if (route === "change-password") {
-    return <ChangePasswordPage onNavigate={onNavigate} />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <ChangePasswordPage onNavigate={onNavigate} />
+      </>
+    );
   }
 
   if (route === "update-profile") {
-    return <UpdateProfilePage onNavigate={onNavigate} />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <UpdateProfilePage onNavigate={onNavigate} />
+      </>
+    );
   }
 
   const adminRoutes = {

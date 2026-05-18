@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { publicNav } from "../../data/siteContent";
 import { Metric } from "../../components/shared";
+import { ChevronRight } from "lucide-react";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
 
@@ -17,8 +18,8 @@ function Shell({ onNavigate, children }) {
             </div>
           </a>
           <nav className="header-nav" aria-label="Primary navigation">
-            {publicNav.map(([label, target]) => (
-              <a key={target} className="header-link" href={`#${target}`}>{label}</a>
+            {publicNav.filter(item => item.kind !== "action").map((item) => (
+              <a key={item.target} className="header-link" href={`#${item.target}`}>{item.label}</a>
             ))}
           </nav>
           <div className="header-actions">
@@ -63,10 +64,20 @@ export default function ResetPasswordPage({ onNavigate }) {
 
   return (
     <Shell onNavigate={onNavigate}>
-      <section className="section">
+      <section className="section auth-section">
         <div className="auth-layout">
-          <div className="hero-panel auth-panel">
-            <span className="eyebrow">Password recovery</span>
+          <div className="auth-panel auth-intro">
+            <a className="auth-back" href="#home" style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--accent)', marginBottom: '24px' }}>
+              <ChevronRight size={16} />
+              Back to home
+            </a>
+            <div className="auth-brand-line">
+              <div className="brand-mark">A</div>
+              <div className="brand-copy">
+                <div>AutoBolt</div>
+                <span>Vehicle Parts Management</span>
+              </div>
+            </div>
             <h1 style={{ marginTop: 18 }}>Set a new password.</h1>
             <p>Paste the reset token from the email you received, enter your new password, and confirm it below.</p>
             <div className="metrics">
@@ -81,7 +92,7 @@ export default function ResetPasswordPage({ onNavigate }) {
             </div>
           </div>
 
-          <div className="glass-panel auth-card">
+          <div className="auth-panel auth-form-panel">
             <h2 style={{ margin: "0 0 6px" }}>New password</h2>
             <p className="panel-copy">Enter your email, the token from the email, and your new password.</p>
 
@@ -95,9 +106,9 @@ export default function ResetPasswordPage({ onNavigate }) {
                   <span className="status good">Done</span>
                 </div>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary auth-submit"
                   type="button"
-                  style={{ width: '100%' }}
+                  style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: '#111827', fontWeight: '800', width: '100%', padding: '14px 24px' }}
                   onClick={() => onNavigate('signin')}
                 >
                   Sign in now
@@ -129,7 +140,8 @@ export default function ResetPasswordPage({ onNavigate }) {
                       value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
                   </div>
                 </div>
-                <button className="btn btn-primary" type="submit" disabled={loading}>
+                <button className="btn btn-primary auth-submit" type="submit" disabled={loading}
+                  style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: '#111827', fontWeight: '800', width: '100%', padding: '14px 24px', marginTop: '16px' }}>
                   {loading ? 'Resetting…' : 'Reset password'}
                 </button>
                 <p className="mini-note" style={{ marginTop: 8 }}>
