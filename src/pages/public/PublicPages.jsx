@@ -242,12 +242,6 @@ export function LandingPage({ route = "home", onNavigate, publicNav }) {
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </div>
-              <p className="panel-copy">Users can start from the landing page and move into sign in or sign up, then into the matching workspace.</p>
-              <div className="auth-meta">
-                <span className="status good">Ready</span>
-                <span className="status good">Connected</span>
-                <span className="status good">Responsive</span>
-              </div>
             </article>
           ))}
         </div>
