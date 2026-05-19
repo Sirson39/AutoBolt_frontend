@@ -163,7 +163,7 @@ export default function VerifyEmail({ onNavigate }) {
                 borderRadius: '16px', background: '#d95d39', color: '#fff', border: 'none',
                 cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 15px 30px -8px rgba(217, 93, 57, 0.4)'
               }}>
-                Activate Staff Access
+                Activate My Account
               </button>
             </form>
           </div>
@@ -180,7 +180,7 @@ export default function VerifyEmail({ onNavigate }) {
             </div>
             <h2 style={{ color: '#fff', fontSize: '2.25rem', fontWeight: '900', letterSpacing: '-0.02em' }}>Success!</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', marginTop: '1rem', lineHeight: '1.8', fontSize: '1.1rem' }}>
-              Your staff account is now fully active. You can now access your workspace and start managing operations.
+              Your AutoBolt account has been successfully configured and activated! You can now log in to access your dashboard portal.
             </p>
             <button 
               className="setup-btn" 
@@ -203,7 +203,7 @@ export default function VerifyEmail({ onNavigate }) {
             </div>
             <h2 style={{ color: '#fff', fontSize: '2.25rem', fontWeight: '900', letterSpacing: '-0.02em' }}>Invalid Link</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', marginTop: '1rem', lineHeight: '1.8', fontSize: '1.1rem' }}>
-              This verification link has expired or is invalid. Please contact your administrator to receive a new invitation.
+              This verification link has expired or is invalid. Please contact support or your administrator to receive a new invitation.
             </p>
             <button 
               className="setup-btn" 

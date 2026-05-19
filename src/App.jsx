@@ -170,7 +170,7 @@ export default function App() {
     );
   }
 
-  if (route === "update-profile" && getRole() !== 'Customer') {
+  if (route === "update-profile" && getRole() !== 'Customer' && getRole() !== 'Staff') {
     return (
       <>
         <Toaster position="top-right" reverseOrder={false} />
