@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../../utils/auth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { FileText, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import { FileText, ChevronDown, ChevronUp, ArrowLeft, Search, ArrowRight } from 'lucide-react';
 
 const STATUS_COLORS = {
   Paid:    { bg: '#dcfce7', color: '#166534' },
@@ -17,6 +17,9 @@ export default function MyServiceHistory({ onNavigate }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const load = async () => {
@@ -37,6 +40,19 @@ export default function MyServiceHistory({ onNavigate }) {
 
   const toggle = id => setExpanded(prev => (prev === id ? null : id));
 
+  const filteredInvoices = invoices.filter(inv => {
+    const q = searchQuery.toLowerCase();
+    return !q ||
+      String(inv.invoiceNumber || inv.id).toLowerCase().includes(q) ||
+      new Date(inv.invoiceDate).toLocaleDateString('en-GB').toLowerCase().includes(q) ||
+      inv.status?.toLowerCase().includes(q);
+  });
+
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--surface)', fontFamily: 'var(--font)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1.5rem' }}>
@@ -51,6 +67,24 @@ export default function MyServiceHistory({ onNavigate }) {
           <span style={{ marginLeft: 'auto', fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{invoices.length} invoice{invoices.length !== 1 ? 's' : ''}</span>
         </div>
 
+        {invoices.length > 0 && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', color: 'var(--ink-soft)' }} />
+              <input
+                type="text"
+                placeholder="Search by invoice number, date, or status..."
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{ flex: 1, border: 'none', outline: 'none', padding: '0.7rem 0.75rem 0.7rem 2.4rem', borderRadius: 8, fontSize: '0.9rem' }}
+              />
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="loading"><div className="spinner" /> Loading history...</div>
         ) : invoices.length === 0 ? (
@@ -58,9 +92,14 @@ export default function MyServiceHistory({ onNavigate }) {
             <FileText size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
             <p>No service history yet.</p>
           </div>
+        ) : filteredInvoices.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
+            <FileText size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+            <p>No invoices match your search.</p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {invoices.map(inv => {
+            {currentInvoices.map(inv => {
               const sc = STATUS_COLORS[inv.status] || STATUS_COLORS.Pending;
               const isOpen = expanded === inv.id;
               const itemCount = inv.items?.length || 0;
@@ -123,6 +162,34 @@ export default function MyServiceHistory({ onNavigate }) {
               );
             })}
           </div>
+          {filteredInvoices.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', marginTop: '1rem', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, filteredInvoices.length)} of {filteredInvoices.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         )}
       </div>
     </div>

@@ -7,6 +7,9 @@ bin/
 obj/
 .vs/
 
+# Ignore IDE metadata
+.idea/
+
 # Environment variables
 .env
 .env.local
