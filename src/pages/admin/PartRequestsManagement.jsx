@@ -1,23 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Search, Trash2, AlertCircle, X, Filter, ChevronDown } from 'lucide-react';
+import { Wrench, Search, Trash2, AlertCircle, X, Filter, ChevronDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
-import { exportToCSV } from '../../utils/exportUtils';
-import { ArrowLeft, ArrowRight, FileSpreadsheet } from 'lucide-react';
-
-const HighlightText = ({ text, highlight }) => {
-  if (!highlight?.trim() || !text) return <span>{text || '—'}</span>;
-  const regex = new RegExp(`(${highlight})`, 'gi');
-  const parts = text.toString().split(regex);
-  return (
-    <span>
-      {parts.map((part, i) =>
-        regex.test(part) ? <mark key={i} className="highlight" style={{ background: 'var(--brand-light)', color: 'var(--brand)', padding: '0 2px', borderRadius: '2px' }}>{part}</mark> : <span key={i}>{part}</span>
-      )}
-    </span>
-  );
-};
 
 const STATUS_STYLES = {
   Pending:      { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa' },
@@ -52,8 +37,6 @@ export default function PartRequestsManagement({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -95,14 +78,14 @@ export default function PartRequestsManagement({ onNavigate }) {
     }
   };
 
-  let displayed = requests.filter(r => {
-    const q = searchQuery.toLowerCase();
-    const matchSearch =
-      (r.partName || '').toLowerCase().includes(q) ||
-      (r.customerName || '').toLowerCase().includes(q) ||
-      (r.description || '').toLowerCase().includes(q);
+  const displayed = requests.filter(r => {
     const matchStatus = statusFilter === 'All' || r.status === statusFilter;
-    return matchSearch && matchStatus;
+    const q = searchQuery.toLowerCase();
+    const matchSearch = !q ||
+      r.partName?.toLowerCase().includes(q) ||
+      r.customerName?.toLowerCase().includes(q) ||
+      r.description?.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
   });
 
   const totalPages = Math.ceil(displayed.length / itemsPerPage);
@@ -130,9 +113,6 @@ export default function PartRequestsManagement({ onNavigate }) {
         </div>
         <div className="header-actions">
           <NotificationDropdown onNavigate={onNavigate} />
-          <button className="btn btn-ghost" onClick={() => exportToCSV(requests, 'Part_Requests')} style={{ borderRadius: 'var(--radius-sm)' }}>
-            <FileSpreadsheet size={18} /> Export CSV
-          </button>
         </div>
       </header>
 
@@ -145,7 +125,7 @@ export default function PartRequestsManagement({ onNavigate }) {
                 type="text"
                 placeholder="Search by part name, customer, description..."
                 value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -153,7 +133,7 @@ export default function PartRequestsManagement({ onNavigate }) {
               <select
                 className="form-input"
                 value={statusFilter}
-                onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                onChange={e => setStatusFilter(e.target.value)}
                 style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
               >
                 {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -187,15 +167,15 @@ export default function PartRequestsManagement({ onNavigate }) {
               </thead>
               <tbody>
                 {currentRequests.map(r => (
-                  <tr key={r.id} style={{ transition: 'all 0.2s ease' }}>
-                    <td style={{ fontWeight: '800' }}><HighlightText text={r.partName} highlight={searchQuery} /></td>
-                    <td style={{ fontWeight: '600' }}><HighlightText text={r.customerName} highlight={searchQuery} /></td>
+                  <tr key={r.id}>
+                    <td style={{ fontWeight: '800' }}>{r.partName}</td>
+                    <td style={{ fontWeight: '600' }}>{r.customerName || '—'}</td>
                     <td>{r.quantity}</td>
                     <td style={{
                       color: 'var(--ink-soft)', fontSize: '0.85rem',
                       maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                     }}>
-                      <HighlightText text={r.description} highlight={searchQuery} />
+                      {r.description || '—'}
                     </td>
                     <td style={{ fontSize: '0.85rem' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
                     <td><StatusBadge status={r.status} /></td>
@@ -231,52 +211,29 @@ export default function PartRequestsManagement({ onNavigate }) {
           )}
 
           {displayed.length > 0 && (
-            <div className="pagination" style={{ borderTop: '1px solid var(--border)', padding: '1.25rem 1.5rem', background: 'var(--surface-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing <span style={{ color: 'var(--ink)' }}>{indexOfFirstItem + 1}</span> to <span style={{ color: 'var(--ink)' }}>{Math.min(indexOfLastItem, displayed.length)}</span> of {displayed.length}
+                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, displayed.length)} of {displayed.length}
               </span>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                  style={{ padding: '0.4rem 0.6rem' }}
                 >
-                  <ArrowLeft size={14} style={{ marginRight: '6px' }} /> Prev
+                  <ArrowLeft size={16} />
                 </button>
-                
-                {totalPages > 1 && (
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '8px',
-                          border: 'none',
-                          background: currentPage === page ? 'var(--brand)' : 'transparent',
-                          color: currentPage === page ? '#fff' : 'var(--ink-soft)',
-                          fontWeight: '700',
-                          fontSize: '0.8rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        {page}
-                      </button>
-                    )).slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))}
-                  </div>
-                )}
-
-                <button 
-                  className="btn btn-ghost btn-sm" 
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages || totalPages === 0}
-                  style={{ borderRadius: '8px', padding: '0.5rem 1rem' }}
+                  disabled={currentPage === totalPages}
+                  style={{ padding: '0.4rem 0.6rem' }}
                 >
-                  Next <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </div>
