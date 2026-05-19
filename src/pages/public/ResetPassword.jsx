@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { publicNav } from "../../data/siteContent";
 import { Metric } from "../../components/shared";
-import { ChevronRight } from "lucide-react";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
 
@@ -67,10 +66,6 @@ export default function ResetPasswordPage({ onNavigate }) {
       <section className="section auth-section">
         <div className="auth-layout">
           <div className="auth-panel auth-intro">
-            <a className="auth-back" href="#home" style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--accent)', marginBottom: '24px' }}>
-              <ChevronRight size={16} />
-              Back to home
-            </a>
             <div className="auth-brand-line">
               <div className="brand-mark">A</div>
               <div className="brand-copy">
@@ -144,12 +139,12 @@ export default function ResetPasswordPage({ onNavigate }) {
                   style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: '#111827', fontWeight: '800', width: '100%', padding: '14px 24px', marginTop: '16px' }}>
                   {loading ? 'Resetting…' : 'Reset password'}
                 </button>
-                <p className="mini-note" style={{ marginTop: 8 }}>
-                  <button type="button" className="btn btn-ghost" style={{ fontSize: 'inherit', padding: 0, textDecoration: 'underline' }}
-                    onClick={() => onNavigate('signin')}>
-                    Back to sign in
+                <div className="auth-footer-note" style={{ marginTop: 10 }}>
+                  <span>Remembered your password?</span>
+                  <button type="button" className="text-link" onClick={() => onNavigate('signin')}>
+                    Sign in
                   </button>
-                </p>
+                </div>
               </form>
             )}
           </div>
