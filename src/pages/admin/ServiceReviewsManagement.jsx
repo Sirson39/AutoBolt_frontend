@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Search, Trash2, AlertCircle, Filter } from 'lucide-react';
+import { Star, Search, Trash2, AlertCircle, Filter, ArrowLeft, ArrowRight } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -26,6 +26,8 @@ export default function ServiceReviewsManagement({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [ratingFilter, setRatingFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchData = async () => {
@@ -62,6 +64,11 @@ export default function ServiceReviewsManagement({ onNavigate }) {
       r.comment?.toLowerCase().includes(q);
     return matchRating && matchSearch;
   });
+
+  const totalPages = Math.ceil(displayed.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentReviews = displayed.slice(indexOfFirstItem, indexOfLastItem);
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
@@ -142,7 +149,7 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                 </tr>
               </thead>
               <tbody>
-                {displayed.map(r => (
+                {currentReviews.map(r => (
                   <tr key={r.id}>
                     <td style={{ fontWeight: '700' }}>{r.customerName || '—'}</td>
                     <td>
@@ -184,6 +191,35 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                 ))}
               </tbody>
             </table>
+          )}
+
+          {displayed.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, displayed.length)} of {displayed.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

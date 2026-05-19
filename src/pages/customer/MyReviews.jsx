@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../../utils/auth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { Star, Plus, ArrowLeft } from 'lucide-react';
+import { Star, Plus, ArrowLeft, Search, ArrowRight } from 'lucide-react';
 
 const EMPTY_FORM = { rating: 5, comment: '', invoiceId: '' };
 
@@ -25,6 +25,9 @@ export default function MyReviews({ onNavigate }) {
   const [reviews, setReviews] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -51,6 +54,17 @@ export default function MyReviews({ onNavigate }) {
 
   const openModal = () => { setForm(EMPTY_FORM); setShowModal(true); };
   const closeModal = () => setShowModal(false);
+
+  const filteredReviews = reviews.filter(r => {
+    const q = searchQuery.toLowerCase();
+    return !q ||
+      r.comment?.toLowerCase().includes(q);
+  });
+
+  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentReviews = filteredReviews.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -97,6 +111,24 @@ export default function MyReviews({ onNavigate }) {
           </button>
         </div>
 
+        {reviews.length > 0 && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', color: 'var(--ink-soft)' }} />
+              <input
+                type="text"
+                placeholder="Search by comment..."
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{ flex: 1, border: 'none', outline: 'none', padding: '0.7rem 0.75rem 0.7rem 2.4rem', borderRadius: 8, fontSize: '0.9rem' }}
+              />
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="loading"><div className="spinner" /> Loading reviews...</div>
         ) : reviews.length === 0 ? (
@@ -104,9 +136,14 @@ export default function MyReviews({ onNavigate }) {
             <Star size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
             <p>No reviews yet. Share your experience with our service.</p>
           </div>
+        ) : filteredReviews.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
+            <Star size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+            <p>No reviews match your search.</p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {reviews.map(r => (
+            {currentReviews.map(r => (
               <div key={r.id} style={{ background: '#fff', borderRadius: 12, padding: '1.25rem 1.5rem', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -124,6 +161,34 @@ export default function MyReviews({ onNavigate }) {
               </div>
             ))}
           </div>
+          {filteredReviews.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', marginTop: '1rem', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, filteredReviews.length)} of {filteredReviews.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         )}
       </div>
 

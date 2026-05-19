@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../../utils/auth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { Car, Plus, ArrowLeft } from 'lucide-react';
+import { Car, Plus, ArrowLeft, Search, ArrowRight } from 'lucide-react';
 
 const PLATE_TYPES = [
   { value: 0, label: 'Private' },
@@ -18,6 +18,9 @@ export default function MyVehicles({ onNavigate }) {
 
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -39,6 +42,20 @@ export default function MyVehicles({ onNavigate }) {
 
   const openModal = () => { setForm(EMPTY_FORM); setShowModal(true); };
   const closeModal = () => setShowModal(false);
+
+  const filteredVehicles = vehicles.filter(v => {
+    const q = searchQuery.toLowerCase();
+    return !q ||
+      v.licensePlate?.toLowerCase().includes(q) ||
+      v.make?.toLowerCase().includes(q) ||
+      v.model?.toLowerCase().includes(q) ||
+      String(v.year).includes(q);
+  });
+
+  const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentVehicles = filteredVehicles.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -84,6 +101,24 @@ export default function MyVehicles({ onNavigate }) {
           </button>
         </div>
 
+        {vehicles.length > 0 && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', color: 'var(--ink-soft)' }} />
+              <input
+                type="text"
+                placeholder="Search by plate, make, model, or year..."
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{ flex: 1, border: 'none', outline: 'none', padding: '0.7rem 0.75rem 0.7rem 2.4rem', borderRadius: 8, fontSize: '0.9rem' }}
+              />
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="loading"><div className="spinner" /> Loading vehicles...</div>
         ) : vehicles.length === 0 ? (
@@ -91,9 +126,14 @@ export default function MyVehicles({ onNavigate }) {
             <Car size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
             <p>No vehicles registered. Add your vehicle to book services and track history.</p>
           </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
+            <Car size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+            <p>No vehicles match your search.</p>
+          </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
-            {vehicles.map(v => (
+            {currentVehicles.map(v => (
               <div key={v.id} style={{ background: '#fff', borderRadius: 14, padding: '1.25rem 1.5rem', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
@@ -111,7 +151,35 @@ export default function MyVehicles({ onNavigate }) {
               </div>
             ))}
           </div>
-        )}
+          {filteredVehicles.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', marginTop: '1rem', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, filteredVehicles.length)} of {filteredVehicles.length}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+        )}}
       </div>
 
       {showModal && (

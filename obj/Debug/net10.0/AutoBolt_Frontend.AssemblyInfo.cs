@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoBolt_Frontend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f11333921207a2316906695e3f407f6a70365c01")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b233cb4817c4ea967642aaaebcc05c537902c42")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoBolt_Frontend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoBolt_Frontend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

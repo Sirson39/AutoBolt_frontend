@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../../utils/auth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { CalendarDays, Plus, ArrowLeft } from 'lucide-react';
+import { CalendarDays, Plus, ArrowLeft, Search, ArrowRight } from 'lucide-react';
 
 const STATUS_COLORS = {
   Pending:     { bg: '#fef9c3', color: '#854d0e', border: '#fde047' },
@@ -21,6 +21,9 @@ export default function MyBookings({ onNavigate }) {
   const [bookings, setBookings] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -46,6 +49,19 @@ export default function MyBookings({ onNavigate }) {
 
   const openModal = () => { setForm(EMPTY_FORM); setShowModal(true); };
   const closeModal = () => setShowModal(false);
+
+  const filteredBookings = bookings.filter(b => {
+    const q = searchQuery.toLowerCase();
+    return !q ||
+      b.vehiclePlate?.toLowerCase().includes(q) ||
+      b.description?.toLowerCase().includes(q) ||
+      new Date(b.serviceDate).toLocaleDateString('en-GB').toLowerCase().includes(q);
+  });
+
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBookings = filteredBookings.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -88,12 +104,35 @@ export default function MyBookings({ onNavigate }) {
           </button>
         </div>
 
+        {bookings.length > 0 && (
+          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', color: 'var(--ink-soft)' }} />
+              <input
+                type="text"
+                placeholder="Search by vehicle, date, or description..."
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{ flex: 1, border: 'none', outline: 'none', padding: '0.7rem 0.75rem 0.7rem 2.4rem', borderRadius: 8, fontSize: '0.9rem' }}
+              />
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="loading"><div className="spinner" /> Loading bookings...</div>
         ) : bookings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
             <CalendarDays size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
             <p>No bookings yet. Book your first appointment above.</p>
+          </div>
+        ) : filteredBookings.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
+            <CalendarDays size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+            <p>No bookings match your search.</p>
           </div>
         ) : (
           <div className="table-wrap">
@@ -107,7 +146,7 @@ export default function MyBookings({ onNavigate }) {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map(b => {
+                {currentBookings.map(b => {
                   const sc = STATUS_COLORS[b.status] || STATUS_COLORS.Pending;
                   return (
                     <tr key={b.id}>
@@ -124,6 +163,34 @@ export default function MyBookings({ onNavigate }) {
                 })}
               </tbody>
             </table>
+            {filteredBookings.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderTop: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                  Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, filteredBookings.length)} of {filteredBookings.length}
+                </span>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{ padding: '0.4rem 0.6rem' }}
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{ padding: '0.4rem 0.6rem' }}
+                  >
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
