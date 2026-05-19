@@ -110,23 +110,22 @@ export default function MyPartRequests({ onNavigate }) {
 
   // Add Part to Cart
   const addToCart = (part) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === part.id);
-      if (existing) {
-        toast.success(`Incremented quantity of ${part.name} in your request cart!`, { icon: '🛒' });
-        return prev.map(item => 
-          item.id === part.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
+    const existing = cart.find(item => item.id === part.id);
+    if (existing) {
+      toast.success(`Incremented quantity of ${part.name} in your request cart!`, { icon: '🛒' });
+      setCart(prev => prev.map(item =>
+        item.id === part.id ? { ...item, quantity: item.quantity + 1 } : item
+      ));
+    } else {
       toast.success(`${part.name} added to your request cart!`, { icon: '🛒' });
-      return [...prev, {
+      setCart(prev => [...prev, {
         id: part.id,
         name: part.name,
         price: part.price,
         imageUrl: part.imageUrl,
         quantity: 1
-      }];
-    });
+      }]);
+    }
   };
 
   // Update Cart Quantity
