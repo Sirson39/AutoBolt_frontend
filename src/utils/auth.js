@@ -18,6 +18,6 @@ export const clearAuth = () => {
   localStorage.removeItem(USER_KEY);
 };
 
-export const isAuthenticated = () => !!getToken();
+export const isAuthenticated = () => !!getToken() && !!getRole();
 
 export const getRole = () => getUser()?.role || null;

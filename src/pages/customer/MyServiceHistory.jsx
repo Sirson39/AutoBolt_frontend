@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../../utils/auth';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { FileText, ChevronDown, ChevronUp, ArrowLeft, Search, ArrowRight } from 'lucide-react';
+import { FileText, ChevronDown, ChevronUp, ArrowLeft, Star } from 'lucide-react';
 
 const STATUS_COLORS = {
   Paid:    { bg: '#dcfce7', color: '#166534' },
@@ -17,9 +17,6 @@ export default function MyServiceHistory({ onNavigate }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
 
   useEffect(() => {
     const load = async () => {
@@ -40,84 +37,55 @@ export default function MyServiceHistory({ onNavigate }) {
 
   const toggle = id => setExpanded(prev => (prev === id ? null : id));
 
-  const filteredInvoices = invoices.filter(inv => {
-    const q = searchQuery.toLowerCase();
-    return !q ||
-      String(inv.invoiceNumber || inv.id).toLowerCase().includes(q) ||
-      new Date(inv.invoiceDate).toLocaleDateString('en-GB').toLowerCase().includes(q) ||
-      inv.status?.toLowerCase().includes(q);
-  });
-
-  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
-
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--surface)', fontFamily: 'var(--font)' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <button className="btn btn-secondary" onClick={() => onNavigate('customer')} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <ArrowLeft size={16} /> Dashboard
-          </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <FileText size={22} color="var(--primary)" />
+    <div style={{ animation: 'fadeIn 0.5s ease' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingLeft: '0.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <FileText size={20} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>Service History</h1>
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', fontWeight: '600' }}>View past invoice records, billing breakdowns, and service details</span>
           </div>
-          <span style={{ marginLeft: 'auto', fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{invoices.length} invoice{invoices.length !== 1 ? 's' : ''}</span>
         </div>
+        <span style={{ marginLeft: 'auto', fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+          {invoices.length} Invoice{invoices.length !== 1 ? 's' : ''}
+        </span>
+      </div>
 
-        {invoices.length > 0 && (
-          <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
-            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', color: 'var(--ink-soft)' }} />
-              <input
-                type="text"
-                placeholder="Search by invoice number, date, or status..."
-                value={searchQuery}
-                onChange={e => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                style={{ flex: 1, border: 'none', outline: 'none', padding: '0.7rem 0.75rem 0.7rem 2.4rem', borderRadius: 8, fontSize: '0.9rem' }}
-              />
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="loading"><div className="spinner" /> Loading history...</div>
-        ) : invoices.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
-            <FileText size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-            <p>No service history yet.</p>
-          </div>
-        ) : filteredInvoices.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)' }}>
-            <FileText size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-            <p>No invoices match your search.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {currentInvoices.map(inv => {
-              const sc = STATUS_COLORS[inv.status] || STATUS_COLORS.Pending;
-              const isOpen = expanded === inv.id;
-              const itemCount = inv.items?.length || 0;
-              return (
-                <div key={inv.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+      {loading ? (
+        <div className="loading"><div className="spinner" /> Loading history...</div>
+      ) : invoices.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ink-soft)', background: '#fff', borderRadius: 14, border: '1px solid var(--border)' }}>
+          <FileText size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+          <p>No service history yet.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {invoices.map(inv => {
+            const sc = STATUS_COLORS[inv.status] || STATUS_COLORS.Pending;
+            const isOpen = expanded === inv.id;
+            const itemCount = inv.items?.length || 0;
+            return (
+              <div key={inv.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
                   <button
                     onClick={() => toggle(inv.id)}
                     style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', textAlign: 'left' }}
                   >
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Invoice #{inv.invoiceNumber || inv.id}</span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginRight: '3rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--ink)' }}>Invoice #{inv.invoiceNumber || inv.id}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
                         {new Date(inv.invoiceDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
-                      <span style={{ padding: '2px 10px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, background: sc.bg, color: sc.color }}>
+                      <span style={{ 
+                        padding: '3px 12px', borderRadius: 99, fontSize: '0.72rem', fontWeight: '800', 
+                        background: sc.bg, color: sc.color, border: '1px solid currentColor',
+                        textTransform: 'uppercase', letterSpacing: '0.5px' 
+                      }}>
                         {inv.status}
                       </span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{itemCount} item{itemCount !== 1 ? 's' : ''}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>{itemCount} Item{itemCount !== 1 ? 's' : ''}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span style={{ fontWeight: 800, fontSize: '1rem' }}>Rs. {(inv.totalAmount || 0).toLocaleString()}</span>
@@ -151,47 +119,37 @@ export default function MyServiceHistory({ onNavigate }) {
                           </tbody>
                         </table>
                       )}
-                      {inv.discountAmount > 0 && (
-                        <div style={{ marginTop: '0.75rem', textAlign: 'right', fontSize: '0.85rem', color: '#16a34a' }}>
-                          Loyalty Discount: −Rs. {inv.discountAmount?.toLocaleString()}
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border)' }}>
+                        {inv.status === 'Paid' ? (
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onNavigate(`customer-reviews?invoiceId=${inv.id}`);
+                            }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: '0.8rem', fontWeight: '800', borderRadius: 'var(--radius-sm)' }}
+                          >
+                            <Star size={14} fill="var(--brand)" color="var(--brand)" /> Review This Service
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.78rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
+                            * Pay this invoice to submit a service review
+                          </span>
+                        )}
+                        
+                        {inv.discountAmount > 0 && (
+                          <div style={{ fontSize: '0.82rem', color: '#16a34a', fontWeight: '700' }}>
+                            Loyalty Discount: −Rs. {inv.discountAmount?.toLocaleString()}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
-          {filteredInvoices.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', marginTop: '1rem', background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, filteredInvoices.length)} of {filteredInvoices.length}
-              </span>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  style={{ padding: '0.4rem 0.6rem' }}
-                >
-                  <ArrowLeft size={16} />
-                </button>
-                <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', fontWeight: '600' }}>
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  style={{ padding: '0.4rem 0.6rem' }}
-                >
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
         )}
       </div>
-    </div>
-  );
-}
+    );
+  }

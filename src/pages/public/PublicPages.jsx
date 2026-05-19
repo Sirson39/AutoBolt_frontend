@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { setAuth } from "../../utils/auth";
 import axios from "axios";
 import toast from "react-hot-toast";
 import {
@@ -368,19 +369,16 @@ function getRouteForRole(role) {
 }
 
 function storeAuthSession(responseData) {
-  const session = {
-    token: responseData?.token || "",
-    role: responseData?.role || "",
-    fullName: responseData?.fullName || "",
-    email: responseData?.email || "",
-    expiry: responseData?.expiry || ""
-  };
-
-  if (session.token) {
-    localStorage.setItem("autobolt_auth", JSON.stringify(session));
-    localStorage.setItem("autobolt_token", session.token);
-    localStorage.setItem("autobolt_role", session.role);
-    axios.defaults.headers.common.Authorization = `Bearer ${session.token}`;
+  if (responseData?.token) {
+    setAuth({
+      token: responseData.token,
+      role: responseData.role || "",
+      fullName: responseData.fullName || "",
+      email: responseData.email || "",
+      expiry: responseData.expiry || "",
+      customerId: responseData.customerId || null
+    });
+    axios.defaults.headers.common.Authorization = `Bearer ${responseData.token}`;
   }
 }
 

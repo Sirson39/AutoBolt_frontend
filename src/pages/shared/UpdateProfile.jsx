@@ -42,11 +42,13 @@ export default function UpdateProfilePage({ onNavigate }) {
   };
 
   return (
-    <div className="page-content">
-      <div className="top-header">
-        <div>
-          <div className="page-heading">Update Profile</div>
-          <div className="page-subtitle">Edit your name and phone number.</div>
+    <>
+      <header className="top-header">
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="page-title">My Profile</span>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', marginTop: '4px' }}>Edit your name and phone number.</p>
         </div>
         <div className="header-actions">
           <button
@@ -57,7 +59,9 @@ export default function UpdateProfilePage({ onNavigate }) {
             Back to Dashboard
           </button>
         </div>
-      </div>
+      </header>
+
+      <div className="page-content">
 
       <div style={{ maxWidth: 520, margin: '0 auto' }}>
         <div className="table-card" style={{ padding: '28px 32px' }}>
@@ -115,5 +119,6 @@ export default function UpdateProfilePage({ onNavigate }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
