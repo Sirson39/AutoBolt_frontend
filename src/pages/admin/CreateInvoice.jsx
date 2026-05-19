@@ -36,9 +36,11 @@ export default function CreateInvoice({ onNavigate }) {
     loyaltyDiscount: 10
   });
 
+  const taxRate = 0.13;
   const subTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const loyaltyDiscount = subTotal > shopSettings.loyaltyThreshold ? subTotal * (shopSettings.loyaltyDiscount / 100) : 0;
-  const total = subTotal - loyaltyDiscount;
+  const taxAmount = (subTotal - loyaltyDiscount) * taxRate;
+  const total = subTotal - loyaltyDiscount + taxAmount;
 
   useEffect(() => {
     try {
@@ -135,6 +137,7 @@ export default function CreateInvoice({ onNavigate }) {
         customerId: selectedCustomer.id,
         vehicleId: selectedVehicle.id,
         status: status,
+        taxRate: taxRate,
         items: cart.map(item => ({
           partId: item.id,
           quantity: item.quantity
@@ -413,6 +416,11 @@ export default function CreateInvoice({ onNavigate }) {
             </div>
           )}
 
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+            <span>VAT / Tax (13%)</span>
+            <span style={{ fontWeight: '700', color: 'var(--ink)' }}>+ Rs {taxAmount.toFixed(2)}</span>
+          </div>
+
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', padding: '1rem 0', borderTop: '2px dashed var(--border)', fontSize: '1.3rem', fontWeight: '900', color: 'var(--ink)' }}>
             <span>Total</span>
             <span style={{ color: 'var(--brand)' }}>Rs {total.toFixed(2)}</span>
@@ -488,6 +496,12 @@ export default function CreateInvoice({ onNavigate }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', color: '#000' }}>
                   <span>Discount ({shopSettings.loyaltyDiscount}%)</span>
                   <span style={{ fontWeight: '700' }}>-Rs {createdInvoice.discountAmount.toLocaleString()}</span>
+                </div>
+              )}
+              {createdInvoice.taxAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', color: '#555' }}>
+                  <span>VAT / Tax (13%)</span>
+                  <span style={{ fontWeight: '700' }}>+Rs {createdInvoice.taxAmount.toLocaleString()}</span>
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderTop: '1px solid #000', marginTop: '0.5rem', fontWeight: '900', fontSize: '1.1rem' }}>
