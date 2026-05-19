@@ -2,65 +2,82 @@ import React from "react";
 import { KpiCard, priorityText } from "../../components/shared";
 
 export default function RoleDashboardView({ role, data, onNavigate, onLogout, currentUser, children }) {
-  const title = role === "admin" ? "Admin dashboard" : role === "staff" ? "Staff dashboard" : "Customer dashboard";
+  const title = role === "admin" ? "Admin Panel" : role === "staff" ? "Staff Panel" : "Customer Panel";
+
+  const getGreeting = () => {
+    const hrs = new Date().getHours();
+    if (hrs < 12) return 'Good morning';
+    if (hrs < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   return (
     <>
-      <header className="site-header">
-        <div className="header-inner">
-          <a className="brand" href="#home" aria-label="AutoBolt home">
-            <div className="brand-mark">A</div>
-            <div className="brand-copy">
-              <div>AutoBolt</div>
-              <span>Vehicle Parts Management</span>
-            </div>
-          </a>
-          <nav className="header-nav" aria-label="Primary navigation">
-            <a className="header-link" href="#home">Landing</a>
-            <a className="header-link" href="#signin">Sign In</a>
-            <a className="header-link" href="#signup">Sign Up</a>
-            <a className={`header-link ${role === "admin" ? "active" : ""}`} href="#admin">Admin</a>
-            <a className={`header-link ${role === "staff" ? "active" : ""}`} href="#staff">Staff</a>
-            <a className={`header-link ${role === "customer" ? "active" : ""}`} href="#customer">Customer</a>
-          </nav>
-          <div className="header-actions">
-            {currentUser && <span style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{currentUser.fullName}</span>}
-            <button className="btn btn-secondary" type="button" onClick={onLogout ?? (() => onNavigate("signin"))}>Sign out</button>
-            <button className="btn btn-primary" type="button" onClick={() => onNavigate("home")}>Back to landing</button>
-          </div>
-        </div>
-      </header>
-
       <main className="page-shell">
         <section className="dashboard-shell">
-          <aside className="sidebar">
-            <div className="brand" style={{ marginBottom: 16 }}>
+          <aside className="sidebar no-print">
+            <div className="brand" style={{ marginBottom: 24 }}>
               <div className="brand-mark">A</div>
               <div className="brand-copy">
-                <div>{title}</div>
-                <span>Role preview</span>
+                <div>AutoBolt</div>
+                <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{title}</span>
               </div>
             </div>
-            <p className="subtle">{data.subtitle}</p>
+            
             <div className="sidebar-section">
-              <a className="sidebar-link active" href={`#${role}`}><span className="dot"></span> Overview</a>
-              <a className="sidebar-link" href={`#${role}`}><span className="dot"></span> Activities</a>
-              <a className="sidebar-link" href={`#${role}`}><span className="dot"></span> Reports</a>
-              <a className="sidebar-link" href={`#${role}`}><span className="dot"></span> Messages</a>
-              <a className="sidebar-link" href="#home"><span className="dot"></span> Back to landing</a>
+              <p style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 800, margin: '0 0 10px 10px', letterSpacing: '0.05em' }}>Overview</p>
+              <button className="sidebar-link active" onClick={() => onNavigate('customer')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> Dashboard
+              </button>
+
+              <p style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 800, margin: '20px 0 10px 10px', letterSpacing: '0.05em' }}>My Services</p>
+              <button className="sidebar-link" onClick={() => onNavigate('customer-bookings')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> My Bookings
+              </button>
+              <button className="sidebar-link" onClick={() => onNavigate('customer-part-requests')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> Part Requests
+              </button>
+              <button className="sidebar-link" onClick={() => onNavigate('customer-reviews')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> Service Reviews
+              </button>
+              <button className="sidebar-link" onClick={() => onNavigate('customer-vehicles')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> My Vehicles
+              </button>
+              <button className="sidebar-link" onClick={() => onNavigate('customer-history')} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <span className="dot"></span> Service History
+              </button>
+            </div>
+
+            <div style={{ marginTop: 'auto', padding: '16px 12px 12px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              {currentUser && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.95)', fontWeight: 700, marginBottom: 2 }}>
+                    {currentUser.fullName}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {currentUser.email}
+                  </div>
+                </div>
+              )}
+              <button
+                className="sidebar-link"
+                style={{ color: '#e53e3e', width: '100%', border: 'none', background: 'none', textAlign: 'left', display: 'flex', alignItems: 'center', cursor: 'pointer', paddingLeft: 8 }}
+                onClick={onLogout}
+              >
+                Logout
+              </button>
             </div>
           </aside>
 
           <main className="dashboard-main">
             <div className="dashboard-top">
               <div>
-                <span className="eyebrow">{role.charAt(0).toUpperCase() + role.slice(1)} workspace</span>
-                <h1 className="dashboard-title">{data.title}</h1>
-                <p className="section-copy">{data.subtitle}</p>
+                <span className="eyebrow" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{role.toUpperCase()} WORKSPACE</span>
+                <h1 className="dashboard-title">{getGreeting()}, {currentUser?.fullName?.split(' ')[0] || 'User'} 👋</h1>
+                <p className="section-copy" style={{ marginTop: 4 }}>• LIVE SYSTEM • {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
               </div>
               <div className="header-actions">
-                <button className="btn btn-secondary" type="button" onClick={onLogout ?? (() => onNavigate("signin"))}>Sign out</button>
-                <button className="btn btn-primary" type="button" onClick={() => onNavigate("home")}>Back to landing</button>
+                <button className="btn btn-secondary" type="button" onClick={() => onNavigate("home")}>Back to landing</button>
               </div>
             </div>
 

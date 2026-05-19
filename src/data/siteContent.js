@@ -348,6 +348,15 @@ export const staffPages = {
     highlight: "Insight ready",
     highlightText: "Use this report page to understand service load, repeat customers, and billing progress at a glance.",
     reports: true
+  },
+  "update-profile": {
+    title: "Staff Profile",
+    subtitle: "My Account Details",
+    badge: "Profile",
+    hero: "Manage your staff credentials and security settings.",
+    highlight: "Ready",
+    highlightText: "Update your full name, phone number, and security password below.",
+    profile: true
   }
 };
 

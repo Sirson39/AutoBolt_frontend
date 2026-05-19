@@ -8,9 +8,9 @@ export const getUser = () => {
   catch { return null; }
 };
 
-export const setAuth = ({ token, role, fullName, email, expiry }) => {
+export const setAuth = ({ token, role, fullName, email, expiry, customerId }) => {
   localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify({ role, fullName, email, expiry }));
+  localStorage.setItem(USER_KEY, JSON.stringify({ role, fullName, email, expiry, customerId: customerId ?? null }));
 };
 
 export const clearAuth = () => {

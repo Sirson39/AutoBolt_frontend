@@ -17,6 +17,8 @@ export default function UpdateProfilePage({ onNavigate }) {
   }
 
   const isAdmin = currentUser?.role === 'Admin';
+  const isStaff = currentUser?.role === 'Staff';
+  const dashboardRoute = isAdmin ? 'admin' : (isStaff ? 'staff' : 'customer');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export default function UpdateProfilePage({ onNavigate }) {
           <button
             className="btn btn-secondary"
             type="button"
-            onClick={() => onNavigate(isAdmin ? 'admin' : 'staff-dashboard')}
+            onClick={() => onNavigate(dashboardRoute)}
           >
             Back to Dashboard
           </button>
@@ -104,7 +106,7 @@ export default function UpdateProfilePage({ onNavigate }) {
               <button
                 className="btn btn-secondary"
                 type="button"
-                onClick={() => onNavigate(isAdmin ? 'admin' : 'staff-dashboard')}
+                onClick={() => onNavigate(dashboardRoute)}
               >
                 Cancel
               </button>

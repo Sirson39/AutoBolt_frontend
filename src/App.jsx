@@ -29,12 +29,14 @@ import PartRequestsManagement from "./pages/admin/PartRequestsManagement";
 import ServiceReviewsManagement from "./pages/admin/ServiceReviewsManagement";
 import { Toaster } from "react-hot-toast";
 import VerifyEmail from "./pages/public/VerifyEmail";
+import CustomerLayout from "./components/CustomerLayout";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import MyBookings from "./pages/customer/MyBookings";
 import MyPartRequests from "./pages/customer/MyPartRequests";
 import MyReviews from "./pages/customer/MyReviews";
 import MyVehicles from "./pages/customer/MyVehicles";
 import MyServiceHistory from "./pages/customer/MyServiceHistory";
+import CustomerProfile from "./pages/customer/CustomerProfile";
 import { isAuthenticated, getRole } from "./utils/auth";
 
 const PROTECTED_PREFIXES = ['admin', 'staff', 'customer'];
@@ -112,11 +114,11 @@ export default function App() {
   }, [route]);
 
   useEffect(() => {
-    const isAdmin = route === 'admin' || route.startsWith('admin-');
-    const isAuth = route === 'signin' || route === 'signup' || route === 'forgot-password' || route === 'reset-password';
+    const isDashboard = route === 'admin' || route.startsWith('admin-') || route === 'customer' || route.startsWith('customer-');
+    const isAuth = route === 'signin' || route === 'signup' || route === 'forgot-password' || route === 'reset-password' || route === 'verify-email';
     const isPublic = route === 'home' || route === 'about' || route === 'contact' || route === 'customer-register';
 
-    document.body.classList.toggle('admin-mode', isAdmin);
+    document.body.classList.toggle('admin-mode', isDashboard);
     document.body.classList.toggle('auth-page', isAuth);
     document.body.classList.toggle('public-page', isPublic);
   }, [route]);
@@ -128,6 +130,15 @@ export default function App() {
       <>
         <Toaster position="top-right" reverseOrder={false} />
         <AuthPage mode={route} onNavigate={onNavigate} publicNav={publicNav} />
+      </>
+    );
+  }
+
+  if (route === "verify-email") {
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <VerifyEmail onNavigate={onNavigate} />
       </>
     );
   }
@@ -159,7 +170,7 @@ export default function App() {
     );
   }
 
-  if (route === "update-profile") {
+  if (route === "update-profile" && getRole() !== 'Customer' && getRole() !== 'Staff') {
     return (
       <>
         <Toaster position="top-right" reverseOrder={false} />
@@ -196,6 +207,7 @@ export default function App() {
     "customer-reviews": <MyReviews onNavigate={onNavigate} />,
     "customer-vehicles": <MyVehicles onNavigate={onNavigate} />,
     "customer-history": <MyServiceHistory onNavigate={onNavigate} />,
+    "update-profile": <CustomerProfile onNavigate={onNavigate} />,
   };
 
   return (
@@ -203,10 +215,10 @@ export default function App() {
       <Toaster position="top-right" reverseOrder={false} />
       {adminRoutes[route] ? (
         <AdminLayout onNavigate={onNavigate}>{adminRoutes[route]}</AdminLayout>
-      ) : customerRoutes[route] && getRole() === 'Customer' ? (
-        customerRoutes[route]
-      ) : route === "customer" ? (
-        <CustomerDashboard onNavigate={onNavigate} />
+      ) : (route === "customer" || customerRoutes[route]) && getRole() === 'Customer' ? (
+        <CustomerLayout onNavigate={onNavigate}>
+          {route === "customer" ? <CustomerDashboard onNavigate={onNavigate} /> : customerRoutes[route]}
+        </CustomerLayout>
       ) : (route === "staff" || staffPages[route]) ? (
         <StaffWorkspace routeKey={route === "staff" ? "staff-dashboard" : route} onNavigate={onNavigate} />
       ) : route === "customer-register" ? (
