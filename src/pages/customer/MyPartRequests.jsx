@@ -110,15 +110,20 @@ export default function MyPartRequests({ onNavigate }) {
 
   // Add Part to Cart
   const addToCart = (part) => {
+    const existing = cart.find(item => item.id === part.id);
+    if (existing) {
+      toast.success(`Incremented quantity of ${part.name} in your request cart!`, { icon: '🛒' });
+    } else {
+      toast.success(`${part.name} added to your request cart!`, { icon: '🛒' });
+    }
+    
     setCart(prev => {
-      const existing = prev.find(item => item.id === part.id);
-      if (existing) {
-        toast.success(`Incremented quantity of ${part.name} in your request cart!`, { icon: '🛒' });
+      const existingInPrev = prev.find(item => item.id === part.id);
+      if (existingInPrev) {
         return prev.map(item => 
           item.id === part.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      toast.success(`${part.name} added to your request cart!`, { icon: '🛒' });
       return [...prev, {
         id: part.id,
         name: part.name,

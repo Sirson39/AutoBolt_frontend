@@ -6,7 +6,7 @@ import {
   CheckCircle, ChevronLeft, Search, 
   Hash, Calendar, FileText, Printer, X
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 export default function CreatePurchaseInvoice({ onNavigate }) {
@@ -30,8 +30,8 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
     const fetchData = async () => {
       try {
         const [vendRes, partRes] = await Promise.all([
-          axios.get('/api/vendors'),
-          axios.get('/api/parts')
+          api.get('/api/vendors'),
+          api.get('/api/parts')
         ]);
         setVendors(vendRes.data);
         setParts(partRes.data);
@@ -101,7 +101,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         }))
       };
       
-      const response = await axios.post('/api/purchase', payload);
+      const response = await api.post('/api/purchase', payload);
       setCreatedPurchase(response.data);
       toast.success("Purchase record saved! Opening receipt...");
       
@@ -251,7 +251,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
         </div>
 
         {/* Step 2: Parts Selection */}
-        <div className="table-card" style={{ flex: 1, padding: '1.75rem', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
+        <div className="table-card" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-luxury)', border: '1px solid rgba(255,255,255,0.4)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '800', color: 'var(--ink)', fontSize: '1rem', letterSpacing: '0.5px' }}>
               <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--brand)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</div>
@@ -268,7 +268,7 @@ export default function CreatePurchaseInvoice({ onNavigate }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', overflowY: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
             {filteredParts.map(part => (
               <div 
                 key={part.id} 

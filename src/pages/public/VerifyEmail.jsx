@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { CheckCircle, XCircle, Loader2, ShieldCheck, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { clearAuth } from '../../utils/auth';
 
 export default function VerifyEmail({ onNavigate }) {
   const [status, setStatus] = useState('loading'); // loading, setup, success, error
@@ -43,7 +44,7 @@ export default function VerifyEmail({ onNavigate }) {
 
     setStatus('loading');
     try {
-      await axios.post('/api/staff/confirm-setup', {
+      await api.post('/api/staff/confirm-setup', {
         userId: parseInt(userId),
         token: token,
         newPassword: formData.password
@@ -185,7 +186,7 @@ export default function VerifyEmail({ onNavigate }) {
             <button 
               className="setup-btn" 
               style={{ marginTop: '3rem', width: '100%', background: '#28a745', padding: '1.1rem', fontSize: '1.1rem', fontWeight: '800', borderRadius: '16px', border: 'none', color: '#fff', cursor: 'pointer' }}
-              onClick={() => onNavigate('signin')}
+              onClick={() => { clearAuth(); onNavigate('signin'); }}
             >
               Go to Login
             </button>

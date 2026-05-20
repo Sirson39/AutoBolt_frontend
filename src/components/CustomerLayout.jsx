@@ -60,10 +60,10 @@ export default function CustomerLayout({ children, onNavigate }) {
                   marginBottom: '4px',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: 'var(--ink-soft)'
+                  color: currentRoute === item.to ? '#ffffff' : 'rgba(255, 255, 255, 0.7)'
                 }}
               >
-                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px' }} />
+                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px', color: currentRoute === item.to ? 'var(--brand)' : 'inherit' }} />
                 {item.label}
               </button>
             )

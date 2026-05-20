@@ -39,10 +39,14 @@ import MyServiceHistory from "./pages/customer/MyServiceHistory";
 import CustomerProfile from "./pages/customer/CustomerProfile";
 import { isAuthenticated, getRole } from "./utils/auth";
 
-const PROTECTED_PREFIXES = ['admin', 'staff', 'customer'];
+const PUBLIC_ROUTES = [
+  'home', 'home-roles', 'home-features', 'home-workflow', 'home-benefits',
+  'about', 'contact', 'customer-register', 'signin', 'signup',
+  'forgot-password', 'reset-password', 'verify-email'
+];
 
 function isProtected(route) {
-  return PROTECTED_PREFIXES.some(p => route === p || route.startsWith(`${p}-`));
+  return !PUBLIC_ROUTES.includes(route);
 }
 
 function parseRoute() {
@@ -55,6 +59,38 @@ function parseRoute() {
 
 export default function App() {
   const [route, setRoute] = useState(parseRoute());
+  const onNavigate = (target) => { window.location.hash = target; };
+
+  const adminRoutes = {
+    "admin": <Dashboard onNavigate={onNavigate} />,
+    "admin-parts": <PartsManagement onNavigate={onNavigate} />,
+    "admin-customers": <CustomerManagement onNavigate={onNavigate} />,
+    "admin-vehicles": <VehicleManagement onNavigate={onNavigate} />,
+    "admin-vendors": <VendorManagement onNavigate={onNavigate} />,
+    "admin-staff": <StaffManagement onNavigate={onNavigate} />,
+    "admin-sales": <SalesManagement onNavigate={onNavigate} />,
+    "admin-purchase": <PurchaseManagement onNavigate={onNavigate} />,
+    "admin-reports": <FinancialReports onNavigate={onNavigate} />,
+    "admin-inventory": <InventoryReport onNavigate={onNavigate} />,
+    "admin-notifications": <Notifications onNavigate={onNavigate} />,
+    "admin-settings": <ShopSettings onNavigate={onNavigate} />,
+    "admin-create-invoice": <CreateInvoice onNavigate={onNavigate} />,
+    "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
+    "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
+    "admin-profile": <AdminProfile onNavigate={onNavigate} />,
+    "admin-bookings": <BookingManagement onNavigate={onNavigate} />,
+    "admin-part-requests": <PartRequestsManagement onNavigate={onNavigate} />,
+    "admin-reviews": <ServiceReviewsManagement onNavigate={onNavigate} />,
+  };
+
+  const customerRoutes = {
+    "customer-bookings": <MyBookings onNavigate={onNavigate} />,
+    "customer-part-requests": <MyPartRequests onNavigate={onNavigate} />,
+    "customer-reviews": <MyReviews onNavigate={onNavigate} />,
+    "customer-vehicles": <MyVehicles onNavigate={onNavigate} />,
+    "customer-history": <MyServiceHistory onNavigate={onNavigate} />,
+    "update-profile": <CustomerProfile onNavigate={onNavigate} />,
+  };
 
   useEffect(() => {
     const onHashChange = () => setRoute(parseRoute());
@@ -68,6 +104,7 @@ export default function App() {
       window.location.hash = '#signin';
     }
   }, [route]);
+
   useEffect(() => {
     if ((route === 'signin' || route === 'signup') && isAuthenticated()) {
       const role = getRole();
@@ -76,6 +113,24 @@ export default function App() {
       else window.location.hash = '#customer';
     }
   }, [route]);
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const role = getRole();
+      const isAdminRoute = adminRoutes[route] !== undefined;
+      const isCustomerRoute = route === 'customer' || (customerRoutes[route] !== undefined && route !== 'update-profile' && route !== 'customer-history');
+      const isStaffRoute = route === 'staff' || (staffPages[route] !== undefined && route !== 'update-profile' && route !== 'customer-history');
+
+      if (isAdminRoute && role !== 'Admin') {
+        window.location.hash = role === 'Staff' ? '#staff-dashboard' : '#customer';
+      } else if (isCustomerRoute && role !== 'Customer') {
+        window.location.hash = role === 'Admin' ? '#admin' : '#staff-dashboard';
+      } else if (isStaffRoute && role !== 'Staff') {
+        window.location.hash = role === 'Admin' ? '#admin' : '#customer';
+      }
+    }
+  }, [route]);
+
   useEffect(() => {
     const titles = {
       home: "AutoBolt | Home",
@@ -122,8 +177,6 @@ export default function App() {
     document.body.classList.toggle('auth-page', isAuth);
     document.body.classList.toggle('public-page', isPublic);
   }, [route]);
-
-  const onNavigate = (target) => { window.location.hash = target; };
 
   if (route === "signin" || route === "signup") {
     return (
@@ -178,37 +231,6 @@ export default function App() {
       </>
     );
   }
-
-  const adminRoutes = {
-    "admin": <Dashboard onNavigate={onNavigate} />,
-    "admin-parts": <PartsManagement onNavigate={onNavigate} />,
-    "admin-customers": <CustomerManagement onNavigate={onNavigate} />,
-    "admin-vehicles": <VehicleManagement onNavigate={onNavigate} />,
-    "admin-vendors": <VendorManagement onNavigate={onNavigate} />,
-    "admin-staff": <StaffManagement onNavigate={onNavigate} />,
-    "admin-sales": <SalesManagement onNavigate={onNavigate} />,
-    "admin-purchase": <PurchaseManagement onNavigate={onNavigate} />,
-    "admin-reports": <FinancialReports onNavigate={onNavigate} />,
-    "admin-inventory": <InventoryReport onNavigate={onNavigate} />,
-    "admin-notifications": <Notifications onNavigate={onNavigate} />,
-    "admin-settings": <ShopSettings onNavigate={onNavigate} />,
-    "admin-create-invoice": <CreateInvoice onNavigate={onNavigate} />,
-    "admin-create-purchase": <CreatePurchaseInvoice onNavigate={onNavigate} />,
-    "admin-loyalty": <LoyaltyProgram onNavigate={onNavigate} />,
-    "admin-profile": <AdminProfile onNavigate={onNavigate} />,
-    "admin-bookings": <BookingManagement onNavigate={onNavigate} />,
-    "admin-part-requests": <PartRequestsManagement onNavigate={onNavigate} />,
-    "admin-reviews": <ServiceReviewsManagement onNavigate={onNavigate} />,
-  };
-
-  const customerRoutes = {
-    "customer-bookings": <MyBookings onNavigate={onNavigate} />,
-    "customer-part-requests": <MyPartRequests onNavigate={onNavigate} />,
-    "customer-reviews": <MyReviews onNavigate={onNavigate} />,
-    "customer-vehicles": <MyVehicles onNavigate={onNavigate} />,
-    "customer-history": <MyServiceHistory onNavigate={onNavigate} />,
-    "update-profile": <CustomerProfile onNavigate={onNavigate} />,
-  };
 
   return (
     <>

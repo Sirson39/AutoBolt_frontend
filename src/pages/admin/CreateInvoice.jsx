@@ -8,7 +8,7 @@ import {
   CreditCard, Wallet
 } from 'lucide-react';
 
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 export default function CreateInvoice({ onNavigate }) {
@@ -58,8 +58,8 @@ export default function CreateInvoice({ onNavigate }) {
     const fetchData = async () => {
       try {
         const [custRes, partRes] = await Promise.all([
-          axios.get('/api/customers'),
-          axios.get('/api/parts')
+          api.get('/api/customers'),
+          api.get('/api/parts')
         ]);
         setCustomers(custRes.data);
         setParts(partRes.data.filter(p => p.stockQuantity > 0));
@@ -72,7 +72,7 @@ export default function CreateInvoice({ onNavigate }) {
 
   useEffect(() => {
     if (selectedCustomer) {
-      axios.get('/api/vehicles').then(res => {
+      api.get('/api/vehicles').then(res => {
         const ownerVehicles = res.data.filter(v => v.ownerName === selectedCustomer.fullName);
         setVehicles(ownerVehicles);
         setSelectedVehicle(null);
@@ -144,7 +144,7 @@ export default function CreateInvoice({ onNavigate }) {
         }))
       };
       
-      const response = await axios.post('/api/invoices', payload);
+      const response = await api.post('/api/invoices', payload);
       const invoiceData = response.data;
       setCreatedInvoice(invoiceData);
       

@@ -3,7 +3,7 @@ import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
 import { Briefcase, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, Globe } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -51,7 +51,7 @@ export default function VendorManagement({ onNavigate }) {
   const fetchVendors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/vendors');
+      const response = await api.get('/api/vendors');
       const sortedVendors = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
       setVendors(sortedVendors);
     } catch (error) {
@@ -132,10 +132,10 @@ export default function VendorManagement({ onNavigate }) {
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
       if (editingVendor) {
-        await axios.put(`/api/vendors/${editingVendor.id}`, payload, config);
+        await api.put(`/api/vendors/${editingVendor.id}`, payload, config);
         toast.success("Vendor updated successfully!", { id: loadToast });
       } else {
-        await axios.post('/api/vendors', payload, config);
+        await api.post('/api/vendors', payload, config);
         toast.success("New vendor added!", { id: loadToast });
       }
 
@@ -153,7 +153,7 @@ export default function VendorManagement({ onNavigate }) {
   const handleDelete = async (id) => {
     const loadToast = toast.loading("Deleting vendor...");
     try {
-      await axios.delete(`/api/vendors/${id}`);
+      await api.delete(`/api/vendors/${id}`);
       toast.success("Vendor deleted permanently.", { id: loadToast });
       setDeleteConfirmId(null);
       fetchVendors();

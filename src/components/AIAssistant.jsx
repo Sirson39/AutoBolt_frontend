@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, Send, X, Bot, Sparkles, User, History, Trash2, Zap, Clock, ChevronLeft } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 export default function AIAssistant({ stats, onNavigate }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,7 +63,7 @@ export default function AIAssistant({ stats, onNavigate }) {
     4. Use live data: Rev: ${stats?.todayRevenue || 0}, Parts: ${stats?.totalParts || 0}, Low Stock: ${stats?.lowStockParts || 0}, Customers: ${stats?.totalCustomers || 0}.`;
 
     try {
-      const groqResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
+      const groqResponse = await api.post('https://api.groq.com/openai/v1/chat/completions', {
         model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: systemPrompt },

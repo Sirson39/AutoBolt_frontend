@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -71,12 +71,12 @@ export default function Dashboard({ onNavigate }) {
     
     try {
       const [parts, lowStock, customers, vendors, invoices, salesReport] = await Promise.all([
-        axios.get('/api/parts'),
-        axios.get('/api/parts/low-stock'),
-        axios.get('/api/customers'),
-        axios.get('/api/vendors'),
-        axios.get('/api/invoices'),
-        axios.get('/api/reports/sales?period=daily'),
+        api.get('/api/parts'),
+        api.get('/api/parts/low-stock'),
+        api.get('/api/customers'),
+        api.get('/api/vendors'),
+        api.get('/api/invoices'),
+        api.get('/api/reports/sales?period=daily'),
       ]);
 
       const inv = Array.isArray(invoices.data) ? invoices.data : [];
@@ -316,7 +316,7 @@ export default function Dashboard({ onNavigate }) {
       <div className="page-content" style={{ animation: 'fadeIn 0.5s ease' }}>
 
         {/* Stat Cards */}
-        <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' }}>
+        <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '1.25rem' }}>
           {statCards.map((s) => (
             <div
               key={s.label}

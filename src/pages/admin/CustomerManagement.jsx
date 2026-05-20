@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { Users, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, Mail, Phone, MapPin, LayoutGrid, List, Wallet, FileSpreadsheet, ArrowLeft, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 import AdminLayout from '../../components/AdminLayout';
@@ -42,7 +42,7 @@ export default function CustomerManagement({ onNavigate }) {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/customers');
+      const response = await api.get('/api/customers');
       const sortedCustomers = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
       setCustomers(sortedCustomers);
     } catch (error) {
@@ -98,10 +98,10 @@ export default function CustomerManagement({ onNavigate }) {
         address: formData.address.trim() === '' ? null : formData.address.trim()
       };
       if (editingCustomer) {
-        await axios.put(`/api/customers/${editingCustomer.id}`, payload);
+        await api.put(`/api/customers/${editingCustomer.id}`, payload);
         toast.success("Customer updated successfully!", { id: loadToast });
       } else {
-        await axios.post('/api/customers', payload);
+        await api.post('/api/customers', payload);
         toast.success("New customer added!", { id: loadToast });
       }
       closeModal();
@@ -118,7 +118,7 @@ export default function CustomerManagement({ onNavigate }) {
   const handleDelete = async (id) => {
     const loadToast = toast.loading("Deleting customer...");
     try {
-      await axios.delete(`/api/customers/${id}`);
+      await api.delete(`/api/customers/${id}`);
       toast.success("Customer deleted permanently.", { id: loadToast });
       setDeleteConfirmId(null);
       fetchCustomers();

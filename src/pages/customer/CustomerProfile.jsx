@@ -24,7 +24,7 @@ export default function CustomerProfile({ onNavigate }) {
     email: currentUser?.email || '',
     phone: '',
     address: '',
-    joinedDate: 'Jan 12, 2026'
+    joinedDate: 'Recently'
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -50,7 +50,7 @@ export default function CustomerProfile({ onNavigate }) {
             email: res.data.email || currentUser?.email || '',
             phone: res.data.phone || '',
             address: res.data.address || '',
-            joinedDate: res.data.createdAt ? new Date(res.data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Jan 12, 2026'
+            joinedDate: res.data.createdAt ? new Date(res.data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'
           });
         })
         .catch(() => {
@@ -263,7 +263,7 @@ export default function CustomerProfile({ onNavigate }) {
                   <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>Update your contact information and mailing address details below.</p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
                   <div className="form-group">
                     <label className="form-label">Full Name</label>
                     <div style={{ position: 'relative' }}>
@@ -271,6 +271,7 @@ export default function CustomerProfile({ onNavigate }) {
                       <input 
                         type="text" className="form-input" 
                         style={{ 
+                          width: '100%',
                           paddingLeft: '2.5rem',
                           opacity: isEditing ? 1 : 0.8,
                           cursor: isEditing ? 'text' : 'not-allowed'
@@ -288,6 +289,7 @@ export default function CustomerProfile({ onNavigate }) {
                       <input 
                         type="email" className="form-input" 
                         style={{ 
+                          width: '100%',
                           paddingLeft: '2.5rem',
                           background: 'var(--surface-2)',
                           cursor: 'not-allowed',
@@ -300,40 +302,44 @@ export default function CustomerProfile({ onNavigate }) {
                   </div>
                 </div>
 
-                <div className="form-group" style={{ maxWidth: '267px', marginBottom: '1.5rem' }}>
-                  <label className="form-label">Phone Number</label>
-                  <div style={{ position: 'relative' }}>
-                    <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
-                    <input 
-                      type="text" className="form-input" 
-                      style={{ 
-                        paddingLeft: '2.5rem',
-                        opacity: isEditing ? 1 : 0.8,
-                        cursor: isEditing ? 'text' : 'not-allowed'
-                      }}
-                      disabled={!isEditing}
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                    />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Phone Number</label>
+                    <div style={{ position: 'relative' }}>
+                      <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
+                      <input 
+                        type="text" className="form-input" 
+                        style={{ 
+                          width: '100%',
+                          paddingLeft: '2.5rem',
+                          opacity: isEditing ? 1 : 0.8,
+                          cursor: isEditing ? 'text' : 'not-allowed'
+                        }}
+                        disabled={!isEditing}
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="form-group" style={{ maxWidth: '267px', marginBottom: '1.5rem' }}>
-                  <label className="form-label">Address</label>
-                  <div style={{ position: 'relative' }}>
-                    <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
-                    <input 
-                      type="text" className="form-input" 
-                      style={{ 
-                        paddingLeft: '2.5rem',
-                        opacity: isEditing ? 1 : 0.8,
-                        cursor: isEditing ? 'text' : 'not-allowed'
-                      }}
-                      disabled={!isEditing}
-                      value={profileData.address}
-                      onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                      placeholder="Enter your street address"
-                    />
+                  <div className="form-group">
+                    <label className="form-label">Address</label>
+                    <div style={{ position: 'relative' }}>
+                      <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
+                      <input 
+                        type="text" className="form-input" 
+                        style={{ 
+                          width: '100%',
+                          paddingLeft: '2.5rem',
+                          opacity: isEditing ? 1 : 0.8,
+                          cursor: isEditing ? 'text' : 'not-allowed'
+                        }}
+                        disabled={!isEditing}
+                        value={profileData.address}
+                        onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                        placeholder="Enter your street address"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -354,7 +360,7 @@ export default function CustomerProfile({ onNavigate }) {
                   <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>Update your current account access credentials to maintain privacy and protection.</p>
                 </div>
 
-                <div className="form-group" style={{ maxWidth: '267px', marginBottom: '1.5rem' }}>
+                <div className="form-group" style={{ maxWidth: '550px', marginBottom: '1.5rem' }}>
                   <label className="form-label">Current Password</label>
                   <div style={{ position: 'relative', width: '100%' }}>
                     <input 

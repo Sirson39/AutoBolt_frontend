@@ -7,7 +7,7 @@ import {
   Zap, Target, TrendingDown
 } from 'lucide-react';
 
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 export default function Notifications({ onNavigate }) {
@@ -21,7 +21,7 @@ export default function Notifications({ onNavigate }) {
       if (showToast) setScanning(true);
       else setLoading(true);
       
-      const response = await axios.get('/api/parts/low-stock');
+      const response = await api.get('/api/parts/low-stock');
       const parts = response.data;
       
       // Simulate system scan time for premium feel

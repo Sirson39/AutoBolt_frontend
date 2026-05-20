@@ -78,10 +78,10 @@ export default function StaffWorkspace({ routeKey, onNavigate }) {
                   marginBottom: '4px',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: 'var(--ink-soft)'
+                  color: isNavActive(item.to) ? '#ffffff' : 'rgba(255, 255, 255, 0.7)'
                 }}
               >
-                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px' }} />
+                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px', color: isNavActive(item.to) ? 'var(--brand)' : 'inherit' }} />
                 {item.label}
               </button>
             )
@@ -938,8 +938,8 @@ function CustomerSearch({ onNavigate }) {
           </div>
         )}
         {!loading && results.length > 0 && (
-          <div className="table-wrap">
-            <table className="table" style={{ fontSize: '0.85rem' }}>
+          <div className="table-wrap" style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            <table className="table" style={{ fontSize: '0.85rem', width: '100%', minWidth: '800px' }}>
               <thead>
                 <tr>
                   <th>Full Name</th>
@@ -1910,6 +1910,8 @@ function CustomerHistory({ onNavigate }) {
   const [history, setHistory] = useState(null);
   const [listQuery, setListQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [partPage, setPartPage] = useState(1);
+  const PARTS_PER_PAGE = 5;
 
   useEffect(() => {
     const onHash = () => {
@@ -1942,6 +1944,7 @@ function CustomerHistory({ onNavigate }) {
       return;
     }
     setLoading(true);
+    setPartPage(1);
     api.get(`/api/customers/${customerId}/history`).then((res) => {
       setHistory(res.data);
     }).catch(() => {
@@ -2073,8 +2076,8 @@ function CustomerHistory({ onNavigate }) {
                   <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--ink)' }}>Billing Invoices ({history.invoices?.length ?? 0})</h3>
                 </div>
                 {history.invoices?.length > 0 ? (
-                  <div className="table-wrap" style={{ maxHeight: 200, overflowY: "auto" }}>
-                    <table className="table" style={{ fontSize: '0.82rem' }}>
+                  <div className="table-wrap" style={{ maxHeight: 200, overflowY: 'auto', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                    <table className="table" style={{ fontSize: '0.82rem', width: '100%', minWidth: '500px' }}>
                       <thead><tr><th>Number</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
                       <tbody>
                         {history.invoices.map((inv) => (
@@ -2106,7 +2109,7 @@ function CustomerHistory({ onNavigate }) {
                   <table className="table" style={{ fontSize: '0.82rem' }}>
                     <thead><tr><th>Part Description</th><th>Quantity</th><th>Date of Purchase</th></tr></thead>
                     <tbody>
-                      {history.purchasedParts.map((p, i) => (
+                      {history.purchasedParts.slice((partPage - 1) * PARTS_PER_PAGE, partPage * PARTS_PER_PAGE).map((p, i) => (
                         <tr key={i}>
                           <td style={{ fontWeight: '600' }}>{p.partName}</td>
                           <td><strong>{p.quantity}</strong></td>
@@ -2116,6 +2119,27 @@ function CustomerHistory({ onNavigate }) {
                     </tbody>
                   </table>
                 </div>
+                {history.purchasedParts.length > PARTS_PER_PAGE && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      disabled={partPage === 1}
+                      onClick={() => setPartPage(p => p - 1)}
+                    >
+                      Previous
+                    </button>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--ink)', fontWeight: '600' }}>
+                      Page {partPage} of {Math.ceil(history.purchasedParts.length / PARTS_PER_PAGE)}
+                    </span>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      disabled={partPage >= Math.ceil(history.purchasedParts.length / PARTS_PER_PAGE)}
+                      onClick={() => setPartPage(p => p + 1)}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </article>
             )}
           </div>
@@ -2501,7 +2525,7 @@ function StaffProfile({ onNavigate }) {
     fullName: currentUser?.fullName || '',
     email: currentUser?.email || '',
     phone: '',
-    joinedDate: 'Jan 12, 2026'
+    joinedDate: 'Recently'
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -2720,7 +2744,7 @@ function StaffProfile({ onNavigate }) {
                 <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>Update your contact information and counter staff details below.</p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
                 <div className="form-group">
                   <label className="form-label">Full Name</label>
                   <div style={{ position: 'relative' }}>
@@ -2728,6 +2752,7 @@ function StaffProfile({ onNavigate }) {
                     <input 
                       type="text" className="form-input" 
                       style={{ 
+                        width: '100%',
                         paddingLeft: '2.5rem',
                         opacity: isEditing ? 1 : 0.8,
                         cursor: isEditing ? 'text' : 'not-allowed'
@@ -2745,6 +2770,7 @@ function StaffProfile({ onNavigate }) {
                     <input 
                       type="email" className="form-input" 
                       style={{ 
+                        width: '100%',
                         paddingLeft: '2.5rem',
                         background: 'var(--surface-2)',
                         cursor: 'not-allowed',
@@ -2755,24 +2781,24 @@ function StaffProfile({ onNavigate }) {
                     />
                   </div>
                 </div>
-              </div>
-
-              <div className="form-group" style={{ maxWidth: '267px', marginBottom: '1.5rem' }}>
-                <label className="form-label">Phone Number</label>
-                <div style={{ position: 'relative' }}>
-                  <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
-                  <input 
-                    type="text" className="form-input" 
-                    style={{ 
-                      paddingLeft: '2.5rem',
-                      opacity: isEditing ? 1 : 0.8,
-                      cursor: isEditing ? 'text' : 'not-allowed'
-                    }}
-                    disabled={!isEditing}
-                    value={profileData.phone}
-                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                    placeholder="98XXXXXXXX"
-                  />
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <div style={{ position: 'relative' }}>
+                    <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-soft)' }} />
+                    <input 
+                      type="text" className="form-input" 
+                      style={{ 
+                        width: '100%',
+                        paddingLeft: '2.5rem',
+                        opacity: isEditing ? 1 : 0.8,
+                        cursor: isEditing ? 'text' : 'not-allowed'
+                      }}
+                      disabled={!isEditing}
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                      placeholder="98XXXXXXXX"
+                    />
+                  </div>
                 </div>
               </div>
 

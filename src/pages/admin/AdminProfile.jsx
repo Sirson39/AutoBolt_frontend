@@ -6,7 +6,7 @@ import {
   ArrowLeft, Bell, Settings as SettingsIcon, Edit3, RefreshCw,
   Eye, EyeOff
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -23,7 +23,7 @@ export default function AdminProfile({ onNavigate }) {
     email: 'admin@autobolt.com',
     phone: '9841234567',
     role: 'Super Admin',
-    joinedDate: 'Jan 12, 2026',
+    joinedDate: 'Recently',
     lastLogin: new Date().toLocaleString()
   });
 

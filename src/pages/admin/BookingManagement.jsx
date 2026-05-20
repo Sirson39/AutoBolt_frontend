@@ -237,7 +237,7 @@ export default function BookingManagement({ onNavigate }) {
                       </span>
                     </td>
                     <td>{new Date(b.serviceDate).toLocaleDateString()}</td>
-                    <td style={{ color: 'var(--ink-soft)', fontSize: '0.85rem', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td title={b.description || '—'} style={{ color: 'var(--ink-soft)', fontSize: '0.85rem', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {b.description || '—'}
                     </td>
                     <td><StatusBadge status={b.status} /></td>

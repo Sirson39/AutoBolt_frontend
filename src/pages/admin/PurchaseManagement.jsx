@@ -6,7 +6,7 @@ import {
   X, Truck, FileSpreadsheet, Trash2, Hash, Printer,
   ArrowLeft as PrevIcon, ArrowRight as NextIcon
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -37,7 +37,7 @@ export default function PurchaseManagement({ onNavigate }) {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/purchase');
+      const response = await api.get('/api/purchase');
       const data = Array.isArray(response.data) ? response.data : [];
       setInvoices(data.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)));
     } catch (error) {

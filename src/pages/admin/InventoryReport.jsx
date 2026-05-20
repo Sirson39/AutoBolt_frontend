@@ -6,7 +6,7 @@ import {
   AlertTriangle, PieChart as PieIcon, BarChart as BarIcon,
   ShoppingCart, CheckCircle, ArrowRight, ArrowLeft, Activity, Layers, Tag
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { exportToCSV } from '../../utils/exportUtils';
@@ -23,7 +23,7 @@ export default function InventoryReport({ onNavigate }) {
     const fetchParts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/parts');
+        const response = await api.get('/api/parts');
         setParts(response.data || []);
       } catch (error) {
         toast.error("Failed to load inventory data.");

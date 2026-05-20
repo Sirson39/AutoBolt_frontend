@@ -11,7 +11,7 @@ import {
   PieChart as PieChartIcon, Activity
 } from 'lucide-react';
 
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
 
@@ -24,7 +24,7 @@ export default function FinancialReports({ onNavigate }) {
   const fetchReport = async (selectedPeriod) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/reports/sales?period=${selectedPeriod}`);
+      const response = await api.get(`/api/reports/sales?period=${selectedPeriod}`);
       setData(response.data);
     } catch (error) {
       toast.error("Failed to load financial reports.");

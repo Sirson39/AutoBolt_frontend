@@ -8,7 +8,7 @@ import {
   FileSpreadsheet, Eye, LayoutGrid, List,
   ArrowLeft as PrevIcon, ArrowRight as NextIcon
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -52,7 +52,7 @@ export default function StaffManagement({ onNavigate }) {
   const fetchStaff = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/staff');
+      const response = await api.get('/api/staff');
       setStaff((Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id));
     } catch (error) {
       toast.error("Failed to load staff list.");
@@ -97,10 +97,10 @@ export default function StaffManagement({ onNavigate }) {
 
     try {
       if (editingStaff) {
-        await axios.put(`/api/staff/${editingStaff.id}`, formData);
+        await api.put(`/api/staff/${editingStaff.id}`, formData);
         toast.success("Staff updated successfully!", { id: loadToast });
       } else {
-        await axios.post('/api/staff', formData);
+        await api.post('/api/staff', formData);
         toast.success("Staff registered! A verification email has been sent to their inbox.", { 
           id: loadToast,
           duration: 6000 
@@ -117,7 +117,7 @@ export default function StaffManagement({ onNavigate }) {
   const handleDelete = async (id) => {
     const loadToast = toast.loading("Removing staff...");
     try {
-      await axios.delete(`/api/staff/${id}`);
+      await api.delete(`/api/staff/${id}`);
       toast.success("Staff member removed.", { id: loadToast });
       setDeleteConfirmId(null);
       fetchStaff();
@@ -128,7 +128,7 @@ export default function StaffManagement({ onNavigate }) {
 
   const toggleStatus = async (id) => {
     try {
-      await axios.post(`/api/staff/${id}/toggle-status`);
+      await api.post(`/api/staff/${id}/toggle-status`);
       toast.success("Status updated.");
       fetchStaff();
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Search, Trash2, AlertCircle, X, Filter, ChevronDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Wrench, Search, Trash2, AlertCircle, X, Filter, ChevronDown, ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -40,6 +40,7 @@ export default function PartRequestsManagement({ onNavigate }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [viewRequest, setViewRequest] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -197,6 +198,14 @@ export default function PartRequestsManagement({ onNavigate }) {
                         ))}
                         <button
                           className="btn btn-ghost btn-sm"
+                          onClick={() => setViewRequest(r)}
+                          style={{ color: 'var(--brand)' }}
+                          title="View Details"
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
                           onClick={() => setDeleteConfirmId(r.id)}
                           style={{ color: 'var(--danger)' }}
                         >
@@ -240,6 +249,45 @@ export default function PartRequestsManagement({ onNavigate }) {
           )}
         </div>
       </div>
+
+      {viewRequest && (
+        <div className="modal-overlay" onClick={() => setViewRequest(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Wrench size={20} color="var(--brand)" /> Request Details
+              </h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setViewRequest(null)}><X size={18} /></button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '1rem', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Part Name:</div>
+              <div style={{ fontWeight: '700' }}>{viewRequest.partName}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Customer:</div>
+              <div>{viewRequest.customerName || '—'}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Quantity:</div>
+              <div>{viewRequest.quantity}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Date:</div>
+              <div>{new Date(viewRequest.createdAt).toLocaleString()}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Status:</div>
+              <div><StatusBadge status={viewRequest.status} /></div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Description:</div>
+              <div style={{ background: 'var(--surface-2)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', lineHeight: '1.5' }}>
+                {viewRequest.description || 'No description provided.'}
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-primary" onClick={() => setViewRequest(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteConfirmId && (
         <div className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>

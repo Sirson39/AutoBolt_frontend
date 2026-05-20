@@ -6,7 +6,7 @@ import {
   Printer, X, Tag, CheckCircle, FileSpreadsheet,
   ArrowLeft as PrevIcon, ArrowRight as NextIcon 
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -37,7 +37,7 @@ export default function SalesManagement({ onNavigate }) {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/invoices');
+      const response = await api.get('/api/invoices');
       const data = Array.isArray(response.data) ? response.data : [];
       setInvoices(data.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate))); // Show newest first
     } catch (error) {

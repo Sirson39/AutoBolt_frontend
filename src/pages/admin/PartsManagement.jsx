@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Package, Plus, Search, Edit2, Trash2, AlertCircle, CheckCircle2, X, Eye, Image as ImageIcon, LayoutGrid, List, FileSpreadsheet, ArrowLeft, ArrowRight, RefreshCw, Clock, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
 import AdminLayout from '../../components/AdminLayout';
@@ -66,7 +66,7 @@ export default function PartsManagement({ onNavigate }) {
   const fetchParts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/parts');
+      const response = await api.get('/api/parts');
       const sortedParts = (Array.isArray(response.data) ? response.data : []).sort((a, b) => a.id - b.id);
       setParts(sortedParts);
     } catch (error) {
@@ -141,10 +141,10 @@ export default function PartsManagement({ onNavigate }) {
       }
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       if (editingPart) {
-        await axios.put(`/api/parts/${editingPart.id}`, payload, config);
+        await api.put(`/api/parts/${editingPart.id}`, payload, config);
         toast.success("Part updated successfully!", { id: loadToast });
       } else {
-        await axios.post('/api/parts', payload, config);
+        await api.post('/api/parts', payload, config);
         toast.success("New part added to inventory!", { id: loadToast });
       }
       closeModal();
@@ -161,7 +161,7 @@ export default function PartsManagement({ onNavigate }) {
   const handleDelete = async (id) => {
     const loadToast = toast.loading("Deleting part...");
     try {
-      await axios.delete(`/api/parts/${id}`);
+      await api.delete(`/api/parts/${id}`);
       toast.success("Part deleted permanently.", { id: loadToast });
       setDeleteConfirmId(null);
       fetchParts();

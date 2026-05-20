@@ -3,7 +3,6 @@ import AdminLayout from '../../components/AdminLayout';
 import { useState, useEffect } from 'react';
 import { Car, Plus, Search, Edit2, Trash2, AlertCircle, X, Eye, User, LayoutGrid, List, Calendar, Settings, FileSpreadsheet, ArrowLeft, ArrowRight, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import api from '../../utils/api';
 import { exportToCSV } from '../../utils/exportUtils';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -54,8 +53,8 @@ export default function VehicleManagement({ onNavigate }) {
     try {
       setLoading(true);
       const [vehiclesRes, customersRes] = await Promise.all([
-        axios.get('/api/vehicles'),
-        axios.get('/api/customers')
+        api.get('/api/vehicles'),
+        api.get('/api/customers')
       ]);
       setVehicles((Array.isArray(vehiclesRes.data) ? vehiclesRes.data : []).sort((a, b) => a.id - b.id));
       setCustomers((Array.isArray(customersRes.data) ? customersRes.data : []).sort((a, b) => a.fullName.localeCompare(b.fullName)));
@@ -144,10 +143,10 @@ export default function VehicleManagement({ onNavigate }) {
       const payload = { ...formData };
 
       if (editingVehicle) {
-        await axios.put(`/api/vehicles/${editingVehicle.id}`, payload);
+        await api.put(`/api/vehicles/${editingVehicle.id}`, payload);
         toast.success("Vehicle updated successfully!", { id: loadToast });
       } else {
-        await axios.post('/api/vehicles', payload);
+        await api.post('/api/vehicles', payload);
         toast.success("New vehicle added!", { id: loadToast });
       }
 
@@ -165,7 +164,7 @@ export default function VehicleManagement({ onNavigate }) {
   const handleDelete = async (id) => {
     const loadToast = toast.loading("Deleting vehicle...");
     try {
-      await axios.delete(`/api/vehicles/${id}`);
+      await api.delete(`/api/vehicles/${id}`);
       toast.success("Vehicle deleted permanently.", { id: loadToast });
       setDeleteConfirmId(null);
       fetchData();

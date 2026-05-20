@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, Truck, Users, FileText, Car,
   BarChart2, Bell, LogOut, ShoppingCart, Gift, Settings, CalendarDays, Wrench, Star
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 import { clearAuth, getUser } from '../utils/auth';
 import AIAssistant from './AIAssistant';
 
@@ -66,7 +66,7 @@ export default function AdminLayout({ children, onNavigate }) {
   useEffect(() => {
     const fetchLowStockCount = async () => {
       try {
-        const response = await axios.get('/api/parts/low-stock');
+        const response = await api.get('/api/parts/low-stock');
         updateUnseenCount(response.data);
       } catch (error) {
         console.error("Failed to fetch notification count", error);
@@ -76,10 +76,10 @@ export default function AdminLayout({ children, onNavigate }) {
     const fetchGlobalStats = async () => {
       try {
         const [parts, lowStock, customers, invoices] = await Promise.all([
-          axios.get('/api/parts'),
-          axios.get('/api/parts/low-stock'),
-          axios.get('/api/customers'),
-          axios.get('/api/invoices')
+          api.get('/api/parts'),
+          api.get('/api/parts/low-stock'),
+          api.get('/api/customers'),
+          api.get('/api/invoices')
         ]);
 
         const today = new Date().toDateString();
@@ -146,10 +146,10 @@ export default function AdminLayout({ children, onNavigate }) {
                   marginBottom: '4px',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: 'var(--ink-soft)'
+                  color: currentRoute === item.to ? '#ffffff' : 'rgba(255, 255, 255, 0.7)'
                 }}
               >
-                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px' }} />
+                <item.icon className="nav-icon" size={18} style={{ marginRight: '12px', color: currentRoute === item.to ? 'var(--brand)' : 'inherit' }} />
                 {item.label}
                 {item.isNotification && unseenCount > 0 && (
                   <span style={{
@@ -176,10 +176,10 @@ export default function AdminLayout({ children, onNavigate }) {
         <div className="sidebar-footer">
           {currentUser && (
             <div style={{ padding: '8px 16px 12px', borderTop: '1px solid rgba(255,255,255,0.07)', marginBottom: '4px' }}>
-              <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft)', fontWeight: 600, marginBottom: 2 }}>
+              <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.95)', fontWeight: 700, marginBottom: 2 }}>
                 {currentUser.fullName}
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {currentUser.email}
               </div>
             </div>

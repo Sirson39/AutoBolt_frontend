@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Search, Trash2, AlertCircle, Filter, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Star, Search, Trash2, AlertCircle, Filter, ArrowLeft, ArrowRight, Eye, X } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import NotificationDropdown from '../../components/NotificationDropdown';
@@ -29,6 +29,7 @@ export default function ServiceReviewsManagement({ onNavigate }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [viewReview, setViewReview] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -178,7 +179,15 @@ export default function ServiceReviewsManagement({ onNavigate }) {
                       </span>
                     </td>
                     <td style={{ fontSize: '0.85rem' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.4rem' }}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => setViewReview(r)}
+                        style={{ color: 'var(--brand)' }}
+                        title="View Details"
+                      >
+                        <Eye size={15} />
+                      </button>
                       <button
                         className="btn btn-ghost btn-sm"
                         onClick={() => setDeleteConfirmId(r.id)}
@@ -223,6 +232,57 @@ export default function ServiceReviewsManagement({ onNavigate }) {
           )}
         </div>
       </div>
+
+      {viewReview && (
+        <div className="modal-overlay" onClick={() => setViewReview(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Star size={20} color="var(--brand)" /> Review Details
+              </h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setViewReview(null)}><X size={18} /></button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '1rem', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Customer:</div>
+              <div style={{ fontWeight: '700' }}>{viewReview.customerName || '—'}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Rating:</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <StarRating rating={viewReview.rating} />
+                <span style={{ fontWeight: '700' }}>{viewReview.rating}/5</span>
+              </div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Date:</div>
+              <div>{new Date(viewReview.createdAt).toLocaleString()}</div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Visibility:</div>
+              <div>
+                <span style={{
+                  padding: '2px 8px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700',
+                  background: viewReview.isPublic ? '#f0fdf4' : '#f9fafb',
+                  color: viewReview.isPublic ? '#16a34a' : '#6b7280',
+                  border: `1px solid ${viewReview.isPublic ? '#bbf7d0' : '#d1d5db'}`
+                }}>
+                  {viewReview.isPublic ? 'Public' : 'Hidden'}
+                </span>
+              </div>
+              
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Invoice:</div>
+              <div>{viewReview.invoiceId ? `#${viewReview.invoiceId}` : '—'}</div>
+
+              <div style={{ color: 'var(--ink-soft)', fontWeight: '600' }}>Comment:</div>
+              <div style={{ background: 'var(--surface-2)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', lineHeight: '1.5' }}>
+                {viewReview.comment || 'No comment provided.'}
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-primary" onClick={() => setViewReview(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteConfirmId && (
         <div className="modal-overlay" onClick={() => setDeleteConfirmId(null)}>

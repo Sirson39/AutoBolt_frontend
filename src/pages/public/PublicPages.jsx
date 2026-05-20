@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { setAuth } from "../../utils/auth";
-import axios from "axios";
+import api from "../../utils/api";
 import toast from "react-hot-toast";
 import {
   ArrowRight,
@@ -378,7 +378,6 @@ function storeAuthSession(responseData) {
       expiry: responseData.expiry || "",
       customerId: responseData.customerId || null
     });
-    axios.defaults.headers.common.Authorization = `Bearer ${responseData.token}`;
   }
 }
 
@@ -604,6 +603,15 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
     confirmPassword: ""
   });
   const [error, setError] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  // Automatically reset OTP state when switching signin/signup modes
+  useEffect(() => {
+    setOtpSent(false);
+    setOtp("");
+    setError("");
+  }, [mode]);
 
   const updateField = (name, value) => {
     setForm((current) => ({ ...current, [name]: value }));
@@ -631,6 +639,29 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
         setError("Passwords do not match.");
         return;
       }
+
+      // 1. If OTP hasn't been sent yet, request it first
+      if (!otpSent) {
+        setSubmitting(true);
+        try {
+          await api.post("/api/auth/send-registration-otp", { email });
+          setOtpSent(true);
+          toast.success("Verification code sent! Please check your email inbox.");
+        } catch (otpErr) {
+          const message = getApiErrorMessage(otpErr, "Unable to send verification code. Please check the email.");
+          setError(message);
+          toast.error(message);
+        } finally {
+          setSubmitting(false);
+        }
+        return;
+      }
+
+      // 2. If OTP is sent, verify user entered the code
+      if (!otp.trim() || otp.trim().length !== 6) {
+        setError("Please enter the 6-digit verification code sent to your email.");
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -643,19 +674,24 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             email,
             password: form.password,
             phone: form.phone.trim(),
-            address: form.address.trim() || null
+            address: form.address.trim() || null,
+            otp: otp.trim()
           };
 
       const endpoint = isSignIn ? "/api/auth/login" : "/api/auth/register";
-      const response = await axios.post(endpoint, payload);
+      const response = await api.post(endpoint, payload);
 
-      if (!response?.data?.token) {
-        throw new Error("Authentication response did not include a token.");
+      if (isSignIn) {
+        if (!response?.data?.token) {
+          throw new Error("Authentication response did not include a token.");
+        }
+        storeAuthSession(response.data);
+        toast.success("Signed in successfully.");
+        onNavigate(getRouteForRole(response.data.role));
+      } else {
+        toast.success("Customer account created successfully! Please sign in.");
+        onNavigate("signin");
       }
-
-      storeAuthSession(response.data);
-      toast.success(isSignIn ? "Signed in successfully." : "Customer account created successfully.");
-      onNavigate(getRouteForRole(response.data.role));
     } catch (authError) {
       const fallback = isSignIn
         ? "Unable to sign in. Please check your credentials."
@@ -751,118 +787,178 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
             <form className="form-grid auth-form-grid" onSubmit={handleSubmit}>
               {!isSignIn ? (
                 <>
-                  <div className="field-row">
-                    <div className="field">
-                      <label htmlFor="fullName">Full Name</label>
-                      <div className="field-icon-wrap">
-                        <User size={16} />
-                        <input
-                          id="fullName"
-                          type="text"
-                          placeholder="Your full name"
-                          value={form.fullName}
-                          onChange={(e) => updateField("fullName", e.target.value)}
-                          autoComplete="name"
-                          required
-                        />
+                  {!otpSent ? (
+                    <>
+                      <div className="field-row">
+                        <div className="field">
+                          <label htmlFor="fullName">Full Name</label>
+                          <div className="field-icon-wrap">
+                            <User size={16} />
+                            <input
+                              id="fullName"
+                              type="text"
+                              placeholder="Your full name"
+                              value={form.fullName}
+                              onChange={(e) => updateField("fullName", e.target.value)}
+                              autoComplete="name"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="field">
+                          <label htmlFor="phone">Phone</label>
+                          <div className="field-icon-wrap">
+                            <Phone size={16} />
+                            <input
+                              id="phone"
+                              type="tel"
+                              placeholder="98XXXXXXXX"
+                              value={form.phone}
+                              onChange={(e) => updateField("phone", e.target.value)}
+                              autoComplete="tel"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="field">
-                      <label htmlFor="phone">Phone</label>
-                      <div className="field-icon-wrap">
-                        <Phone size={16} />
-                        <input
-                          id="phone"
-                          type="tel"
-                          placeholder="98XXXXXXXX"
-                          value={form.phone}
-                          onChange={(e) => updateField("phone", e.target.value)}
-                          autoComplete="tel"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="field-row">
-                    <div className="field">
-                      <label htmlFor="signupEmail">Email</label>
-                      <div className="field-icon-wrap">
+                      <div className="field">
+                        <label htmlFor="signupEmail">Email</label>
+                        <div className="field-icon-wrap">
+                          <Mail size={16} />
+                          <input
+                            id="signupEmail"
+                            type="email"
+                            placeholder="name@example.com"
+                            value={form.email}
+                            onChange={(e) => updateField("email", e.target.value)}
+                            autoComplete="email"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <label htmlFor="address">Address</label>
+                        <div className="field-icon-wrap">
+                          <MapPin size={16} />
+                          <input
+                            id="address"
+                            type="text"
+                            placeholder="Optional address"
+                            value={form.address}
+                            onChange={(e) => updateField("address", e.target.value)}
+                            autoComplete="street-address"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="field-row">
+                        <div className="field">
+                          <label htmlFor="signupPassword">Password</label>
+                          <div className="field-icon-wrap">
+                            <LockKeyhole size={16} />
+                            <input
+                              id="signupPassword"
+                              type="password"
+                              placeholder="Create a secure password"
+                              value={form.password}
+                              onChange={(e) => updateField("password", e.target.value)}
+                              autoComplete="new-password"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="field">
+                          <label htmlFor="confirmPassword">Confirm Password</label>
+                          <div className="field-icon-wrap">
+                            <LockKeyhole size={16} />
+                            <input
+                              id="confirmPassword"
+                              type="password"
+                              placeholder="Repeat password"
+                              value={form.confirmPassword}
+                              onChange={(e) => updateField("confirmPassword", e.target.value)}
+                              autoComplete="new-password"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="auth-password-hints">
+                        <div className="auth-password-hint">
+                          <LockKeyhole size={14} />
+                          <span>At least 8 characters</span>
+                        </div>
+                        <div className="auth-password-hint">
+                          <LockKeyhole size={14} />
+                          <span>Include uppercase, lowercase, and a digit</span>
+                        </div>
+                        <div className="auth-password-hint">
+                          <LockKeyhole size={14} />
+                          <span>No non-alphanumeric character is required</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="field">
+                        <label htmlFor="otpCode">Verification Code</label>
+                        <div className="field-icon-wrap">
+                          <ShieldCheck size={16} />
+                          <input
+                            id="otpCode"
+                            type="text"
+                            placeholder="Enter 6-digit OTP code"
+                            value={otp}
+                            onChange={(e) => {
+                              setOtp(e.target.value);
+                              if (error) setError("");
+                            }}
+                            maxLength={6}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="auth-inline-note">
                         <Mail size={16} />
-                        <input
-                          id="signupEmail"
-                          type="email"
-                          placeholder="name@example.com"
-                          value={form.email}
-                          onChange={(e) => updateField("email", e.target.value)}
-                          autoComplete="email"
-                          required
-                        />
+                        <span>
+                          We sent a 6-digit code to <strong>{form.email}</strong>. Check your inbox (or spam) and enter it above to verify your account.
+                        </span>
                       </div>
-                    </div>
-                    <div className="field">
-                      <label htmlFor="address">Address</label>
-                      <div className="field-icon-wrap">
-                        <MapPin size={16} />
-                        <input
-                          id="address"
-                          type="text"
-                          placeholder="Optional address"
-                          value={form.address}
-                          onChange={(e) => updateField("address", e.target.value)}
-                          autoComplete="street-address"
-                        />
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="field-row">
-                    <div className="field">
-                      <label htmlFor="signupPassword">Password</label>
-                      <div className="field-icon-wrap">
-                        <LockKeyhole size={16} />
-                        <input
-                          id="signupPassword"
-                          type="password"
-                          placeholder="Create a secure password"
-                          value={form.password}
-                          onChange={(e) => updateField("password", e.target.value)}
-                          autoComplete="new-password"
-                          required
-                        />
+                      <div className="auth-forgot-row" style={{ marginTop: 0, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <button
+                          type="button"
+                          className="auth-forgot-link"
+                          style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: 0 }}
+                          onClick={() => {
+                            setOtpSent(false);
+                            setOtp("");
+                          }}
+                        >
+                          ← Change Details
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-forgot-link"
+                          style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: 0 }}
+                          onClick={async () => {
+                            try {
+                              await api.post("/api/auth/send-registration-otp", { email: form.email });
+                              toast.success("A new verification code has been sent!");
+                            } catch (resendErr) {
+                              toast.error(getApiErrorMessage(resendErr, "Unable to resend OTP."));
+                            }
+                          }}
+                        >
+                          Resend Code
+                        </button>
                       </div>
-                    </div>
-                    <div className="field">
-                      <label htmlFor="confirmPassword">Confirm Password</label>
-                      <div className="field-icon-wrap">
-                        <LockKeyhole size={16} />
-                        <input
-                          id="confirmPassword"
-                          type="password"
-                          placeholder="Repeat password"
-                          value={form.confirmPassword}
-                          onChange={(e) => updateField("confirmPassword", e.target.value)}
-                          autoComplete="new-password"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="auth-password-hints">
-                    <div className="auth-password-hint">
-                      <LockKeyhole size={14} />
-                      <span>At least 8 characters</span>
-                    </div>
-                    <div className="auth-password-hint">
-                      <LockKeyhole size={14} />
-                      <span>Include uppercase, lowercase, and a digit</span>
-                    </div>
-                    <div className="auth-password-hint">
-                      <LockKeyhole size={14} />
-                      <span>No non-alphanumeric character is required</span>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
@@ -919,11 +1015,11 @@ export function AuthPage({ mode, onNavigate, publicNav }) {
                 {submitting ? (
                   <>
                     <LoaderCircle size={18} className="spinner" />
-                    {isSignIn ? "Signing In..." : "Creating Account..."}
+                    {isSignIn ? "Signing In..." : otpSent ? "Registering..." : "Sending Code..."}
                   </>
                 ) : (
                   <>
-                    {isSignIn ? "Sign In" : "Create Account"}
+                    {isSignIn ? "Sign In" : otpSent ? "Verify & Register" : "Send Verification Code"}
                     <ArrowRight size={16} />
                   </>
                 )}
@@ -988,3 +1084,4 @@ export function PublicPage({ route, config, onNavigate, publicNav }) {
     </Shell>
   );
 }
+

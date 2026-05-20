@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg: #fbf8f2;
   --bg-elevated: #ffffff;
   --bg-panel: rgba(17, 24, 39, 0.96);
@@ -3253,7 +3253,7 @@ body.auth-page {
 .field-icon-wrap input {
   min-width: 0;
   flex: 1 1 auto;
-  width: auto;
+  width: 100%;
 }
 
 .field label {
@@ -3335,7 +3335,7 @@ body.auth-page {
 
 .auth-inline-note {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 14px 16px;
   border-radius: 16px;
